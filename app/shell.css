@@ -1,0 +1,15 @@
+html,body{margin:0;height:100%;background:#F2EEE6;font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;color:#16233A}
+@media (prefers-color-scheme:dark){html,body{background:#14181F;color:#EEF1F6}}
+#app{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent}
+.hidden{display:none!important}
+#splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#splash .logo{width:88px;height:88px;border-radius:22px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+#splash .logo img{width:100%;height:100%;display:block}
+#splash .t{font-size:20px;font-weight:900}
+#splash .s{font-size:13px;opacity:.6}
+#setup,#err{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+#setup h1{margin:0;font-size:24px}
+#setup p,#err p{margin:0;max-width:320px;line-height:1.6;opacity:.8}
+input{width:240px;height:50px;border-radius:14px;border:1.5px solid #CFC7B8;font-size:20px;text-align:center;text-transform:uppercase;background:#fff;color:#16233A}
+button{height:48px;min-width:160px;padding:0 24px;border:0;border-radius:14px;background:#E8762A;color:#fff;font-size:17px;font-weight:900}
+#sErr{color:#C0392B;font-size:14px;min-height:1.2em}

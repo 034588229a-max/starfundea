@@ -1,0 +1,32 @@
+{
+  "name": "店主管理",
+  "short_name": "店主管理",
+  "description": "菜單價格、店家工具、人員與班表",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2EEE6",
+  "theme_color": "#16233A",
+  "icons": [
+    {
+      "src": "../icons/owner-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/owner-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "../icons/owner-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
