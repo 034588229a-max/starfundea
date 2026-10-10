@@ -63,6 +63,95 @@ h2{font-size:clamp(26px,4vw,36px);font-weight:900}
 .cta-bar.show{transform:none}.cta-bar span{color:#cfd8e6;font-size:13.5px;font-weight:700}.cta-bar .btn{min-height:44px;padding:0 18px;font-size:15px}
 @media(max-width:860px){.cta-bar{display:flex}body{padding-bottom:70px}}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+
+/* try-it */
+.try .tabs{margin-top:26px}
+.try .tabs button{min-height:46px;font-size:14.5px;padding:0 16px}
+.stage{display:grid;grid-template-columns:.9fr 1.1fr;gap:34px;align-items:center;margin-top:28px}.stage>*{min-width:0}
+@media(max-width:900px){.stage{grid-template-columns:minmax(0,1fr)}}
+.stage[hidden]{display:none}
+.stage h3{font-size:clamp(22px,3vw,28px);font-weight:900}.stage .pts{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:10px;color:var(--mute)}
+.stage .pts li{padding-left:28px;position:relative}.stage .pts li:before{content:"";position:absolute;left:3px;top:9px;width:9px;height:9px;transform:rotate(45deg);background:var(--orange)}
+.stage .hint{margin-top:16px;font-size:13.5px;color:var(--mute)}
+.dev{background:#0E1623;border:1px solid #24324A;border-radius:28px;padding:16px;color:#fff;box-shadow:0 24px 60px rgba(14,22,35,.28);max-width:440px;width:100%;margin-inline:auto}
+.dev .hd{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#8FA0B8;padding:0 4px 10px;border-bottom:1px solid #24324A;margin-bottom:12px}
+.dev .hd b{font-family:var(--num);letter-spacing:.14em;color:#FFB534;font-size:14px}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.tile{min-height:56px;border-radius:14px;border:1.5px solid #2a3a55;background:#17233A;color:#fff;font:inherit;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .12s,background .12s}
+.tile:active{transform:scale(.97)}.tile[aria-pressed=true]{background:#FFB534;color:#0E1623;border-color:#FFB534}
+.amt{font-family:var(--num);font-size:46px;font-weight:700;text-align:right;color:#FFB534;padding:6px 8px;min-height:64px;letter-spacing:.02em}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pad button{min-height:54px;border-radius:14px;border:0;background:#17233A;color:#fff;font-family:var(--num);font-size:24px;font-weight:700;cursor:pointer}.pad button:active{transform:scale(.96);background:#243557}
+.pad .ok{background:#FFB534;color:#0E1623;font-family:var(--font);font-size:16px;font-weight:900}
+.log{margin-top:12px;display:grid;gap:6px;font-size:14px;max-height:150px;overflow:auto}.log div{display:flex;justify-content:space-between;background:#17233A;border-radius:10px;padding:7px 12px}.log b{font-variant-numeric:tabular-nums;color:#FFB534}
+.sum{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;font-weight:900;padding:0 4px}.sum .tile{white-space:nowrap}#scSum{font-size:13px;line-height:1.5}.sum b{font-family:var(--num);font-size:24px;color:#FFB534}
+.res{margin-top:10px;min-height:54px;border-radius:14px;padding:12px 14px;font-weight:700;background:#17233A;color:#c9d6e8}.res.ok{background:#1d4d33;color:#d8f5e3}.res.late{background:#5a3b12;color:#ffe2b0}.res.bad{background:#5a1f1f;color:#ffd5d5}
+.pins{display:flex;gap:10px;justify-content:center;margin:6px 0 12px}.pins i{width:16px;height:16px;border-radius:50%;border:2px solid #FFB534}.pins i.on{background:#FFB534}
+.sch{width:100%;border-collapse:separate;border-spacing:4px;font-size:13px;text-align:center}.sch th{color:#8FA0B8;font-weight:700;padding:2px}.sch td.n{text-align:left;font-weight:700;padding-right:4px;white-space:nowrap}
+.cell{display:block;width:100%;min-height:42px;border-radius:10px;border:0;font:inherit;font-weight:700;cursor:pointer;background:#17233A;color:#6c7d97}.cell[data-v="1"]{background:#FFB534;color:#0E1623}.cell[data-v="2"]{background:#3b5b99;color:#fff}
+.qrs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.qrc{background:#fff;border-radius:12px;padding:8px;text-align:center;color:#0E1623;font-weight:900;font-size:13px}.qrc svg{width:100%;height:auto;display:block;margin-bottom:4px}
+.stepper2{display:flex;align-items:center;gap:8px}.stepper2 button{width:48px;height:48px;border-radius:12px;border:0;background:#243557;color:#fff;font-size:22px;font-weight:900;cursor:pointer}.stepper2 output{flex:1;text-align:center;font-family:var(--num);font-size:34px;font-weight:700;color:#FFB534}
+.poster2{background:#fff;color:#0E1623;border-radius:10px;padding:22px 20px;aspect-ratio:3/4;display:flex;flex-direction:column;justify-content:center;gap:10px;text-align:center;border-top:12px solid var(--c,#FFB534);margin-top:12px}
+.poster2 h4{font-size:30px;font-weight:900;line-height:1.2}.poster2 .d{font-family:var(--num);font-size:30px;font-weight:700;color:var(--c,#B26A00)}.poster2 p{margin:0;font-size:14px;color:#556176}.poster2 small{color:#8FA0B8;font-size:11px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg .tile{min-height:44px;flex:1 1 auto;font-size:13.5px;padding:0 10px}
+.inp{width:100%;min-height:46px;border-radius:12px;border:1.5px solid #2a3a55;background:#0d1524;color:#fff;font:inherit;font-size:16px;padding:0 12px;margin-top:8px}
+.menu2{display:grid;gap:8px;margin-top:12px}.menu2 .it{display:flex;justify-content:space-between;align-items:center;background:#17233A;border-radius:12px;padding:10px 14px;transition:opacity .2s}
+.menu2 .it.off{display:none}.menu2 b{font-family:var(--num);font-size:22px;color:#FFB534}.menu2 .tg{font-size:11px;background:#243557;border-radius:6px;padding:1px 6px;margin-left:6px;color:#c9d6e8}
+.chips2{display:flex;gap:6px;flex-wrap:wrap}.chips2 .tile{min-height:40px;font-size:13.5px;padding:0 14px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:#0E1623;color:#fff;border:1px solid #FFB534;border-radius:14px;padding:10px 18px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:60}.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* book hero */
+.bookhero{background:radial-gradient(900px 520px at 50% 62%,#1d2c47 0,transparent 70%),var(--navy);color:#fff;padding:22px 0 36px;text-align:center;overflow:hidden}
+.bookhero .slogan{font-family:var(--num);letter-spacing:.24em;color:var(--slate);font-size:15px;font-weight:600;margin:0 0 8px;text-transform:uppercase}
+.bookhero h1{font-size:clamp(26px,4.2vw,44px);font-weight:900;letter-spacing:-.005em;line-height:1.2}.bookhero h1 b{color:var(--orange);display:inline-block}
+.bookhero .sub{color:#b8c4d6;font-size:clamp(14px,1.6vw,17px);margin:10px auto 0;max-width:640px}
+.stagebook{--pw:min(42vw,452px);--ph:clamp(470px,calc(100svh - 340px),600px);margin:22px auto 0;perspective:2400px;display:flex;justify-content:center}
+.bookwrap{width:calc(var(--pw)*2);height:var(--ph);position:relative}
+.book{position:absolute;inset:0;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.5,.05,.2,1);transform:translateX(calc(var(--pw)*-.5));text-align:left}
+.book.open{transform:translateX(0)}
+.base,.leaf{position:absolute;left:50%;top:0;width:50%;height:100%}
+.leaf{transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.5,.05,.2,1)}
+.leaf.flip{transform:rotateY(-180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.back{transform:rotateY(180deg)}
+.pg{position:absolute;inset:0;background:#F7F3EA;color:#0E1623;overflow:auto;box-shadow:0 22px 50px rgba(0,0,0,.35)}
+.pg.right{border-radius:3px 14px 14px 3px;background:linear-gradient(90deg,#d9d2c1 0,#F7F3EA 7%,#F7F3EA 100%)}
+.pg.left{border-radius:14px 3px 3px 14px;background:linear-gradient(270deg,#d9d2c1 0,#F7F3EA 7%,#F7F3EA 100%)}
+.pg-in{padding:34px 30px 28px}
+.pg .no{font-family:var(--num);font-size:56px;font-weight:700;color:var(--orange2);line-height:1}
+.pg .kk{font-family:var(--num);letter-spacing:.22em;color:var(--mute);font-size:14px;font-weight:700;text-transform:uppercase;margin-top:4px}
+.pg h3{font-size:clamp(20px,2.3vw,27px);font-weight:900;line-height:1.3;margin:14px 0 0}
+.pg .pts{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:11px;color:var(--mute);font-size:15px}
+.pg .pts li{padding-left:26px;position:relative}.pg .pts li:before{content:"";position:absolute;left:3px;top:9px;width:9px;height:9px;transform:rotate(45deg);background:var(--orange)}.pg .pts b{color:var(--ink)}
+.pg .hint{margin-top:18px;font-size:13px;color:var(--mute);border-top:1px dashed #cfc7b4;padding-top:12px}
+.pg .dev{max-width:none;box-shadow:none;margin:0;border-radius:18px;padding:12px}.pg .dev .hd{padding-bottom:8px;margin-bottom:8px}.pg .tile{min-height:46px}.pg .amt{min-height:48px;font-size:38px;padding:2px 8px}.pg .pad button{min-height:44px;font-size:22px}.pg .pad,.pg .tiles{gap:6px}.pg .log{max-height:84px}
+.pg.right>.mhead{display:none}
+.leaf>.front>.pg.right{padding:20px}
+.cover{position:absolute;inset:0;border-radius:3px 14px 14px 3px;background:radial-gradient(120% 90% at 30% 10%,#1b2a45 0,#0E1623 62%);cursor:pointer;display:grid;place-items:center;box-shadow:inset 8px 0 14px rgba(0,0,0,.45),inset -2px 0 0 rgba(255,255,255,.06),0 24px 60px rgba(0,0,0,.5)}
+.cover:before{content:"";position:absolute;inset:16px 16px 16px 24px;border:1.5px solid rgba(255,181,52,.55);border-radius:3px 8px 8px 3px}
+.cover:after{content:"";position:absolute;left:0;top:0;bottom:0;width:18px;background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(255,255,255,.05) 55%,transparent)}
+.cv-in{position:relative;text-align:center;padding:0 40px;width:100%}
+.cv-logo{width:min(58%,230px);height:auto;display:block;margin:0 auto}
+.cv-tag{margin-top:28px;font-size:clamp(14px,1.6vw,17px);letter-spacing:.16em;color:#dbe4f2;font-weight:500}.cv-tag b{color:var(--orange);font-weight:900}
+.cv-open{margin-top:34px;font-family:var(--num);letter-spacing:.2em;color:var(--orange);font-size:14px;font-weight:700;text-transform:uppercase;animation:nudge 2.2s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+.leaf:not(.flip):first-of-type:hover{transform:rotateY(-6deg)}
+.pg .btn.pri{width:100%}.pg .ghost2{display:flex;justify-content:center;align-items:center;min-height:48px;margin-top:10px;border-radius:14px;border:2px solid #cfc7b4;font-weight:700;text-decoration:none;color:var(--ink)}
+.pg .cta{display:flex;flex-direction:column;justify-content:center;min-height:100%;position:relative}.pg .cta .seal{position:absolute;right:26px;bottom:24px;opacity:.9;width:72px;height:auto}
+.bookctl{display:flex;justify-content:center;align-items:center;gap:10px;margin:22px auto 0;flex-wrap:wrap;padding:0 12px}
+.arr{width:48px;height:48px;border-radius:50%;border:1.5px solid #3b4a63;background:transparent;color:#fff;font-size:26px;line-height:1;cursor:pointer}.arr:disabled{opacity:.3;cursor:default}.arr:not(:disabled):hover{background:#17233A}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.dot{display:flex;align-items:center;gap:7px;border:0;background:#17233A;color:#8FA0B8;border-radius:999px;padding:0 14px 0 10px;min-height:40px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s,color .2s}
+.dot i{width:10px;height:10px;border-radius:50%;background:#3b4a63;transition:background .2s}.dot.on{background:var(--orange);color:var(--navy)}.dot.on i{background:var(--navy)}
+.acts2{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;padding:0 16px}
+@media(max-width:860px){
+  .stagebook{--pw:min(92vw,430px);--ph:min(68svh,600px)}
+  .bookwrap{width:var(--pw);overflow:hidden;border-radius:14px}
+  .book,.book.open{transform:translateX(calc(var(--pw)*-1))}
+  .base,.leaf{left:var(--pw);width:var(--pw)}
+  .pg.right>.mhead{display:block;padding:0 4px 12px}.mhead .no{font-family:var(--num);font-weight:700;color:var(--orange2);letter-spacing:.1em;font-size:16px}.mhead h3{font-size:19px;font-weight:900;margin-top:2px}
+  .dot span{display:none}.dot{padding:0 10px}
+}
+@media(prefers-reduced-motion:reduce){.book,.leaf{transition:none!important}.cv-open{animation:none}}
 /* header */
 .top{background:#090F19;color:#aab6c8;font-size:13.5px;text-align:center;padding:8px 14px}
 header.nav{position:sticky;top:0;z-index:30;background:rgba(14,22,35,.95);backdrop-filter:blur(8px);border-bottom:1px solid #1f2c42}
@@ -136,6 +225,17 @@ header.nav{position:sticky;top:0;z-index:30;background:rgba(14,22,35,.95);backdr
 .step h3{font-size:18px;margin-bottom:6px}.step p{margin:0;color:#b8c4d6;font-size:14.5px}
 .time{margin-top:6px;font-size:12.5px;color:var(--orange);font-weight:700}
 
+
+/* tiers */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px;align-items:stretch}@media(max-width:900px){.tiers{grid-template-columns:minmax(0,1fr)}}
+.tier{background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:26px;display:flex;flex-direction:column;position:relative}
+.tier.hot{border:2.5px solid var(--orange);box-shadow:0 18px 40px rgba(255,181,52,.2)}
+.tier .badge{position:absolute;top:-13px;right:22px;background:var(--orange);color:var(--navy);font-size:12px;font-weight:900;border-radius:999px;padding:3px 14px}
+.tier h3{font-size:20px;font-weight:900}.tier .tp{font-family:var(--num);font-size:50px;font-weight:800;line-height:1.1;margin:10px 0 0}.tier .tp small{font-family:var(--font);font-size:14px;font-weight:700;color:var(--mute)}
+.tier .tn{font-size:13.5px;color:var(--mute);margin:2px 0 0}
+.tier ul{list-style:none;margin:16px 0;padding:0;font-size:14.5px;display:grid;gap:7px}.tier li{padding-left:22px;position:relative}.tier li:before{content:"";position:absolute;left:2px;top:8px;width:8px;height:8px;transform:rotate(45deg);background:var(--orange)}
+.tier .after2{margin-top:auto;font-size:13.5px;background:var(--soft);border-radius:12px;padding:10px 12px;color:var(--ink)}
+.tier .btn{margin-top:14px}
 /* bundle */
 .bundle{margin-top:36px;background:var(--navy);color:#fff;border-radius:28px;padding:40px;display:grid;grid-template-columns:1.1fr .9fr;gap:36px;position:relative;overflow:hidden;box-shadow:0 24px 60px rgba(14,22,35,.25)}
 .bundle>*{min-width:0}@media(max-width:860px){.bundle{grid-template-columns:minmax(0,1fr);padding:26px}}
@@ -193,7 +293,7 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
   <div class="wrap in">
     <a class="logo" href="#top" aria-label="星樂創意 StarFunDea 首頁"><img src="brand/official/logo-horizontal-dark.svg" alt="StarFunDea 星樂創意" width="238" height="30"></a>
     <nav id="nav" aria-label="主選單">
-      <a href="#demo">互動體驗</a><a href="#features">功能</a><a href="#start">怎麼開始</a><a href="#pricing">方案費用</a><a href="#faq">常見問題</a><a href="guide/">使用指南</a>
+      <a href="#demo">互動體驗</a><a href="#book">服務翻翻看</a><a href="#features">功能</a><a href="#start">怎麼開始</a><a href="#pricing">方案費用</a><a href="#faq">常見問題</a><a href="guide/">使用指南</a>
     </nav>
     <div style="display:flex;gap:10px;align-items:center">
       <a class="btn pri cta" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">免費試用 14 天</a>
@@ -203,29 +303,39 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
 </header>
 
 <main id="top">
-<!-- ============ 1. HERO ============ -->
-<section class="hero">
-  <div class="wrap grid">
-    <div>
-      <p class="slogan">From idea to spark.</p>
-      <span class="pill">給早餐店、小吃店、飲料店、咖啡廳</span>
-      <h1>老闆改一次價格，<br><b>菜單、海報、QR 一起更新</b></h1>
-      <p class="sub">用手機就能改價格。A3 菜單 PDF、公告海報、桌號 QR、顧客電子菜單自動跟著變，不用電腦、不用找人排版。</p>
-      <div class="acts">
-        <a class="btn pri lg" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">免費試用 14 天</a>
-        <a class="btn ghost lg" href="#demo">先在手機上改改看 ↓</a>
-      </div>
-      <ul class="checks"><li>試用 14 天全功能</li><li>不用綁信用卡</li><li>有統編的公司或商號即可註冊</li></ul>
-    </div>
-    <div class="heroshot">
-      <div class="photo" style="--ar:4/5"><div class="fb"><div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-5-8 8"/></svg>店主用手機改價</div></div><img src="photos/hero.jpg" alt="店主用手機改價" loading="lazy" onerror="this.remove()"></div>
-      <div class="phone" role="img" aria-label="手機改價畫面示意">
-        <div class="bar"><span>● 店長手機</span><span class="sync">已同步</span></div>
-        <div class="item"><small>蛋餅</small><h4>招牌蛋餅</h4><p>現煎餅皮，附醬油膏</p>
-          <div class="stepper"><button type="button" tabindex="-1">−5</button><input value="45" readonly tabindex="-1" aria-label="價格"><button type="button" tabindex="-1">＋5</button></div></div>
-      </div>
-    </div>
+<!-- ============ 1. 書本首屏 ============ -->
+<section class="bookhero" id="book">
+  <div class="wrap">
+    <p class="slogan">From idea to spark.</p>
+    <h1>老闆改一次價格，<b>菜單、海報、QR 一起更新</b></h1>
+    <p class="sub">不是又一個 App。我們幫你把店建好，資料用一條連結收進來，你只要按「確認」。</p>
   </div>
+  <div class="stagebook" id="stageBook">
+    <div class="bookwrap"><div class="book" id="theBook" data-n="0">
+      <div class="base"><div class="pg right"><div class="pg-in cta"><div class="kk">START</div><h3>先試用 14 天</h3><p style="color:#556176;margin:6px 0 18px">不用綁信用卡。新開店想一次到位，看開店全包。</p><a class="btn pri lg" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">免費試用 14 天</a><a class="btn ghost2" href="#pricing">看方案與價格</a><img class="seal" src="brand/official/mark-light.svg" alt="" width="72" height="72"></div></div></div>
+      <div class="leaf" data-i="0"><div class="face front"><div class="pg right"><div class="cover"><div class="cv-in"><img src="brand/official/logo-vertical-dark-pad.svg" alt="StarFunDea 星樂創意" class="cv-logo"><div class="cv-tag">把點子，走成<b>亮點</b>。</div><div class="cv-open">點一下，翻開 →</div></div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">01</div><div class="kk">店務收支</div><h3>點廠商、按數字、記下來</h3><ul class="pts"><li><b>固定廠商一鍵選</b>：蛋商、肉品行、瓦斯行，不用每次打字</li><li><b>數字鍵盤</b>：像點餐機，手指好按</li><li><b>月報表自動算</b>：分類、廠商排行、發票欄位（發票號碼、應稅金額、採購人員）</li></ul><p class="hint">試試看：點「蛋商」，按 3、5、0、0，再按「記下」。</p></div></div></div></div><div class="leaf" data-i="1"><div class="face front"><div class="pg right"><div class="mhead"><div class="no">01　店務收支</div><h3>點廠商、按數字、記下來</h3></div><div class="dev"><div class="hd"><b>店務收支</b><span id="lgDate"></span></div>
+        <div class="tiles" id="lgV"><button class="tile" aria-pressed="true" data-v="蛋商">🥚 蛋商</button><button class="tile" aria-pressed="false" data-v="肉品行">🥓 肉品行</button><button class="tile" aria-pressed="false" data-v="瓦斯行">🔥 瓦斯行</button><button class="tile" aria-pressed="false" data-v="其他支出">＋ 其他支出</button></div>
+        <div class="amt" id="lgA">0</div>
+        <div class="pad" id="lgP"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button><button>9</button><button data-x="C">C</button><button>0</button><button class="ok" data-x="ok">記下</button></div>
+        <div class="log" id="lgL"></div><div class="sum"><span>今日支出</span><b id="lgT">0</b></div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">02</div><div class="kk">員工打卡</div><h3>選名字、輸入 PIN，上班下班一秒打好</h3><ul class="pts"><li><b>不需要員工帳號</b>：名字加 4 位數 PIN 就好</li><li><b>遲到、忘打下班自動標示</b>，店主可補登</li><li><b>PIN 錯誤會擋下</b>，也可停用離職員工</li></ul><p class="hint">示範 PIN 是 1234。換個打卡時間，看遲到怎麼判斷（早班 06:00 開始，寬限 5 分鐘）。</p></div></div></div></div><div class="leaf" data-i="2"><div class="face front"><div class="pg right"><div class="mhead"><div class="no">02　員工打卡</div><h3>選名字、輸入 PIN，上班下班一秒打好</h3></div><div class="dev"><div class="hd"><b>員工打卡</b><span>早班 06:00</span></div>
+        <div class="tiles" id="ckN"><button class="tile" aria-pressed="true" data-v="小美">小美</button><button class="tile" aria-pressed="false" data-v="阿豪">阿豪</button></div>
+        <div class="seg" style="margin-top:8px" id="ckT"><button class="tile" aria-pressed="true" data-v="05:58">05:58</button><button class="tile" aria-pressed="false" data-v="06:04">06:04</button><button class="tile" aria-pressed="false" data-v="06:25">06:25</button></div>
+        <div class="pins" id="ckD"><i></i><i></i><i></i><i></i></div>
+        <div class="pad" id="ckP"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button><button>9</button><button data-x="C">C</button><button>0</button><button data-x="b">⌫</button></div>
+        <div class="res" id="ckR">請輸入 PIN</div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">03</div><div class="kk">排班表</div><h3>一週一張表，點格子就排好</h3><ul class="pts"><li><b>一點換班別</b>：休 → 早班 → 晚班</li><li><b>工時自動統計</b>，看得到誰排太滿</li><li><b>一鍵寄給員工</b>，臨時缺人可看「今天沒排班」名單</li></ul><p class="hint">試試看：點幾個格子換班，再按「寄給員工」。</p></div></div></div></div><div class="leaf" data-i="3"><div class="face front"><div class="pg right"><div class="mhead"><div class="no">03　排班表</div><h3>一週一張表，點格子就排好</h3></div><div class="dev"><div class="hd"><b>本週班表</b><span>早 06–14　晚 14–22</span></div>
+        <table class="sch" id="sc"></table>
+        <div class="sum" style="margin-top:12px"><span id="scSum"></span><button class="tile" style="min-height:42px;padding:0 16px" id="scMail">寄給員工</button></div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">04</div><div class="kk">桌號 QR</div><h3>輸入桌數，QR 與桌號牌一次做好</h3><ul class="pts"><li><b>自動編號</b>，每桌一張，防止重複</li><li><b>永遠指向最新菜單</b>，改價不用重印</li><li><b>A5 雙拼、A4、A6 四拼</b>，直接印</li></ul><p class="hint">試試看：把桌數調到 6。（這裡的圖樣是示意，系統會產生真的可掃的 QR。）</p></div></div></div></div><div class="leaf" data-i="4"><div class="face front"><div class="pg right"><div class="mhead"><div class="no">04　桌號 QR</div><h3>輸入桌數，QR 與桌號牌一次做好</h3></div><div class="dev"><div class="hd"><b>桌號 QR</b><span>A5 雙拼</span></div>
+        <div class="stepper2"><button id="qM">−</button><output id="qN">4</output><button id="qP">＋</button></div>
+        <div class="qrs" id="qG"></div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">05</div><div class="kk">公告海報</div><h3>選類型、填日期，海報馬上長出來</h3><ul class="pts"><li><b>9 類公告、14 個節日範本</b></li><li><b>內容再多都自動縮字</b>，保證一頁</li><li><b>同步顯示在顧客頁</b>，客人不會白跑</li></ul><p class="hint">試試看：換類型、改日期。</p></div></div></div></div><div class="leaf" data-i="5"><div class="face front"><div class="pg right"><div class="mhead"><div class="no">05　公告海報</div><h3>選類型、填日期，海報馬上長出來</h3></div><div class="dev"><div class="hd"><b>公告海報</b><span>A4 直式</span></div>
+        <div class="seg" id="poT"><button class="tile" aria-pressed="true" data-t="臨時公休" data-c="#E4572E">臨時公休</button><button class="tile" aria-pressed="false" data-t="價格調整" data-c="#FFB534">價格調整</button><button class="tile" aria-pressed="false" data-t="中秋快樂" data-c="#3b5b99">節慶祝福</button><button class="tile" aria-pressed="false" data-t="徵才" data-c="#2e7d4f">徵才</button></div>
+        <input class="inp" id="poD" value="10/14（三）" aria-label="日期">
+        <div class="poster2" id="poP"></div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">06</div><div class="kk">顧客電子菜單</div><h3>顧客掃碼，自己篩選想吃的</h3><ul class="pts"><li><b>免裝 App</b>，掃桌號 QR 直接看</li><li><b>素食、不辣、避開過敏原</b>即時篩選</li><li><b>價格永遠是最新的</b></li></ul><p class="hint">試試看：點「蛋奶素」或「不辣」。</p></div></div></div></div><div class="leaf" data-i="6"><div class="face front"><div class="pg right"><div class="mhead"><div class="no">06　顧客電子菜單</div><h3>顧客掃碼，自己篩選想吃的</h3></div><div class="dev"><div class="hd"><b>電子菜單</b><span>示範店</span></div>
+        <div class="chips2" id="muC"><button class="tile" aria-pressed="false" data-f="veg">🌱 蛋奶素</button><button class="tile" aria-pressed="false" data-f="mild">不辣</button><button class="tile" aria-pressed="false" data-f="noegg">不含蛋</button></div>
+        <div class="menu2" id="muL"></div></div></div></div><div class="face back"><div class="pg left"><div class="pg-in"><div class="no">06+</div><div class="kk">還有這些</div><h3>不只是這六個畫面</h3><ul class="pts"><li><b>發連結，對方自己填</b>：員工、廠商、應徵者各一條網址，資料進來你只要按確認</li><li><b>我們也能代建檔</b>：菜單、員工、廠商一次建好</li><li><b>實體物料一起做</b>：Logo、規格書、名片、護貝菜單、桌牌 QR</li></ul><p class="hint">往下捲，看完整功能與方案費用。</p></div></div></div></div>
+    </div></div>
+  </div>
+  <div class="bookctl"><button type="button" class="arr" id="bPrev" aria-label="上一頁">‹</button><div class="dots" id="bDots"><button type="button" class="dot" data-n="1" aria-label="店務收支"><i></i><span>店務收支</span></button><button type="button" class="dot" data-n="2" aria-label="員工打卡"><i></i><span>員工打卡</span></button><button type="button" class="dot" data-n="3" aria-label="排班表"><i></i><span>排班表</span></button><button type="button" class="dot" data-n="4" aria-label="桌號 QR"><i></i><span>桌號 QR</span></button><button type="button" class="dot" data-n="5" aria-label="公告海報"><i></i><span>公告海報</span></button><button type="button" class="dot" data-n="6" aria-label="顧客電子菜單"><i></i><span>顧客電子菜單</span></button><button type="button" class="dot" data-n="7" aria-label="開始試用"><i></i><span>開始</span></button></div><button type="button" class="arr" id="bNext" aria-label="下一頁">›</button></div>
+  <div class="acts2"><a class="btn pri lg" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">免費試用 14 天</a><a class="btn ghost lg" href="#features">看完整功能 ↓</a></div>
 </section>
 
 <!-- ============ 2. 痛點 → 解法 ============ -->
@@ -264,6 +374,8 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
     </div>
   </div>
 </section>
+
+<div class="toast" id="toast" role="status"></div>
 
 <!-- ============ 4. 三步驟 ============ -->
 <section class="sec alt">
@@ -377,22 +489,34 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
   <div class="wrap">
     <div class="center"><p class="eyebrow">Pricing・方案費用</p><h2>新開店、想一次到位？選開店全包</h2>
     <p class="lead">品牌 Logo、菜單建置、一年訂閱，一次包好。已經有 Logo 和菜單的店家，下面也有單買訂閱的方案。價格皆含稅。</p></div>
-    <div class="svc">
+    <div class="tiers">
+      <div class="tier reveal"><h3>微型開店直通</h3><div class="tp">8,800 <small>元・首年含訂閱</small></div><p class="tn">街邊攤車、小吃、獨立早餐店</p>
+        <ul><li>標準字體 Logo（2 款選 1）</li><li>20 組配色任選</li><li>代建 60 項菜單</li><li>名片 2 盒、A3 護貝菜單 2 張</li><li>壓克力桌號 QR 立牌 5 組</li><li>調價助手與 A3 PDF 自動排版</li></ul>
+        <div class="after2">第二年起　<b>399</b> 元／月　或　<b>3,990</b> 元／年</div><a class="btn ghost" href="#contact">詢問這個方案</a></div>
+      <div class="tier hot reveal"><span class="badge">最多人選</span><h3>品牌風格旗艦</h3><div class="tp">18,800 <small>元・首年含訂閱</small></div><p class="tn">風格咖啡廳、甜點店、餐酒館</p>
+        <ul><li>Logo 3 款提案與完整品牌規格書</li><li>LINE／FB 大頭貼、封面、圖文選單</li><li>代建最多 150 項菜單</li><li>名片 5 盒、A3 防水菜單 5 張</li><li>Wi-Fi 牌與桌號 QR 立牌 15 組</li><li>到店教學一次</li></ul>
+        <div class="after2">第二年起　<b>599</b> 元／月　或　<b>5,990</b> 元／年</div><a class="btn pri" href="#bundle">看旗艦完整內容</a></div>
+      <div class="tier reveal"><h3>多店連鎖成長</h3><div class="tp">36,800 <small>元・含 2 店建置</small></div><p class="tn">2～3 家直營或加盟的餐飲品牌</p>
+        <ul><li>旗艦方案全部內容</li><li>總部與分店的資料架構</li><li>一鍵「品牌同步」到各分店</li><li>跨店價格規則與菜單</li><li>跨店公告與打卡彙總</li></ul>
+        <div class="after2">第二年起　總部 <b>999</b> 元／月　＋　每家分店 <b>399</b> 元／月</div><a class="btn ghost" href="#contact">詢問這個方案</a></div>
+    </div>
+    <div class="svc" style="margin-top:34px">
       <figure class="reveal"><div class="photo" style="--ar:4/3"><div class="fb"><div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-5-8 8"/></svg>菜單建置</div></div><img src="photos/service-menu.jpg" alt="菜單建置" loading="lazy" onerror="this.remove()"></div><figcaption>菜單建置<span>你給菜單，我們建好、排好、印給你看</span></figcaption></figure>
       <figure class="reveal"><div class="photo" style="--ar:4/3"><div class="fb"><div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-5-8 8"/></svg>品牌規格書</div></div><img src="photos/service-brand.jpg" alt="品牌規格書" loading="lazy" onerror="this.remove()"></div><figcaption>品牌規格書交付<span>印刷級的規格書，連同 Logo 與色票一起交給你</span></figcaption></figure>
       <figure class="reveal"><div class="photo" style="--ar:4/3"><div class="fb"><div><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-5-5-8 8"/></svg>到店教學</div></div><img src="photos/service-train.jpg" alt="到店教學" loading="lazy" onerror="this.remove()"></div><figcaption>到店教學<span>我們到店，陪老闆與店長一起上手</span></figcaption></figure>
     </div>
     <div class="bundle" id="bundle">
       <div>
-        <p class="eyebrow">開店全包・BRAND + MENU + 1 YEAR</p>
+        <p class="eyebrow">旗艦方案內容・BRAND + MENU + 1 YEAR</p>
         <h3>Logo、品牌規範、菜單、社群素材<br>加一年訂閱，我們幫你做完</h3>
         <div class="bp">18,800 <small>元／第一年・含稅</small></div>
-        <p class="bn">第二年起專業版年繳 5,990 元，不續訂不收任何費用。</p>
+        <p class="bn">第二年起專業版 599 元／月或年繳 5,990 元，不續訂不收任何費用。</p>
         <ul>
           <li><b>Logo 設計・3 款提案</b><br><span>依店名與風格，選定後可修改 2 輪；交付 SVG、PNG（淺底、深底、單色）</span></li>
           <li><b>完整品牌規格書</b><br><span>色彩、字體、標誌使用規範、禁止用法，12 頁 PDF，印刷廠與設計師都能直接用</span></li>
           <li><b>社群素材套組（LINE、Facebook）</b><br><span>大頭貼、封面照片、LINE 圖文選單（含按鈕連到你的菜單、訂位、地圖）</span></li>
           <li><b>菜單建置・最多 150 個品項</b><br><span>你給菜單照片或檔案，我們建好、排好 A3 菜單並套上品牌色與 Logo</span></li>
+          <li><b>實體物料</b><br><span>名片 5 盒、A3 防水菜單 5 張、Wi-Fi 牌與桌號 QR 立牌 15 組，改價不用重印</span></li>
           <li><b>到店教學 1 次</b><br><span>教老闆與店長用手機改價、輸出菜單、使用打卡與收支</span></li>
           <li><b>專業版一年訂閱</b><br><span>全部功能，含公告海報、顧客電子菜單、桌號 QR、人員班表、店務收支</span></li>
         </ul>
@@ -413,16 +537,16 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
     <div class="toggle" role="group" aria-label="繳費週期"><button type="button" id="bm" aria-pressed="true">月繳</button><button type="button" id="by" aria-pressed="false">年繳<em>送 2 個月</em></button></div></div>
     <div class="plans">
       <div class="plan"><h3>免費試用</h3><div class="price">0 <small>元／14 天</small></div><p class="pn">不用綁信用卡，適合先把菜單建起來看看</p>
-        <ul><li>全部功能 14 天完整開放</li><li>A3 菜單與海報即時編輯</li><li class="no">輸出的 PDF 有「試用版」浮水印</li></ul>
+        <ul><li>全部功能 14 天完整開放</li><li>A3 菜單與海報即時編輯</li><li class="no">所有輸出（菜單、海報、QR、名片）都有「試用版」浮水印</li></ul>
         <a class="btn ghost" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">開始試用</a></div>
-      <div class="plan"><h3>基本版</h3><div class="price"><span id="pb">299</span> <small id="ub">元／月</small></div><p class="pn" id="nb">專注紙本菜單與桌號標示的單店</p>
+      <div class="plan"><h3>基本版</h3><div class="price"><span id="pb">399</span> <small id="ub">元／月</small></div><p class="pn" id="nb">專注紙本菜單與桌號標示的單店</p>
         <ul><li>菜單工具（手機改價、調價助手、標示、CSV 匯入）</li><li>無浮水印 A3 菜單 PDF</li><li>桌號 QR、Wi-Fi 卡</li><li>Logo、外觀配色</li><li class="no">公告海報、顧客服務頁、交接、店休日曆</li></ul>
         <a class="btn ghost" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">選擇基本版</a></div>
       <div class="plan hot"><span class="badge">多數店家選這個</span><h3>專業版</h3><div class="price" style="color:var(--amb)"><span id="pp">599</span> <small id="up">元／月</small></div><p class="pn" id="np">含門市文宣、交接與顧客電子菜單</p>
         <ul><li>基本版全部功能</li><li>公告、節慶、特別營業海報</li><li>顧客服務頁、電子菜單、大單預訂</li><li>店休日曆、交接紀錄</li><li>夥伴邀請與停用管理</li><li>外送平台上架檔（推出後優先使用）</li></ul>
         <a class="btn pri" href="https://script.google.com/macros/s/AKfycbwPhHfsMZ-cXx3r_YLv1hQsk6lf_isDBN8GXybqTb46qKceAC8CVXhhpi6WWPTAYGE/exec">訂閱專業版</a></div>
     </div>
-    <div class="addon"><div><h3 style="margin:0 0 2px;font-size:17px">有分店？加購「多門市」</h3><p style="margin:0;color:var(--mute);font-size:14px">專業版＋每家分店 299 元／月。用清單一次建立分店，繼承總店的顏色、Logo 與菜單，各分店保有自己的地址、電話與營業時間。</p></div><a class="btn ghost" href="#faq">了解規則</a></div>
+    <div class="addon"><div><h3 style="margin:0 0 2px;font-size:17px">有分店？加購「多門市」</h3><p style="margin:0;color:var(--mute);font-size:14px">專業版＋每家分店 399 元／月（品牌總部另計）。用清單一次建立分店，繼承總店的顏色、Logo 與菜單，各分店保有自己的地址、電話與營業時間。</p></div><a class="btn ghost" href="#faq">了解規則</a></div>
     <p class="pay">付款方式：目前以轉帳開通；信用卡定期定額與電子發票即將開放。開店全包付款：訂金 50%，交付確認後付清尾款。</p>
     <div class="card" id="contact" style="margin-top:28px;text-align:center"><h3 style="margin:0 0 6px">想談開店全包、或有任何問題</h3><p>請從免費試用註冊後留言，或透過 LINE 官方帳號與我們聯絡（正式開賣前會公布聯絡方式）。</p></div>
   </div>
@@ -451,7 +575,7 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
 <section class="sec" id="faq">
   <div class="wrap" style="max-width:820px">
     <div class="center"><p class="eyebrow">常見問題</p><h2>開店的人最常問的事</h2></div>
-    <details><summary>開店全包包含哪些？之後要續訂嗎？</summary><div class="a"><p>第一年 18,800 元，包含 Logo 設計（3 款提案）、完整品牌規格書、LINE 與 Facebook 的大頭貼、封面照片與圖文選單、最多 150 個品項的菜單建置、到店教學一次，以及專業版一年訂閱。第二年起只需要訂閱費（專業版年繳 5,990 元）；不續訂的話，Logo、規範書與社群素材仍是你的，可繼續使用。</p></div></details>
+    <details><summary>開店全包有哪些方案？之後要續訂嗎？</summary><div class="a"><p>共三階：微型開店直通 8,800 元、品牌風格旗艦 18,800 元、多店連鎖成長 36,800 元（含 2 店），首年都含系統訂閱。以旗艦為例，第一年 18,800 元，包含 Logo 設計（3 款提案）、完整品牌規格書、LINE 與 Facebook 的大頭貼、封面照片與圖文選單、最多 150 個品項的菜單建置、名片與 A3 防水菜單與桌號 QR 立牌等實體物料、到店教學一次，以及專業版一年訂閱。第二年起只需要訂閱費（專業版 599 元／月或年繳 5,990 元）；不續訂的話，Logo、規範書與社群素材仍是你的，可繼續使用。</p></div></details>
     <details><summary>需要先準備什麼才能註冊？</summary><div class="a"><p>需要公司或商號的名稱與統編、一個收得到信的 Email。統編在註冊時登錄，之後不能自行修改；公司名稱 180 天內修改需要客服審核。</p></div></details>
     <details><summary>到期忘了續訂會怎樣？資料會不見嗎？</summary><div class="a"><p>不會馬上消失，有一段緩衝：</p><div class="ladder"><div style="background:#DDF1E4;color:#1f6b3a">使用中：全功能</div><div style="background:#FFE9CC;color:#9a5a00">到期後 7 天：照常使用、提醒續訂</div><div style="background:#E6EAF1;color:var(--navy)">再 90 天：只能查看</div><div style="background:#e9e4da">之後：停用，續訂可恢復</div></div></div></details>
     <details><summary>我的資料存在哪裡？別家店看得到嗎？</summary><div class="a"><p>每家店有獨立的試算表與雲端資料夾，資料互相隔離。系統也會把試算表以唯讀方式分享給店主信箱，方便備份；店主自己不用管理雲端空間。</p></div></details>
@@ -459,7 +583,7 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
     <details><summary>菜單品項太多，一頁放不下怎麼辦？</summary><div class="a"><p>系統會先把四欄平均分攤並拉齊留白；再多會自動縮小列高；還是放不下時，整個分類排到背面。若你不想印雙面，可勾選「只印單面」，系統會告訴你還差幾列、建議隱藏哪些。</p></div></details>
     <details><summary>夥伴離職了怎麼辦？會不會被亂改價？</summary><div class="a"><p>在「帳號」頁把該夥伴停用，那支手機立刻不能再修改，也看不到資料。修改紀錄會留下誰改了哪些價格。新夥伴用新的邀請連結加入即可（一個連結只能一個人用）。</p></div></details>
     <details><summary>可以幫我上架 Uber Eats、foodpanda 嗎？</summary><div class="a"><p>還在開發。規劃是由你的菜單輸出兩個平台的上架格式，並可設定平台加成與取整。專業版店家推出後可優先使用；現在不要等這個功能才開始用，菜單與文宣的部分已經能用。</p></div></details>
-    <details><summary>多門市怎麼收費、怎麼運作？</summary><div class="a"><p>專業版加每家分店 299 元／月。總店用清單一次建立分店，分店繼承總店的顏色、Logo 與菜單，並保有自己的地址、電話、營業時間與 LINE。分店的授權跟著總店；可把總店菜單批量套用到分店。分店共用同一個統編，所以由總店店長登入後進入各分店管理。</p></div></details>
+    <details><summary>多門市怎麼收費、怎麼運作？</summary><div class="a"><p>總部 999 元／月，加每家分店 399 元／月。總店用清單一次建立分店，分店繼承總店的顏色、Logo 與菜單，並保有自己的地址、電話、營業時間與 LINE。分店的授權跟著總店；可把總店菜單批量套用到分店。分店共用同一個統編，所以由總店店長登入後進入各分店管理。</p></div></details>
   </div>
 </section>
 
@@ -497,6 +621,99 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
     [].forEach.call(tabs.children, function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
     [].forEach.call(document.querySelectorAll('.tabp'), function (p) { p.hidden = p.dataset.p !== b.dataset.s; });
   });
+})();
+</script>
+<script>
+/* 書本首屏 */
+(function () {
+  var bk = document.getElementById('theBook'); if (!bk) return;
+  var leaves = [].slice.call(bk.querySelectorAll('.leaf')), N = leaves.length, cur = 0;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dots = [].slice.call(document.querySelectorAll('#bDots .dot'));
+  function render() {
+    leaves.forEach(function (l, i) { var f = i < cur; l.classList.toggle('flip', f); l.style.zIndex = f ? i + 1 : N - i + 1; l.setAttribute('aria-hidden', 'false'); });
+    bk.dataset.n = cur; bk.classList.toggle('open', cur > 0);
+    dots.forEach(function (d) { d.classList.toggle('on', +d.dataset.n === cur); });
+    document.getElementById('bPrev').disabled = cur === 0; document.getElementById('bNext').disabled = cur === N;
+  }
+  function go(n) { cur = Math.max(0, Math.min(N, n)); render(); }
+  render();
+  document.getElementById('bNext').onclick = function () { go(cur + 1); };
+  document.getElementById('bPrev').onclick = function () { go(cur - 1); };
+  document.getElementById('bDots').addEventListener('click', function (e) { var d = e.target.closest('.dot'); if (d) go(+d.dataset.n); });
+  bk.querySelector('.cover').addEventListener('click', function () { go(1); });
+  document.addEventListener('keydown', function (e) {
+    if (/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''))) return;
+    var r = document.getElementById('book').getBoundingClientRect(); if (r.bottom < 80 || r.top > innerHeight - 80) return;
+    if (e.key === 'ArrowRight') go(cur + 1); else if (e.key === 'ArrowLeft') go(cur - 1);
+  });
+  if (!reduce) setTimeout(function () { if (cur === 0) go(1); }, 1700);
+})();
+
+/* 服務互動體驗 */
+(function () {
+  var $ = function (i) { return document.getElementById(i); };
+  function toast(t) { var e = $('toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { e.classList.remove('show'); }, 2200); }
+  function single(box, cb) { box.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; [].forEach.call(box.children, function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); cb(b); }); }
+
+  /* 收支 */
+  var lgV = '蛋商', lgA = '', lgTot = 0, d0 = new Date();
+  $('lgDate').textContent = (d0.getMonth() + 1) + '/' + d0.getDate();
+  single($('lgV'), function (b) { lgV = b.dataset.v; });
+  $('lgP').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var x = b.dataset.x;
+    if (x === 'C') lgA = ''; else if (x === 'ok') {
+      var n = parseInt(lgA || '0', 10); if (!n) { toast('先輸入金額'); return; }
+      lgTot += n; var l = document.createElement('div'); var t = new Date();
+      l.innerHTML = '<span>' + lgV + '　' + ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2) + '</span><b>' + n.toLocaleString() + '</b>'; $('lgL').insertBefore(l, $('lgL').firstChild);
+      $('lgT').textContent = lgTot.toLocaleString(); lgA = ''; toast('已記下：' + lgV + ' ' + n.toLocaleString() + ' 元');
+    } else if (lgA.length < 6) lgA += b.textContent;
+    $('lgA').textContent = lgA ? parseInt(lgA, 10).toLocaleString() : '0'; });
+
+  /* 打卡 */
+  var ckN = '小美', ckT = '05:58', pin = '';
+  single($('ckN'), function (b) { ckN = b.dataset.v; pin = ''; dots(); $('ckR').className = 'res'; $('ckR').textContent = '請輸入 PIN'; });
+  single($('ckT'), function (b) { ckT = b.dataset.v; });
+  function dots() { [].forEach.call($('ckD').children, function (i, k) { i.className = k < pin.length ? 'on' : ''; }); }
+  $('ckP').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var x = b.dataset.x;
+    if (x === 'C') pin = ''; else if (x === 'b') pin = pin.slice(0, -1); else if (pin.length < 4) pin += b.textContent; dots();
+    if (pin.length === 4) { var r = $('ckR');
+      if (pin !== '1234') { r.className = 'res bad'; r.textContent = 'PIN 不正確，請再試一次'; pin = ''; setTimeout(dots, 400); return; }
+      var m = parseInt(ckT.slice(0, 2), 10) * 60 + parseInt(ckT.slice(3), 10) - 360;
+      if (m <= 5) { r.className = 'res ok'; r.textContent = '✓ ' + ckN + ' 上班打卡 ' + ckT + '　準時'; }
+      else { r.className = 'res late'; r.textContent = '⚠ ' + ckN + ' 上班打卡 ' + ckT + '　遲到 ' + m + ' 分鐘（已標示給店主）'; }
+      pin = ''; setTimeout(dots, 600); } });
+
+  /* 排班 */
+  var days = ['一', '二', '三', '四', '五', '六', '日'], staff = ['小美', '阿豪', '阿花'], g = [[1, 1, 0, 2, 2, 0, 1], [2, 0, 1, 1, 0, 2, 2], [0, 2, 2, 0, 1, 1, 0]];
+  var names = ['休', '早', '晚'];
+  function drawSc() { var h = '<tr><th></th>' + days.map(function (x) { return '<th>' + x + '</th>'; }).join('') + '</tr>';
+    g.forEach(function (row, i) { h += '<tr><td class="n">' + staff[i] + '</td>' + row.map(function (v, j) { return '<td><button class="cell" data-i="' + i + '" data-j="' + j + '" data-v="' + v + '">' + names[v] + '</button></td>'; }).join('') + '</tr>'; });
+    $('sc').innerHTML = h; var hs = g.map(function (r, i) { return staff[i] + ' ' + r.filter(function (v) { return v; }).length * 8 + 'h'; }); $('scSum').textContent = '本週工時：' + hs.join('　'); }
+  drawSc();
+  $('sc').addEventListener('click', function (e) { var b = e.target.closest('.cell'); if (!b) return; var i = +b.dataset.i, j = +b.dataset.j; g[i][j] = (g[i][j] + 1) % 3; drawSc(); });
+  $('scMail').onclick = function () { toast('已寄出本週班表給 3 位員工（示範）'); };
+
+  /* QR */
+  var qn = 4;
+  function fakeQR(seed) { var n = 21, s = seed * 9301 + 49297, c = '';
+    function f(x, y) { return (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13); }
+    function eye(x, y) { var ox = x > 13 ? 14 : 0, oy = y > 13 ? 14 : 0, a = x - ox, b = y - oy; return a === 0 || a === 6 || b === 0 || b === 6 || (a >= 2 && a <= 4 && b >= 2 && b <= 4); }
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) { s = (s * 1103515245 + 12345) & 0x7fffffff; var on = f(x, y) ? eye(x, y) : (s >> 16) % 2 === 0; if (on) c += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>'; }
+    return '<svg viewBox="-1 -1 23 23" fill="#0E1623" shape-rendering="crispEdges">' + c + '</svg>'; }
+  function drawQ() { $('qN').textContent = qn; var h = ''; for (var i = 1; i <= qn; i++) h += '<div class="qrc">' + fakeQR(i) + '第 ' + i + ' 桌</div>'; $('qG').innerHTML = h; }
+  drawQ(); $('qM').onclick = function () { qn = Math.max(1, qn - 1); drawQ(); }; $('qP').onclick = function () { qn = Math.min(12, qn + 1); drawQ(); };
+
+  /* 海報 */
+  var po = { t: '臨時公休', c: '#E4572E' }, body = { '臨時公休': '臨時有事，今天暫停營業，造成不便敬請見諒。', '價格調整': '因原物料上漲，部分品項自即日起調整價格，謝謝支持。', '中秋快樂': '感謝一年來的照顧，祝大家中秋節闔家平安。', '徵才': '徵早班夥伴，歡迎掃描 QR 登記面試。' };
+  function drawP() { $('poP').style.setProperty('--c', po.c); $('poP').innerHTML = '<small>StarFunDea・示範店</small><h4>' + po.t + '</h4><div class="d">' + ($('poD').value || '') + '</div><p>' + body[po.t] + '</p><small>內容多時自動縮字，保證一頁</small>'; }
+  single($('poT'), function (b) { po = { t: b.dataset.t, c: b.dataset.c }; drawP(); }); $('poD').oninput = drawP; drawP();
+
+  /* 顧客菜單 */
+  var items = [['招牌蛋餅', 45, ['veg'], 'mild', 0], ['鮪魚玉米蛋餅', 60, [], 'mild', 0], ['泡菜起司蛋餅', 65, ['veg'], 'hot', 0], ['蘿蔔糕', 40, ['veg'], 'mild', 1], ['鐵板麵', 55, [], 'hot', 0], ['生菜沙拉', 50, ['veg'], 'mild', 1], ['厚片吐司', 35, ['veg'], 'mild', 1], ['紅茶', 20, ['veg'], 'mild', 1]];
+  var F = {};
+  function drawM() { $('muL').innerHTML = items.map(function (it) { var off = (F.veg && it[2].indexOf('veg') < 0) || (F.mild && it[3] === 'hot') || (F.noegg && !it[4]);
+    return '<div class="it' + (off ? ' off' : '') + '"><span>' + it[0] + (it[2].length ? '<span class="tg">蛋奶素</span>' : '') + (it[3] === 'hot' ? '<span class="tg">辣</span>' : '') + '</span><b>$' + it[1] + '</b></div>'; }).join(''); }
+  $('muC').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; var on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on ? 'true' : 'false'); F[b.dataset.f] = on; drawM(); }); drawM();
 })();
 </script>
 <script>
@@ -542,9 +759,9 @@ render(false);
 /* 方案：月繳／年繳 */
 function cycle(y) {
   $('bm').setAttribute('aria-pressed', y ? 'false' : 'true'); $('by').setAttribute('aria-pressed', y ? 'true' : 'false');
-  $('pb').textContent = y ? '2,990' : '299'; $('ub').textContent = y ? '元／年（省 598）' : '元／月';
+  $('pb').textContent = y ? '3,990' : '399'; $('ub').textContent = y ? '元／年（省 798）' : '元／月';
   $('pp').textContent = y ? '5,990' : '599'; $('up').textContent = y ? '元／年（省 1,198）' : '元／月';
-  $('nb').textContent = y ? '年繳只收 10 個月，平均每月 249 元' : '專注紙本菜單與桌號標示的單店';
+  $('nb').textContent = y ? '年繳只收 10 個月，平均每月約 333 元' : '專注紙本菜單與桌號標示的單店';
   $('np').textContent = y ? '年繳只收 10 個月，平均每月約 499 元' : '含門市文宣、交接與顧客電子菜單';
 }
 $('bm').onclick = function () { cycle(false); }; $('by').onclick = function () { cycle(true); };
