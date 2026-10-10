@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>店主管理</title>
+<meta name="theme-color" content="#16233A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="../icons/owner-32.png">
+<link rel="apple-touch-icon" href="../icons/owner-apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="店主管理">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="../shell.css">
+</head>
+<body>
+<div id="splash"><div class="logo" style="background:#16233A"><img src="../icons/owner-192.png" alt=""></div><div class="t">店主管理</div><div class="s" id="sTxt">載入中…</div></div>
+<div id="setup" class="hidden"><h1>店主管理</h1><p>請輸入店家代碼（向店長詢問，例如 S0001），只要輸入一次。</p><input id="sid" autocapitalize="characters" autocomplete="off" placeholder="店家代碼"><button id="go">開始</button><div id="sErr"></div></div>
+<div id="err" class="hidden"><p id="eTxt"></p><button id="retry">重新載入</button></div>
+<iframe id="app" title="店主管理" allow="clipboard-write; fullscreen" class="hidden"></iframe>
+<script>window.HL_ENTRY = 'owner'; window.HL_ENTRY_NEED_SHOP = false;</script>
+<script src="../config.js"></script>
+<script src="../shell.js"></script>
+</body>
+</html>
