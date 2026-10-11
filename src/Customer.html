@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+.ico{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.4em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+:root {
+  --bg: #F2EEE6; --card: #ffffff; --ink: #16233A; --mute: #6B7280; --line: #E5E0D6;
+  --navy: #1B4F8A; --orange: #E8762A; --soft: #F7F5F0; --tint: #FDEEDF; --chip: #EEF3FA; --ok: #1E7D45; --bad: #c0392b;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 15px }
+button, input, select, textarea { font: inherit }
+.wrap { max-width: 560px; margin: 0 auto; padding: 12px 14px 120px }
+.top { display: flex; align-items: center; gap: 10px; padding: 6px 2px 12px }
+.top img { width: 44px; height: 44px; border-radius: 14px; object-fit: cover }
+.top h1 { margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px }
+.top h1 .n { color: var(--navy) } .top h1 .o { color: var(--orange) }
+.top small { display: block; font-size: 12px; color: var(--mute); font-weight: 700 }
+.back { margin-left: auto; border: 0; background: var(--card); box-shadow: 0 2px 8px rgba(22,35,58,.06); color: var(--navy); font-weight: 700; border-radius: 999px; padding: 7px 13px; cursor: pointer }
+.view { display: none } .view.on { display: block }
+.hero { background: var(--navy); color: #fff; border-radius: 28px; padding: 20px; display: flex; gap: 16px; align-items: center; box-shadow: 0 12px 28px rgba(27,79,138,.2) }
+.hero img { width: 88px; height: 88px; border-radius: 22px; object-fit: cover; flex: none }
+img.logo.tile { object-fit: contain !important; padding: 8% }
+.hero h2 { margin: 0; font-size: 22px; font-weight: 900; color: #fff; line-height: 1.3 }
+.hero p { margin: 6px 0 0; font-size: 13px; color: #D6E3F5; line-height: 1.5 }
+.alerts { display: flex; flex-direction: column; gap: 10px; margin-top: 14px }
+.alerts:empty { display: none }
+.al { background: var(--card); border-radius: 20px; padding: 13px 15px; box-shadow: 0 8px 20px rgba(22,35,58,.06); border-left: 6px solid var(--orange) }
+.al .tg { display: inline-block; color: #fff; font-size: 12px; font-weight: 900; border-radius: 999px; padding: 2px 10px }
+.al b { display: block; font-size: 16px; font-weight: 900; margin-top: 6px; line-height: 1.4 }
+.al .bg { display: block; font-size: 15px; font-weight: 900; color: var(--orange); margin-top: 2px }
+.al p { margin: 4px 0 0; font-size: 13px; color: var(--mute); line-height: 1.55 }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px }
+.tile { background: var(--card); border: 0; border-radius: 24px; padding: 16px; text-align: left; text-decoration: none; color: var(--ink); cursor: pointer; box-shadow: 0 8px 20px rgba(22,35,58,.06); display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-height: 140px; font: inherit }
+.tile:active { transform: scale(.98) }
+.tile .ib { width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center }
+.tile .ib svg { width: 26px; height: 26px }
+.tile b { display: block; font-size: 17px; font-weight: 900; color: var(--ink) }
+.tile span { display: block; font-size: 12px; color: var(--mute); margin-top: 2px }
+.tile.pri { background: var(--orange); box-shadow: 0 10px 24px rgba(232,118,42,.25) }
+.tile.dark { background: var(--navy); box-shadow: 0 10px 24px rgba(27,79,138,.22) }
+.tile.dark b { color: #fff } .tile.dark span { color: #D6E3F5 }
+.tile.pri b { color: #fff } .tile.pri span { color: #FFE9D6 } .tile.pri .ib { background: rgba(255,255,255,.18) }
+.info { margin-top: 14px; background: var(--card); color: var(--ink); border-radius: 24px; padding: 14px 16px; font-size: 13px; line-height: 1.8; box-shadow: 0 8px 20px rgba(22,35,58,.06) }
+.info b { color: #B4541A }
+.card { background: var(--card); border: 0; border-radius: 24px; padding: 18px; margin-bottom: 12px; box-shadow: 0 8px 20px rgba(22,35,58,.06) }
+.card h3 { margin: 0 0 4px; font-size: 20px; font-weight: 900; color: var(--ink) }
+.card .sub { font-size: 12.5px; color: var(--mute); line-height: 1.55; margin: 0 0 6px }
+.f { margin-top: 12px }
+.f > label, .lab { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px }
+.f > label i, .lab i { font-style: normal; color: var(--bad) }
+.hint { font-size: 12px; color: var(--mute); margin-top: 4px; line-height: 1.5 }
+input[type=text], input[type=tel], input[type=date], select, textarea { width: 100%; border: 1.5px solid transparent; border-radius: 14px; padding: 11px 13px; font-size: 16px; background: var(--soft); color: var(--ink) }
+textarea { min-height: 90px; resize: vertical }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--navy); border-color: transparent }
+.chips { display: flex; flex-wrap: wrap; gap: 7px }
+.chip { border: 0; background: var(--soft); border-radius: 999px; padding: 7px 12px; font-size: 14px; cursor: pointer; color: var(--ink) }
+.chip.on { background: var(--navy); border-color: var(--navy); color: #fff; font-weight: 700 }
+.tabs { display: flex; gap: 6px; margin-bottom: 12px }
+.tabs button { flex: 1; border: 0; background: var(--card); color: var(--navy); box-shadow: 0 4px 12px rgba(22,35,58,.06); border-radius: 16px; padding: 10px 6px; font-weight: 900; cursor: pointer }
+.tabs button.on { background: var(--navy); color: #fff }
+.btn { width: 100%; border: 0; border-radius: 16px; background: var(--orange); color: #fff; font-weight: 900; font-size: 17px; padding: 15px; cursor: pointer; margin-top: 18px; box-shadow: 0 10px 22px rgba(232,118,42,.25) }
+.btn:disabled { opacity: .55 }
+.err { color: var(--bad); font-size: 13.5px; margin-top: 8px; min-height: 18px; font-weight: 700 }
+.hp { position: absolute; left: -5000px }
+/* item picker */
+.pk { border: 0; background: var(--soft); border-radius: 18px; overflow: hidden }
+.pk-cats { display: flex; gap: 6px; overflow-x: auto; padding: 10px; scrollbar-width: none }
+.pk-cats::-webkit-scrollbar { display: none }
+.pk-cats button { flex: none; border: 0; background: #fff; color: var(--navy); font-weight: 700; font-size: 13px; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap }
+.pk-cats button.on { background: var(--navy); color: #fff }
+.pk-q { padding: 0 10px } .pk-q input { padding: 9px 12px; font-size: 15px; background: #fff }
+.pk-list { max-height: 300px; overflow: auto; padding: 4px 8px 8px }
+.pk-it { display: flex; align-items: center; gap: 8px; padding: 10px 10px; background: #fff; border-radius: 14px; margin-top: 6px }
+.pk-it:last-child { border-bottom: 0 }
+.pk-it .nm { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.35 }
+.pk-it .nm small { display: block; color: var(--mute); font-size: 12px }
+.pk-it .st { color: var(--orange); font-size: 12px }
+.pk-it .pr { font-family: 'Outfit', var(--font); font-weight: 700; font-size: 17px; color: var(--ink); min-width: 44px; text-align: right }
+.add { width: 34px; height: 34px; border-radius: 50%; border: 0; background: var(--orange); color: #fff; font-size: 22px; font-weight: 900; line-height: 1; cursor: pointer; flex: none }
+.cart { margin-top: 10px }
+.cart .row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--tint); border-radius: 14px; margin-bottom: 6px }
+.cart .row .nm { flex: 1; font-size: 14px; line-height: 1.35 }
+.step { display: flex; align-items: center; gap: 4px }
+.step button { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--navy); background: #fff; color: var(--navy); font-weight: 900; font-size: 16px; cursor: pointer }
+.step b { min-width: 24px; text-align: center }
+.empty { font-size: 13px; color: var(--mute); padding: 6px 2px }
+.rec { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none }
+.rec::-webkit-scrollbar { display: none }
+.rec button { flex: none; border: 0; background: var(--tint); color: var(--ink); border-radius: 12px; padding: 7px 10px; font-size: 13px; cursor: pointer; text-align: left }
+.rec button small { display: block; color: var(--orange); font-weight: 700 }
+.totalbar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--navy); color: #fff; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: none; z-index: 10 }
+.totalbar.on { display: block }
+.totalbar .in { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px }
+.totalbar b { font-family: 'Outfit', var(--font); font-size: 26px; color: #FFB36B }
+.totalbar small { display: block; font-size: 11.5px; opacity: .85 }
+.photos { display: flex; gap: 8px; flex-wrap: wrap }
+.ph { width: 74px; height: 74px; border-radius: 10px; object-fit: cover; border: 1.5px solid var(--line) }
+.phadd { width: 74px; height: 74px; border-radius: 10px; border: 2px dashed var(--navy); display: grid; place-items: center; color: var(--navy); font-size: 12px; font-weight: 700; cursor: pointer; position: relative; text-align: center }
+.phadd input { position: absolute; inset: 0; opacity: 0; cursor: pointer }
+.note { background: var(--chip); border-radius: 14px; padding: 10px 12px; font-size: 12.5px; line-height: 1.6; margin-top: 10px }
+.done { text-align: center; padding: 28px 16px }
+.done .big { display: flex; justify-content: center } .done .big span { width: 72px; height: 72px; border-radius: 24px; background: var(--tint); display: flex; align-items: center; justify-content: center }
+.done h3 { font-size: 22px; color: var(--navy); margin: 8px 0 }
+.done .id { display: inline-block; font-family: 'Outfit', var(--font); background: var(--tint); border: 0; border-radius: 14px; padding: 8px 16px; font-size: 22px; font-weight: 900; color: var(--orange); margin: 8px 0; letter-spacing: 1px }
+.done p { color: var(--mute); line-height: 1.6; font-size: 14px }
+.toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; cursor: pointer }
+.toggle input { width: 20px; height: 20px; accent-color: var(--navy) }
+.mf-h { font-size: 13px; font-weight: 900; color: var(--ink) }
+.mf-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px }
+.mf-row button { border: 1.5px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer }
+.mf-row button.on { background: var(--navy); border-color: var(--navy); color: #fff }
+.mf-row button.avoid.on { background: #c0392b; border-color: #c0392b }
+.mc { margin-top: 12px } .mc h3 { margin: 0 0 6px; font-size: 17px; display: flex; align-items: center; gap: 7px } .mc h3 i { width: 6px; height: 17px; border-radius: 3px; background: var(--orange); display: inline-block }
+.mi { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--line) } .mi:last-child { border-bottom: 0 }
+.mi .nm { font-size: 15.5px; font-weight: 700; min-width: 0 } .mi .nm small { display: block; font-weight: 400; color: var(--mute); font-size: 12.5px }
+.mi .pr { text-align: right; white-space: nowrap; font-weight: 900; font-variant-numeric: tabular-nums } .mi .pr small { font-weight: 400; color: var(--mute); margin-left: 2px; font-size: 12px }
+.tg { display: inline-block; font-size: 10.5px; line-height: 15px; padding: 0 5px; border-radius: 5px; margin-left: 4px; font-weight: 700; vertical-align: 1px; background: #EEF0F4; color: #555 }
+.tg.d { background: #DDF1E4; color: #1f6b3a } .tg.f { background: #FBE0DC; color: #B3261E }
+.mi .st { color: var(--orange) }
+</style>
+<script>
+window.onerror = function (msg, src, line) {
+  var d = document.createElement('div');
+  d.style.cssText = 'margin:12px;padding:12px;border-radius:12px;background:#F8D7DA;color:#7a1c24;font:14px sans-serif';
+  d.textContent = '頁面載入出錯：' + msg + '（第 ' + line + ' 行），請截圖給店長。';
+  document.body.insertBefore(d, document.body.firstChild);
+};
+window.addEventListener('load', function () {
+  if (window.__hlEnd) return;
+  document.body.innerHTML = '<div style="font-family:sans-serif;padding:24px;line-height:1.7;font-size:17px"><h2 style="color:#c0392b">檔案沒有貼完整</h2>這個頁面的程式檔沒有貼完整（Customer）。請店長用電腦重新貼上完整的 Customer.html，確認最後幾行有「hl-end」，儲存後重新部署。</div>';
+});
+</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <img class="logo" alt="">
+    <div><h1 id="brandName"></h1><small id="topSub">顧客服務中心</small></div>
+    <button class="back" id="backBtn" style="display:none">‹ 回首頁</button>
+  </div>
+
+  <section class="view" id="v-home">
+    <div class="hero"><img class="logo" alt=""><div><h2>嗨！需要什麼幫忙呢？</h2><p id="heroP"></p></div></div>
+    <div class="alerts" id="alerts"></div>
+    <div class="tiles" id="tiles"></div>
+    <div class="info" id="shopInfo"></div>
+    <div class="card" id="docsCard" style="display:none"><h3>資訊下載</h3><div id="docsList"></div></div>
+  </section>
+
+  <section class="view" id="v-menu">
+    <div class="card" style="padding:12px 14px">
+      <div class="mf-h">想找什麼樣的？</div>
+      <div class="mf-row" id="mfDiet"></div>
+      <div class="mf-h" style="margin-top:8px">不要吃到（點選要避開的過敏原）</div>
+      <div class="mf-row" id="mfAlg"></div>
+    </div>
+    <div id="menuBody"><div class="sub" style="padding:20px;text-align:center">讀取菜單中…</div></div>
+    <p class="sub" style="text-align:center;margin:12px 0 0">標示僅供參考，製作過程可能有交叉接觸；有嚴重過敏請向店家確認。價格以現場為準。</p>
+  </section>
+
+  <section class="view" id="v-help">
+    <div class="card">
+      <h3>餐點有問題？我們來處理</h3>
+      <p class="sub">真的很抱歉讓你遇到問題！填好下面資料，老闆會盡快用你留的方式聯絡你。</p>
+      <div class="f"><span class="lab">從哪裡點的？<i>*</i></span><div class="chips" id="h-channel"></div></div>
+      <div class="f"><label for="h-order">訂單編號 <i id="h-order-req">*</i></label><input type="text" id="h-order" placeholder="例如：外送平台 App 訂單頁上的編號"><div class="hint" id="h-order-hint">在外送 App 的「訂單」裡可以找到。現場點餐可以寫取餐號碼或留空。</div></div>
+      <div class="f"><label for="h-date">訂餐日期</label><input type="date" id="h-date"></div>
+      <div class="f"><span class="lab">遇到什麼問題？<i>*</i>（可以選多個）</span><div class="chips" id="h-issues"></div></div>
+      <div class="f"><span class="lab">是哪些品項有問題？</span><div id="h-picker"></div></div>
+      <div class="f"><label for="h-detail">說明一下發生什麼事</label><textarea id="h-detail" placeholder="例如：少了一杯大杯奶茶；蛋餅送到時已經冷掉"></textarea></div>
+      <div class="f"><span class="lab">照片（最多 3 張，選填）</span><div class="photos" id="h-photos"></div></div>
+      <div class="f"><span class="lab">希望怎麼處理？</span><div class="chips" id="h-want"></div></div>
+      <div class="note">外送平台（Uber Eats、foodpanda）的訂單如果需要退款，平台規定要在 App 裡申請；你一樣可以在這裡告訴我們，我們會協助處理。</div>
+      <div class="f"><label for="h-contact">怎麼聯絡你？<i>*</i></label><input type="text" id="h-contact" placeholder="LINE 名稱或手機號碼"></div>
+      <input class="hp" id="h-hp" tabindex="-1" autocomplete="off">
+      <button class="btn" id="h-send">送出回報</button><div class="err" id="h-err"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-fb">
+    <div class="tabs"><button data-tab="knock" class="on">敲敲老闆</button><button data-tab="wish">創意許願</button><button data-tab="pre">大單預訂</button></div>
+    <div class="card" id="t-wish" style="display:none">
+      <h3>你的點子，可能就是下一個新品</h3>
+      <p class="sub">想吃的口味、懷念的品項、新點子都可以！老闆會定期看大家的願望，說不定下一個新品就是你許的。</p>
+      <div class="f"><label for="w-item">想吃的品項 <i>*</i></label><input type="text" id="w-item" placeholder="例如：起司薯餅蛋餅加辣、蘿蔔糕加泡菜"></div>
+      <div class="f"><label for="w-detail">想多說一點（選填）</label><textarea id="w-detail" placeholder="口味、份量、願意的價格…"></textarea></div>
+      <div class="f"><label for="w-contact">聯絡方式（選填，上架時通知你）</label><input type="text" id="w-contact" placeholder="LINE 名稱或手機號碼"></div>
+      <input class="hp" id="w-hp" tabindex="-1" autocomplete="off">
+      <button class="btn" id="w-send">許下願望</button><div class="err" id="w-err"></div>
+    </div>
+    <div class="card" id="t-knock">
+      <h3>敲敲老闆，有話直說</h3>
+      <p class="sub">稱讚、建議、心裡話都歡迎，選一個你想說話的對象吧！</p>
+      <div class="f"><span class="lab">想跟誰說？</span><div class="chips" id="k-to"></div></div>
+      <div class="f"><label for="k-msg">想說的話 <i>*</i></label><textarea id="k-msg" placeholder="例如：老闆娘的奶茶最好喝了！"></textarea></div>
+      <div class="f"><label class="toggle"><input type="checkbox" id="k-reply">希望老闆回覆我</label></div>
+      <div class="f" id="k-contact-f" style="display:none"><label for="k-contact">聯絡方式 <i>*</i></label><input type="text" id="k-contact" placeholder="LINE 名稱或手機號碼"></div>
+      <input class="hp" id="k-hp" tabindex="-1" autocomplete="off">
+      <button class="btn" id="k-send">敲一下</button><div class="err" id="k-err"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-pre">
+    <div class="card">
+      <h3>大單預訂：公司、活動、團購</h3>
+      <p class="sub">公司早餐、活動、大量訂餐都可以！選好品項會馬上幫你估算金額，送出後我們會打電話或用 LINE 跟你確認。</p>
+      <div class="f"><label for="p-date">取餐日期 <i>*</i></label><input type="date" id="p-date"><div class="hint" id="p-date-hint"></div></div>
+      <div class="f"><label for="p-time">取餐時間 <i>*</i></label><select id="p-time"></select></div>
+      <div class="f"><span class="lab">店長推薦，點一下就加入</span><div class="rec" id="p-rec"></div></div>
+      <div class="f"><span class="lab">選擇品項 <i>*</i></span><div id="p-picker"></div></div>
+      <div class="f"><label for="p-name">姓名 <i>*</i></label><input type="text" id="p-name" placeholder="訂購人姓名"></div>
+      <div class="f"><label for="p-phone">電話 <i>*</i></label><input type="tel" id="p-phone" placeholder="手機號碼"></div>
+      <div class="f"><label for="p-note">備註（選填）</label><textarea id="p-note" placeholder="例如：蛋餅不要蔥、飲料少冰、分裝袋數"></textarea></div>
+      <div class="note">金額是依目前價格估算，實際以店家確認為準。加料、客製需求請寫在備註。</div>
+      <input class="hp" id="p-hp" tabindex="-1" autocomplete="off">
+      <button class="btn" id="p-send">送出預訂</button><div class="err" id="p-err"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-done">
+    <div class="card done"><div class="big" id="d-emoji">✅</div><h3 id="d-title">收到了！</h3><div class="id" id="d-id"></div><p id="d-msg"></p>
+      <button class="btn" onclick="go('home')">回首頁</button></div>
+  </section>
+</div>
+<div class="totalbar" id="totalbar"><div class="in"><div><small>預估金額（共 <span id="t-count">0</span> 件）</small><b id="t-sum">$0</b></div><div style="font-size:12px;opacity:.85;text-align:right">實際以店家<br>確認為準</div></div></div>
+
+<script>
+const BOOT = <?!= boot ?>;
+const LOGO = <?!= logo ?>;
+const LOGO_BG = <?!= logoBg ?>;   // 店家工具上傳的 Logo 底色（空白＝照原本樣式）
+document.querySelectorAll('img.logo').forEach(i => {
+  if (!LOGO) { i.remove(); return; }
+  i.src = LOGO;
+  if (LOGO_BG) { i.classList.add('tile'); i.style.background = LOGO_BG; }
+});
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const HAS_GS = !!(window.google && google.script && google.script.run);
+function call(fn, ...a) { return new Promise((ok, no) => { if (!HAS_GS) return no(new Error('請從正式網址打開')); google.script.run.withSuccessHandler(ok).withFailureHandler(no)[fn](...a); }); }
+const T0 = Date.now();
+const BR = BOOT.brand || {};
+if (/^#[0-9A-Fa-f]{6}$/.test(BR.primary || '')) document.documentElement.style.setProperty('--navy', BR.primary);
+if (/^#[0-9A-Fa-f]{6}$/.test(BR.accent || '')) document.documentElement.style.setProperty('--orange', BR.accent);
+$('brandName').innerHTML = BR.nameB ? `<span class="n">${esc(BR.nameA)}</span><span class="o">${esc(BR.nameB)}</span>` : `<span class="n">${esc(BR.name || '')}</span>`;
+$('heroP').innerHTML = [BR.tagline, BR.heroSub && BR.heroSub !== BR.tagline ? BR.heroSub : ''].filter(Boolean).map(esc).join('<br>');
+$('shopInfo').innerHTML = [BR.address, BR.phone, [BR.hours, BR.closedText ? '<b>' + esc(BR.closedText) + '</b>' : ''].filter(Boolean).join('・')].filter(Boolean).map(x => x.indexOf('<b>') >= 0 ? x : esc(x)).join('<br>');
+
+/* ---------- 店休行事曆（店家工具設定）：特別營業 > 特別店休 > 每週公休 ---------- */
+const CL = BOOT.closures || [];
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+function dayInfo(v) {
+  const sp = CL.find(c => c.type === 'open' && c.s <= v && c.e >= v);
+  if (sp) return { open: true, reason: sp.reason || '特別營業' };
+  const cl = CL.find(c => c.type === 'closed' && c.s <= v && c.e >= v);
+  if (cl) return { open: false, reason: cl.reason || '店休' };
+  const wd = new Date(v + 'T00:00:00Z').getUTCDay();
+  return BOOT.openDays.includes(wd) ? { open: true, reason: '' } : { open: false, reason: '每週公休' };
+}
+const mdw = v => { const d = new Date(v + 'T00:00:00Z'); return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '（' + WD[d.getUTCDay()] + '）'; };
+const todayStr = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+
+/* ---------- 首頁：近期店休＋公告 ---------- */
+(function renderAlerts() {
+  const t = todayStr(), lim = new Date(Date.now() + 8 * 3600e3 + 21 * 86400e3).toISOString().slice(0, 10);
+  let h = '';
+  CL.filter(c => c.type === 'closed' && c.show && c.e >= t && c.s <= lim).forEach(c => {
+    h += `<div class="al" style="border-left-color:#C0392B"><span class="tg" style="background:#C0392B">店休</span><b>${esc(c.s === c.e ? mdw(c.s) : mdw(c.s) + ' ～ ' + mdw(c.e))} 暫停營業</b>${c.reason ? `<p>${esc(c.reason)}</p>` : ''}</div>`;
+  });
+  CL.filter(c => c.type === 'open' && c.show && c.e >= t && c.s <= lim).forEach(c => {
+    h += `<div class="al" style="border-left-color:#1E7D45"><span class="tg" style="background:#1E7D45">特別營業</span><b>${esc(c.s === c.e ? mdw(c.s) : mdw(c.s) + ' ～ ' + mdw(c.e))} 照常營業</b>${c.reason ? `<p>${esc(c.reason)}</p>` : ''}</div>`;
+  });
+  (BOOT.notices || []).slice(0, 3).forEach(n => {
+    h += `<div class="al" style="border-left-color:${esc(n.color || '#E8762A')}"><span class="tg" style="background:${esc(n.color || '#E8762A')}">${esc(n.tag || n.catName || '公告')}</span><b>${esc(String(n.title).replace(/^[^：]*：/, ''))}</b>${n.big ? `<span class="bg">${esc(n.big)}</span>` : ''}${n.text ? `<p>${esc(n.text)}</p>` : ''}</div>`;
+  });
+  $('alerts').innerHTML = h;
+})();
+
+/* ---------- 圖示：弘林圖示庫（scripts/sync_icons.py 會把圖示庫放進下面兩個標記之間） ---------- */
+/* HL-ICONS:BEGIN */
+/* 弘林圖示庫 hl-icons.js v1.0
+   圖形來源：Lucide v0.460.0（ISC 授權，可商用；Copyright (c) Lucide Contributors，部分源自 Feather，MIT）。
+   無外部依賴、不含連續兩個斜線，可直接貼進 Apps Script 的 HTML。
+   用法：
+     1. HTML 寫 <i data-icon="coffee">（空的 i 標籤），可加 data-size="20" data-stroke="2" data-label="咖啡"
+     2. 頁面載入後呼叫 hlIcon.render()（也可傳入某個容器只換那一塊）
+     3. 在程式裡要字串：hlIcon('coffee', { size: 20 })；要元素：hlIcon.el('coffee')
+     4. 顏色跟著文字顏色（currentColor），用 CSS color 改色 */
+(function (root) {
+  var ICONS = {
+    'egg-fried': '<circle cx="11.5" cy="12.5" r="3.5"/><path d="M3 8c0-3.5 2.5-6 6.5-6 5 0 4.83 3 7.5 5s5 2 5 6c0 4.5-2.5 6.5-7 6.5-2.5 0-2.5 2.5-6 2.5s-7-2-7-5.5c0-3 1.5-3 1.5-5C3.5 10 3 9 3 8Z"/>',
+    'egg': '<path d="M12 22c6.23-.05 7.87-5.57 7.5-10-.36-4.34-3.95-9.96-7.5-10-3.55.04-7.14 5.66-7.5 10-.37 4.43 1.27 9.95 7.5 10z"/>',
+    'sandwich': '<path d="m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777"/><path d="M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25"/><path d="M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9"/><path d="m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2"/><rect width="20" height="4" x="2" y="11" rx="1"/>',
+    'croissant': '<path d="m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z"/><path d="m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83"/><path d="M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4"/><path d="m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2"/><path d="M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5"/>',
+    'salad': '<path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1"/><path d="m13 12 4-4"/><path d="M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2"/>',
+    'soup': '<path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 21h10"/><path d="M19.5 12 22 6"/><path d="M16.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.73 1.62"/><path d="M11.25 3c.27.1.8.53.74 1.36-.05.83-.93 1.2-.98 2.02-.06.78.33 1.24.72 1.62"/><path d="M6.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.74 1.62"/>',
+    'cooking-pot': '<path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/>',
+    'beef': '<circle cx="12.5" cy="8.5" r="2.5"/><path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/><path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/>',
+    'drumstick': '<path d="M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23"/><path d="m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59"/>',
+    'ham': '<path d="M13.144 21.144A7.274 10.445 45 1 0 2.856 10.856"/><path d="M13.144 21.144A7.274 4.365 45 0 0 2.856 10.856a7.274 4.365 45 0 0 10.288 10.288"/><path d="M16.565 10.435 18.6 8.4a2.501 2.501 0 1 0 1.65-4.65 2.5 2.5 0 1 0-4.66 1.66l-2.024 2.025"/><path d="m8.5 16.5-1-1"/>',
+    'fish': '<path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/>',
+    'pizza': '<path d="m12 14-1 1"/><path d="m13.75 18.25-1.25 1.42"/><path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12"/><path d="M18.8 9.3a1 1 0 0 0 2.1 7.7"/><path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z"/>',
+    'cake-slice': '<circle cx="9" cy="7" r="2"/><path d="M7.2 7.9 3 11v9c0 .6.4 1 1 1h16c.6 0 1-.4 1-1v-9c0-2-3-6-7-8l-3.6 2.6"/><path d="M16 13H3"/><path d="M16 17H3"/>',
+    'cookie': '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/>',
+    'donut': '<path d="M20.5 10a2.5 2.5 0 0 1-2.4-3H18a2.95 2.95 0 0 1-2.6-4.4 10 10 0 1 0 6.3 7.1c-.3.2-.8.3-1.2.3"/><circle cx="12" cy="12" r="3"/>',
+    'ice-cream-cone': '<path d="m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11"/><path d="M17 7A5 5 0 0 0 7 7"/><path d="M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4"/>',
+    'popcorn': '<path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4"/><path d="M10 22 9 8"/><path d="m14 22 1-14"/><path d="M20 8c.5 0 .9.4.8 1l-2.6 12c-.1.5-.7 1-1.2 1H7c-.6 0-1.1-.4-1.2-1L3.2 9c-.1-.6.3-1 .8-1Z"/>',
+    'coffee': '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+    'cup-soda': '<path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/><path d="m12 8 1-6h2"/>',
+    'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
+    'citrus': '<path d="M21.66 17.67a1.08 1.08 0 0 1-.04 1.6A12 12 0 0 1 4.73 2.38a1.1 1.1 0 0 1 1.61-.04z"/><path d="M19.65 15.66A8 8 0 0 1 8.35 4.34"/><path d="m14 10-5.5 5.5"/><path d="M14 17.85V10H6.15"/>',
+    'glass-water': '<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>',
+    'wine': '<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/>',
+    'beer': '<path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/>',
+    'apple': '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
+    'cherry': '<path d="M2 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M12 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M7 14c3.22-2.91 4.29-8.75 5-12 1.66 2.38 4.94 9 5 12"/><path d="M22 9c-4.29 0-7.14-2.33-10-7 5.71 0 10 4.67 10 7Z"/>',
+    'chef-hat': '<path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/>',
+    'utensils': '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+    'utensils-crossed': '<path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/>',
+    'leaf': '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+    'vegan': '<path d="M16 8q6 0 6-6-6 0-6 6"/><path d="M17.41 3.59a10 10 0 1 0 3 3"/><path d="M2 2a26.6 26.6 0 0 1 10 20c.9-6.82 1.5-9.5 4-14"/>',
+    'wheat': '<path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>',
+    'wheat-off': '<path d="m2 22 10-10"/><path d="m16 8-1.17 1.17"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="m8 8-.53.53a3.5 3.5 0 0 0 0 4.94L9 15l1.53-1.53c.55-.55.88-1.25.98-1.97"/><path d="M10.91 5.26c.15-.26.34-.51.56-.73L13 3l1.53 1.53a3.5 3.5 0 0 1 .28 4.62"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="m16 16-.53.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.49 3.49 0 0 1 1.97-.98"/><path d="M18.74 13.09c.26-.15.51-.34.73-.56L21 11l-1.53-1.53a3.5 3.5 0 0 0-4.62-.28"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'milk-off': '<path d="M8 2h8"/><path d="M9 2v1.343M15 2v2.789a4 4 0 0 0 .672 2.219l.656.984a4 4 0 0 1 .672 2.22v1.131M7.8 7.8l-.128.192A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.472 6.472 0 0 0 3.435.435"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'egg-off': '<path d="M6.399 6.399C5.362 8.157 4.65 10.189 4.5 12c-.37 4.43 1.27 9.95 7.5 10 3.256-.026 5.259-1.547 6.375-3.625"/><path d="M19.532 13.875A14.07 14.07 0 0 0 19.5 12c-.36-4.34-3.95-9.96-7.5-10-1.04.012-2.082.502-3.046 1.297"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'nut': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592A7.003 7.003 0 0 0 19 14v-4"/><path d="M12 4C8 4 4.5 6 4 8c-.243.97-.919 1.952-2 3 1.31-.082 1.972-.29 3-1 .54.92.982 1.356 2 2 1.452-.647 1.954-1.098 2.5-2 .595.995 1.151 1.427 2.5 2 1.31-.621 1.862-1.058 2.5-2 .629.977 1.162 1.423 2.5 2 1.209-.548 1.68-.967 2-2 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4Z"/>',
+    'nut-off': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592a7.01 7.01 0 0 0 4.125-2.939"/><path d="M19 10v3.343"/><path d="M12 12c-1.349-.573-1.905-1.005-2.5-2-.546.902-1.048 1.353-2.5 2-1.018-.644-1.46-1.08-2-2-1.028.71-1.69.918-3 1 1.081-1.048 1.757-2.03 2-3 .194-.776.84-1.551 1.79-2.21m11.654 5.997c.887-.457 1.28-.891 1.556-1.787 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4-.74 0-1.461.068-2.15.192"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'bean': '<path d="M10.165 6.598C9.954 7.478 9.64 8.36 9 9c-.64.64-1.521.954-2.402 1.165A6 6 0 0 0 8 22c7.732 0 14-6.268 14-14a6 6 0 0 0-11.835-1.402Z"/><path d="M5.341 10.62a4 4 0 1 0 5.279-5.28"/>',
+    'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    'star': '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    'thumbs-up': '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+    'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    'award': '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+    'sparkles': '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+    'badge-percent': '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m15 9-6 6"/><path d="M9 9h.01"/><path d="M15 15h.01"/>',
+    'store': '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+    'building-2': '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+    'map-pin': '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    'calendar': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+    'calendar-check': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+    'calendar-x': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+    'calendar-days': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>',
+    'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'user-plus': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'user-check': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+    'clipboard-list': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'clipboard-check': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'notebook-pen': '<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>',
+    'receipt': '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+    'wallet': '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    'banknote': '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    'credit-card': '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+    'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+    'package': '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
+    'truck': '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+    'bike': '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
+    'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    'megaphone': '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+    'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    'printer': '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+    'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    'file-spreadsheet': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
+    'file-check-2': '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/>',
+    'file-down': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/>',
+    'newspaper': '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+    'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+    'palette': '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+    'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    'qr-code': '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>',
+    'scan-line': '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+    'wifi': '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
+    'tag': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    'ticket': '<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>',
+    'gift': '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+    'presentation': '<path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>',
+    'smartphone': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+    'check': '<path d="M20 6 9 17l-5-5"/>',
+    'check-circle-2': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    'minus': '<path d="M5 12h14"/>',
+    'pencil': '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+    'settings': '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    'history': '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    'refresh-cw': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    'undo-2': '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+    'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'upload': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+    'copy': '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+    'link': '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    'eye': '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+    'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+    'lock': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    'shield-check': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    'alert-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'log-in': '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+    'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+    'house': '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'menu': '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+    'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+    'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'play-circle': '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>',
+    'more-horizontal': '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+  var META = [["egg-fried", "荷包蛋 蛋餅 早餐", "餐點"], ["egg", "蛋", "餐點"], ["sandwich", "三明治 吐司", "餐點"], ["croissant", "可頌 麵包", "餐點"], ["salad", "沙拉", "餐點"], ["soup", "湯 羹湯 麵", "餐點"], ["cooking-pot", "鍋 燉煮 火鍋", "餐點"], ["beef", "牛肉 肉排", "餐點"], ["drumstick", "雞腿 炸雞", "餐點"], ["ham", "火腿 豬肉", "餐點"], ["fish", "魚 海鮮", "餐點"], ["pizza", "披薩", "餐點"], ["cake-slice", "蛋糕 甜點", "餐點"], ["cookie", "餅乾 點心", "餐點"], ["donut", "甜甜圈", "餐點"], ["ice-cream-cone", "冰淇淋 冰品", "餐點"], ["popcorn", "爆米花 點心", "餐點"], ["coffee", "咖啡 熱飲", "飲品"], ["cup-soda", "飲料 手搖 冷飲", "飲品"], ["milk", "牛奶 鮮奶", "飲品"], ["citrus", "檸檬 果汁", "飲品"], ["glass-water", "水 冰水", "飲品"], ["wine", "紅酒 酒", "飲品"], ["beer", "啤酒", "飲品"], ["apple", "蘋果 水果", "飲品"], ["cherry", "櫻桃 水果", "飲品"], ["chef-hat", "廚師 主廚", "餐點"], ["utensils", "餐具 內用", "餐點"], ["utensils-crossed", "餐廳 刀叉", "餐點"], ["leaf", "葉 蔬食 素", "標示"], ["vegan", "全素 蔬食", "標示"], ["wheat", "小麥 麩質", "標示"], ["wheat-off", "無麩質", "標示"], ["milk-off", "無乳製品", "標示"], ["egg-off", "不含蛋", "標示"], ["nut", "堅果 花生", "標示"], ["nut-off", "無堅果", "標示"], ["bean", "豆 黃豆 大豆", "標示"], ["flame", "辣 熱門", "標示"], ["star", "推薦 星號", "標示"], ["thumbs-up", "好評 讚", "標示"], ["heart", "喜愛 收藏", "標示"], ["award", "得獎 招牌", "標示"], ["sparkles", "新品 亮點", "標示"], ["badge-percent", "折扣 優惠", "標示"], ["store", "店家 門市", "店務"], ["building-2", "總店 品牌 多門市", "店務"], ["map-pin", "地址 位置", "店務"], ["clock", "營業時間 時間", "店務"], ["calendar", "日曆 行事曆", "店務"], ["calendar-check", "交接 已排定", "店務"], ["calendar-x", "店休 公休", "店務"], ["calendar-days", "營業日", "店務"], ["users", "夥伴 團隊", "店務"], ["user-plus", "邀請夥伴", "店務"], ["user-check", "已綁定", "店務"], ["clipboard-list", "清單 叫貨單", "店務"], ["clipboard-check", "檢查表 完成", "店務"], ["notebook-pen", "交接本 筆記", "店務"], ["receipt", "收據 帳單", "店務"], ["wallet", "零用金 錢包", "店務"], ["banknote", "現金", "店務"], ["credit-card", "信用卡 付款", "店務"], ["calculator", "計算 調價", "店務"], ["trending-up", "漲價 成長", "店務"], ["flag", "目標 里程碑", "店務"], ["package", "包裹 外帶", "店務"], ["truck", "叫貨 送貨", "店務"], ["bike", "外送", "店務"], ["phone", "電話", "店務"], ["message-circle", "訊息 敲敲老闆", "店務"], ["megaphone", "公告 宣傳", "店務"], ["bell", "通知 提醒", "店務"], ["mail", "Email 信件", "店務"], ["printer", "列印 印製", "文宣"], ["file-text", "文件 PDF", "文宣"], ["file-spreadsheet", "試算表 CSV 匯入", "文宣"], ["file-check-2", "已確認文件", "文宣"], ["file-down", "下載檔案", "文宣"], ["newspaper", "海報 公告", "文宣"], ["image", "圖片 照片", "文宣"], ["palette", "配色 Logo", "文宣"], ["layout-grid", "版面 四欄", "文宣"], ["book-open", "菜單", "文宣"], ["qr-code", "QR 桌號", "文宣"], ["scan-line", "掃描", "文宣"], ["wifi", "Wi-Fi 無線網路", "文宣"], ["tag", "標籤 價格", "文宣"], ["ticket", "票券 集點", "文宣"], ["gift", "贈品 活動", "文宣"], ["presentation", "簡報", "文宣"], ["smartphone", "手機", "介面"], ["check", "勾選 完成", "介面"], ["check-circle-2", "已完成", "介面"], ["x", "關閉 取消", "介面"], ["plus", "新增", "介面"], ["minus", "減少", "介面"], ["pencil", "編輯 修改", "介面"], ["trash-2", "刪除", "介面"], ["search", "搜尋", "介面"], ["filter", "篩選", "介面"], ["settings", "設定", "介面"], ["history", "紀錄 歷史", "介面"], ["refresh-cw", "同步 重新整理", "介面"], ["undo-2", "復原", "介面"], ["download", "下載", "介面"], ["upload", "上傳", "介面"], ["copy", "複製", "介面"], ["share-2", "分享", "介面"], ["link", "連結", "介面"], ["external-link", "外部連結", "介面"], ["eye", "顯示 預覽", "介面"], ["eye-off", "隱藏", "介面"], ["lock", "鎖定 唯讀", "介面"], ["shield-check", "安全 授權", "介面"], ["alert-circle", "注意", "介面"], ["alert-triangle", "警告", "介面"], ["info", "說明", "介面"], ["log-in", "登入", "介面"], ["log-out", "登出", "介面"], ["house", "首頁", "介面"], ["menu", "選單", "介面"], ["chevron-down", "展開", "介面"], ["chevron-right", "下一個", "介面"], ["arrow-left", "上一頁", "介面"], ["arrow-right", "下一頁", "介面"], ["play-circle", "播放 示範", "介面"], ["more-horizontal", "更多", "介面"]];
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function hlIcon(name, o) {
+    o = o || {};
+    var body = ICONS[name];
+    if (!body) { body = ICONS['alert-circle']; }
+    var size = o.size || 24, sw = o.stroke || 2;
+    var a = '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="' + (o.color || 'currentColor') +
+      '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" class="hl-icon' + (o.cls ? ' ' + esc(o.cls) : '') + '" data-name="' + esc(name) + '"';
+    a += o.label ? ' role="img" aria-label="' + esc(o.label) + '">' : ' aria-hidden="true" focusable="false">';
+    if (o.label) { a += '<title>' + esc(o.label) + '<' + '/title>'; }
+    return a + body + '<' + '/svg>';
+  }
+
+  hlIcon.el = function (name, o) {
+    var t = document.createElement('span');
+    t.innerHTML = hlIcon(name, o);
+    return t.firstChild;
+  };
+
+  hlIcon.render = function (scope) {
+    var list = (scope || document).querySelectorAll('[data-icon]');
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i], cls = n.getAttribute('class') || '';
+      var svg = hlIcon.el(n.getAttribute('data-icon'), {
+        size: n.getAttribute('data-size'), stroke: n.getAttribute('data-stroke'),
+        label: n.getAttribute('data-label'), cls: cls
+      });
+      n.parentNode.replaceChild(svg, n);
+    }
+  };
+
+  hlIcon.has = function (name) { return !!ICONS[name]; };
+  hlIcon.names = function () { return Object.keys(ICONS); };
+  hlIcon.meta = META;
+  hlIcon.version = '1.0';
+
+  root.hlIcon = hlIcon;
+})(this);
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'), function (el) {
+    if (el.querySelector('svg.hl-icon')) return;
+    el.insertAdjacentHTML('afterbegin', hlIcon(el.getAttribute('data-ic'), { size: 18, stroke: 2, cls: 'ico' }));
+  });
+  hlIcon.render();
+})();
+/* App 外殼（GitHub Pages 的 PWA）：頁面被嵌在外殼裡時，target=_top 的連結改由外殼開，不會跳出外殼 */
+(function shellNav() {
+  var ao = location.ancestorOrigins, tp = ao && ao.length ? ao[ao.length - 1] : '';
+  if (!tp || tp.indexOf('script.google.com') >= 0 || tp.indexOf('googleusercontent.com') >= 0) return;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[target="_top"]') : null;
+    if (!a || !a.href) return;
+    e.preventDefault();
+    try { window.top.postMessage({ hlGo: a.href }, '*'); } catch (x) {}
+  }, true);
+  window.hlShellToken = function (t) { try { window.top.postMessage({ hlToken: t }, '*'); } catch (x) {} };
+})();
+/* HL-ICONS:END */
+const IC = { knock: 'message-circle', wish: 'sparkles', menu: 'book-open', order: 'smartphone', help: 'alert-circle', fb: 'megaphone', pre: 'calendar-check', map: 'map-pin', social: 'thumbs-up', line: 'message-circle', check: 'check' };
+
+/* ---------- 資訊下載（店家公開的文件） ---------- */
+(function renderDocs() {
+  const L = BOOT.docs || []; if (!L.length) return;
+  $('docsCard').style.display = '';
+  $('docsList').innerHTML = L.map(d => `<a class="doc" href="${esc(d.url)}" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #E7E1D6;text-decoration:none;color:inherit"><span><b>${esc(d.title)}</b><br><span class="sub" style="margin:0">${esc(d.cat)}</span></span><span style="white-space:nowrap;color:#6B7486;font-size:13px;display:flex;align-items:center;gap:4px">${hlIcon('file-down', { size: 18 })}下載</span></a>`).join('');
+})();
+
+const TINT = { menu: ['#E6EEF8', '#1B4F8A'], order: ['rgba(255,255,255,.18)', '#fff'], knock: ['#FDEEDF', '#B4541A'], wish: ['#EAF3DB', '#3F6B12'], preD: ['rgba(255,255,255,.14)', '#fff'], help: ['#E6EEF8', '#1B4F8A'], fb: ['#FDEEDF', '#B4541A'], pre: ['#EAF3DB', '#3F6B12'], map: ['#E6EEF8', '#1B4F8A'], social: ['#FDEEDF', '#B4541A'], line: ['#EAF3DB', '#3F6B12'] };
+const svg = (k, c, w, s) => hlIcon(IC[k], { stroke: w || 2, color: c, size: s || 24 });
+const ICON = new Proxy({}, { get: (_, k) => `<span class="ib" style="background:${TINT[k][0]}">${svg(k === 'preD' ? 'pre' : k, TINT[k][1])}</span>` });
+
+/* ---------- 首頁 ---------- */
+const L = BOOT.links;
+const TILES = [
+  { icon: 'menu', t: '看菜單', s: '最新價格・過敏原篩選', go: 'menu' },
+  { icon: 'order', t: '線上點餐', s: '免排隊・會員累點', href: L.order, cls: 'pri' },
+  { icon: 'preD', t: '大單預訂', s: '公司・活動・團購，馬上估價', go: 'pre', cls: 'dark' },
+  { icon: 'knock', t: '敲敲老闆', s: '想說的話，老闆親自看', go: 'knock' },
+  { icon: 'wish', t: '創意許願', s: '你的點子可能變新品', go: 'wish' },
+  { icon: 'help', t: '異常協助', s: '漏餐、送錯找我們', go: 'help' },
+  { icon: 'map', t: '地圖導航', s: 'Google 地圖・看評論', href: L.map },
+];
+$('tiles').innerHTML = TILES.map(x => x.href
+  ? `<a class="tile ${x.cls || ''}" href="${esc(x.href)}" target="_blank" rel="noopener">${ICON[x.icon]}<div><b>${x.t}</b><span>${x.s}</span></div></a>`
+  : `<button class="tile ${x.cls || ''}" data-go="${x.go}">${ICON[x.icon]}<div><b>${x.t}</b><span>${x.s}</span></div></button>`).join('');
+$('tiles').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) route(b.dataset.go); });
+
+const SUBS = { menu: '菜單', home: '顧客服務中心', help: '異常協助', fb: '敲敲老闆・創意許願', pre: '大單預訂', done: '送出成功' };
+function go(v) {
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
+  $('topSub').textContent = SUBS[v] || '';
+  $('backBtn').style.display = v === 'home' ? 'none' : '';
+  $('totalbar').classList.toggle('on', v === 'pre');
+  if (v === 'help' || v === 'pre') loadCatalog();
+  if (v === 'menu') loadMenu();
+  window.scrollTo(0, 0);
+}
+$('backBtn').onclick = () => go('home');
+
+/* ---------- 共用：單選／多選 chips ---------- */
+function chips(el, opts, multi, onChange) {
+  const box = $(el); let val = multi ? [] : '';
+  box.innerHTML = opts.map(o => `<button type="button" class="chip" data-v="${esc(o)}">${esc(o)}</button>`).join('');
+  box.addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    const v = b.dataset.v;
+    if (multi) { val = val.includes(v) ? val.filter(x => x !== v) : [...val, v]; b.classList.toggle('on'); }
+    else { val = v; box.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); }
+    onChange && onChange(val);
+  });
+  return { get: () => val, set: v => { val = v; box.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', multi ? v.includes(x.dataset.v) : x.dataset.v === v)); } };
+}
+
+/* ---------- 品項挑選器（資料來自價格表） ---------- */
+let CAT = null, catLoading = null;
+function loadCatalog() {
+  if (CAT || catLoading) return catLoading;
+  catLoading = call('getCatalog', BOOT.sid || '').then(d => { CAT = d.cats || []; pickers.forEach(p => p.render()); renderRec(); })
+    .catch(() => { pickers.forEach(p => p.fail()); });
+  return catLoading;
+}
+/* ---------- 看菜單（公開）：品項、價格、過敏原標示，可篩選 ---------- */
+let MENU = null, menuLoading = null;
+const mf = { diet: '', avoid: [] };
+function loadMenu() {
+  if (MENU) return renderMenu();
+  if (menuLoading) return;
+  menuLoading = call('getMenu', BOOT.sid || '').then(d => {
+    if (d.error) { $('menuBody').innerHTML = '<div class="sub" style="padding:20px;text-align:center">菜單還沒有準備好，請稍後再看。</div>'; return; }
+    MENU = d; if (/^#[0-9A-Fa-f]{6}$/.test(d.accent || '')) document.documentElement.style.setProperty('--orange', d.accent);
+    const defs = d.tagDefs || [], has = c => d.cats.some(k => k.items.some(i => i.tags.includes(c)));
+    const diets = [['', '全部'], ...(has('veg') || has('vegan') ? [['veg', '素食（含純素）'], ['vegan', '純素']] : []), ...(has('spicy') ? [['nospicy', '不辣']] : [])];
+    $('mfDiet').innerHTML = diets.map(([v, t]) => `<button data-d="${v}" class="${v === mf.diet ? 'on' : ''}">${t}</button>`).join('');
+    const algs = defs.filter(x => x.g === 'a' && has(x.c));
+    $('mfAlg').innerHTML = algs.length ? algs.map(x => `<button class="avoid" data-a="${x.c}">${x.t}</button>`).join('') : '<span class="sub">這家店沒有標示過敏原</span>';
+    renderMenu();
+  }).catch(() => { $('menuBody').innerHTML = '<div class="sub" style="padding:20px;text-align:center">讀取失敗，請重新整理。</div>'; }).finally(() => { menuLoading = null; });
+}
+function menuOk(it) {
+  if (mf.diet === 'veg' && !(it.tags.includes('veg') || it.tags.includes('vegan'))) return false;
+  if (mf.diet === 'vegan' && !it.tags.includes('vegan')) return false;
+  if (mf.diet === 'nospicy' && it.tags.includes('spicy')) return false;
+  return !mf.avoid.some(a => it.tags.includes(a));
+}
+function renderMenu() {
+  const defs = Object.fromEntries((MENU.tagDefs || []).map(x => [x.c, x]));
+  const html = MENU.cats.map(c => {
+    const items = c.items.filter(menuOk); if (!items.length) return '';
+    return `<div class="card mc"><h3><i></i>${esc(c.name)}</h3>${c.note ? `<div class="sub" style="margin:-2px 0 6px;font-size:13px">${esc(c.note)}</div>` : ''}${items.map(i => `<div class="mi"><div class="nm">${i.star ? '<span class="st">★</span> ' : ''}${esc(i.name)}${i.tags.map(t => defs[t] ? `<span class="tg ${defs[t].g === 'd' ? 'd' : defs[t].g === 'f' ? 'f' : ''}">${esc(defs[t].t)}</span>` : '').join('')}${i.side ? `<small>${esc(i.side)}</small>` : ''}</div><div class="pr">${i.prices.map(p => p.spec ? `<small>${esc(p.spec)}</small>${p.price}` : String(p.price)).join('<small>・</small>')}</div></div>`).join('')}</div>`;
+  }).join('');
+  $('menuBody').innerHTML = html || '<div class="sub" style="padding:24px;text-align:center">沒有符合條件的品項。可以取消一些篩選看看。</div>';
+}
+$('mfDiet').addEventListener('click', e => { const b = e.target.closest('[data-d]'); if (!b) return; mf.diet = b.dataset.d; $('mfDiet').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderMenu(); });
+$('mfAlg').addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b) return; const a = b.dataset.a; mf.avoid = mf.avoid.includes(a) ? mf.avoid.filter(x => x !== a) : [...mf.avoid, a]; b.classList.toggle('on'); renderMenu(); });
+const pickers = [];
+function picker(el, showPrice, onChange) {
+  const root = $(el); const cart = {}; let cat = 0, q = '';
+  root.innerHTML = '<div class="pk"><div class="pk-cats"></div><div class="pk-q"><input type="text" placeholder="搜尋品項，例如：豬排、奶茶"></div><div class="pk-list"><div class="empty">品項載入中…</div></div></div><div class="cart"></div>';
+  const cats = root.querySelector('.pk-cats'), list = root.querySelector('.pk-list'), cartEl = root.querySelector('.cart');
+  const all = () => CAT.flatMap(c => c.items.map(i => ({ ...i, cat: c.name })));
+  const find = k => all().find(i => i.k === k);
+  function drawList() {
+    let items = q ? all().filter(i => (i.name + i.spec + i.cat).includes(q)) : (cat === -1 ? all().filter(i => i.star) : CAT[cat].items);
+    list.innerHTML = items.length ? items.map(i => `<div class="pk-it"><div class="nm">${i.star ? '<span class="st">★</span>' : ''}${esc(i.name)}${i.spec ? `<small>${esc(i.spec)}</small>` : ''}</div>${showPrice ? `<span class="pr">$${i.price}</span>` : ''}<button type="button" class="add" data-k="${esc(i.k)}" aria-label="加入">+</button></div>`).join('') : '<div class="empty">找不到這個品項</div>';
+  }
+  function drawCart() {
+    const ks = Object.keys(cart);
+    cartEl.innerHTML = ks.length ? ks.map(k => { const i = find(k); return `<div class="row"><div class="nm">${esc(i.name)}${i.spec ? '（' + esc(i.spec) + '）' : ''}${showPrice ? `<br><small style="color:var(--mute)">$${i.price} × ${cart[k]} = <b style="color:var(--navy)">$${i.price * cart[k]}</b></small>` : ''}</div><div class="step"><button type="button" data-m="${esc(k)}">−</button><b>${cart[k]}</b><button type="button" data-p="${esc(k)}">+</button></div></div>`; }).join('') : '<div class="empty">還沒選品項，按上面的 <b style="color:var(--orange)">+</b> 加入</div>';
+    onChange && onChange();
+  }
+  cats.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; cat = +b.dataset.i; q = ''; root.querySelector('.pk-q input').value = ''; cats.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); drawList(); });
+  root.querySelector('.pk-q input').addEventListener('input', e => { q = e.target.value.trim(); drawList(); });
+  list.addEventListener('click', e => { const b = e.target.closest('.add'); if (!b) return; cart[b.dataset.k] = (cart[b.dataset.k] || 0) + 1; drawCart(); b.animate([{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }], 200); });
+  cartEl.addEventListener('click', e => { const p = e.target.closest('[data-p]'), m = e.target.closest('[data-m]'); if (p) cart[p.dataset.p]++; if (m && --cart[m.dataset.m] <= 0) delete cart[m.dataset.m]; if (p || m) drawCart(); });
+  const api = {
+    render() { cats.innerHTML = `<button data-i="-1">推薦</button>` + CAT.map((c, i) => `<button data-i="${i}" class="${i === 0 ? 'on' : ''}">${esc(c.name.split('／')[0])}</button>`).join(''); cat = 0; drawList(); drawCart(); },
+    fail() { list.innerHTML = '<div class="empty">品項暫時載入不了，請直接寫在說明欄</div>'; },
+    add(k) { cart[k] = (cart[k] || 0) + 1; drawCart(); },
+    items: () => Object.keys(cart).map(k => ({ k, q: cart[k] })),
+    total: () => Object.keys(cart).reduce((s, k) => { const i = find(k); return s + (i ? i.price * cart[k] : 0); }, 0),
+    count: () => Object.values(cart).reduce((a, b) => a + b, 0),
+    clear() { Object.keys(cart).forEach(k => delete cart[k]); drawCart(); },
+  };
+  pickers.push(api);
+  return api;
+}
+
+/* ---------- 異常協助 ---------- */
+const hChannel = chips('h-channel', BOOT.channels, false, v => {
+  const deliv = /Uber|panda|微碧/i.test(v);
+  $('h-order-req').style.display = deliv ? '' : 'none';
+  $('h-order-hint').textContent = deliv ? '在 ' + v + ' 的「訂單」頁面可以找到訂單編號。' : '現場點餐可以寫取餐號碼，沒有也沒關係。';
+});
+const hIssues = chips('h-issues', BOOT.issues, true);
+const hWant = chips('h-want', ['補送餐點', '退款', '下次來店折抵', '只是想讓你們知道'], false);
+const hPick = picker('h-picker', false);
+$('h-date').value = new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+const photos = [];
+function drawPhotos() {
+  $('h-photos').innerHTML = photos.map((p, i) => `<img class="ph" src="data:image/jpeg;base64,${p}" data-i="${i}" title="點一下刪除">`).join('') +
+    (photos.length < 3 ? '<label class="phadd">＋ 加照片<input type="file" accept="image/*"></label>' : '');
+  const inp = $('h-photos').querySelector('input'); if (inp) inp.onchange = e => addPhoto(e.target.files[0]);
+}
+$('h-photos').addEventListener('click', e => { const im = e.target.closest('.ph'); if (im && confirm('刪除這張照片？')) { photos.splice(+im.dataset.i, 1); drawPhotos(); } });
+function addPhoto(file) {
+  if (!file) return;
+  const img = new Image(), url = URL.createObjectURL(file);
+  img.onload = () => {
+    const sc = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+    c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    photos.push(c.toDataURL('image/jpeg', 0.8).split(',')[1]); URL.revokeObjectURL(url); drawPhotos();
+  };
+  img.src = url;
+}
+drawPhotos();
+
+async function send(btn, errEl, fn, payload, done) {
+  $(errEl).textContent = ''; const b = $(btn); b.disabled = true; const t = b.textContent; b.textContent = '送出中…';
+  try { const r = await call(fn, { ...payload, t0: T0, sid: BOOT.sid || '' }); done(r); }
+  catch (e) { $(errEl).textContent = (e && e.message) ? e.message.replace(/^Error:\s*/, '') : '送出失敗，請再試一次'; }
+  finally { b.disabled = false; b.textContent = t; }
+}
+function finish(emoji, title, id, msg) { $('d-emoji').innerHTML = `<span>${svg('check', '#E8762A', 2.6, 36)}</span>`; $('d-title').textContent = title; $('d-id').textContent = id; $('d-msg').innerHTML = msg; go('done'); }
+
+$('h-send').onclick = () => {
+  const ch = hChannel.get(), no = $('h-order').value.trim();
+  if (!ch) return $('h-err').textContent = '請選擇從哪裡點的';
+  if (/Uber|panda|微碧/i.test(ch) && !no) return $('h-err').textContent = '請填訂單編號，我們才查得到';
+  if (!hIssues.get().length) return $('h-err').textContent = '請選擇遇到的問題';
+  if (!$('h-contact').value.trim()) return $('h-err').textContent = '請留下聯絡方式';
+  send('h-send', 'h-err', 'submitHelp', { channel: ch, orderNo: no, orderDate: $('h-date').value, issues: hIssues.get(), items: hPick.items(),
+    detail: $('h-detail').value, want: hWant.get(), photos, contact: $('h-contact').value, hp: $('h-hp').value },
+    r => finish('🙏', '收到了，真的很抱歉！', r.id, '請記下這個單號，老闆會盡快聯絡你。<br>營業時間內通常當天就會回覆喔。'));
+};
+
+/* ---------- 許願／敲敲老闆 ---------- */
+function showTab(t) {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === t));
+  $('t-wish').style.display = t === 'wish' ? '' : 'none'; $('t-knock').style.display = t === 'knock' ? '' : 'none';
+}
+// 網址 ?p=knock／wish／pre／help 可以直接打開對應的表單
+function route(p) {
+  if (p === 'knock' || p === 'wish' || p === 'fb') { go('fb'); showTab(p === 'wish' ? 'wish' : 'knock'); }
+  else go(['help', 'pre', 'menu'].includes(p) ? p : 'home');
+}
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tab === 'pre') return go('pre');
+  showTab(b.dataset.tab);
+});
+const kTo = chips('k-to', ['老闆', '老闆娘', '都可以'], false); kTo.set('都可以');
+$('k-reply').onchange = () => { $('k-contact-f').style.display = $('k-reply').checked ? '' : 'none'; };
+$('w-send').onclick = () => {
+  if (!$('w-item').value.trim()) return $('w-err').textContent = '請寫下想吃的品項';
+  send('w-send', 'w-err', 'submitWish', { item: $('w-item').value, detail: $('w-detail').value, contact: $('w-contact').value, hp: $('w-hp').value },
+    r => finish('🌟', '願望收到了！', r.id, '老闆會定期看大家的願望，上架時會第一個告訴你！'));
+};
+$('k-send').onclick = () => {
+  if (!$('k-msg').value.trim()) return $('k-err').textContent = '請寫下想說的話';
+  if ($('k-reply').checked && !$('k-contact').value.trim()) return $('k-err').textContent = '想要回覆的話，請留聯絡方式';
+  const to = kTo.get() || '都可以';
+  send('k-send', 'k-err', 'submitKnock', { to, msg: $('k-msg').value, reply: $('k-reply').checked, contact: $('k-contact').value, hp: $('k-hp').value },
+    r => finish('👋', '叩叩！' + (to === '都可以' ? '老闆們' : to) + '收到了', r.id, '謝謝你願意告訴我們，這對我們很重要'));
+};
+
+/* ---------- 預訂 ---------- */
+const pPick = picker('p-picker', true, () => { $('t-count').textContent = pPick.count(); $('t-sum').textContent = '$' + pPick.total().toLocaleString(); });
+(function initDate() {
+  const d = new Date(Date.now() + 8 * 3600e3); d.setUTCDate(d.getUTCDate() + BOOT.minDays);
+  for (let i = 0; i < 120 && !dayInfo(d.toISOString().slice(0, 10)).open; i++) d.setUTCDate(d.getUTCDate() + 1);
+  $('p-date').min = new Date(Date.now() + 8 * 3600e3 + BOOT.minDays * 86400e3).toISOString().slice(0, 10);
+  $('p-date').value = d.toISOString().slice(0, 10); checkDate();
+  const t = []; for (let h = 6; h <= 12; h++) for (const m of ['00', '30']) if (!(h === 12 && m === '30')) t.push(String(h).padStart(2, '0') + ':' + m);
+  $('p-time').innerHTML = t.map(x => `<option>${x}</option>`).join(''); $('p-time').value = '08:00';
+})();
+function checkDate() {
+  const v = $('p-date').value; if (!v) return false;
+  const wd = new Date(v + 'T00:00:00Z').getUTCDay(), di = dayInfo(v);
+  $('p-date-hint').innerHTML = di.open ? `週${WD[wd]}取餐・營業時間 06:00–13:00${di.reason ? '（' + esc(di.reason) + '）' : ''}` : `<span style="color:var(--bad);font-weight:700">${mdw(v)} ${esc(di.reason === '每週公休' ? '公休' : '店休：' + di.reason)}，請選其他日期</span>`;
+  return di.open;
+}
+$('p-date').onchange = checkDate;
+function renderRec() {
+  const rec = CAT.flatMap(c => c.items.filter(i => i.star)).slice(0, 12);
+  $('p-rec').innerHTML = rec.map(i => `<button type="button" data-k="${esc(i.k)}">${esc(i.name)}${i.spec ? '（' + esc(i.spec) + '）' : ''}<small>$${i.price}　＋加入</small></button>`).join('');
+}
+$('p-rec').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) pPick.add(b.dataset.k); });
+$('p-send').onclick = () => {
+  if (!checkDate()) return $('p-err').textContent = '這天沒有營業，請選其他日期';
+  if (!pPick.count()) return $('p-err').textContent = '請至少選一個品項';
+  if (!$('p-name').value.trim() || !$('p-phone').value.trim()) return $('p-err').textContent = '請填姓名和電話';
+  send('p-send', 'p-err', 'submitPreorder', { date: $('p-date').value, time: $('p-time').value, items: pPick.items(), name: $('p-name').value, phone: $('p-phone').value, note: $('p-note').value, hp: $('p-hp').value },
+    r => { pPick.clear(); finish('📅', '預訂送出了！', r.id, `共 ${r.count} 件，預估 <b style="color:var(--orange)">$${r.total.toLocaleString()}</b><br>我們確認後會打電話或用 LINE 聯絡你，<b>收到確認才算預訂成功</b>喔！`); });
+};
+
+route(BOOT.page);
+</script>
+<script>window.__hlEnd = true; /* hl-end：檔案到這裡結束 */</script>
+</body>
+</html>

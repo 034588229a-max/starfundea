@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>員工打卡</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@600;800&display=swap">
+<style>
+/* HL-POS */ .tabs{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;overflow:visible!important}.tabs button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:78px;border-radius:20px!important;font-size:15px;font-weight:900;padding:10px 6px;white-space:normal;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.09)}.tabs button svg.hl-icon{width:28px;height:28px;margin:0}.btn{min-height:50px;border-radius:14px}
+
+.ico{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.4em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+:root{--bg:#F2EEE6;--card:#fff;--ink:#16233A;--mute:#6B7486;--line:#E7E1D6;--pri:#1B4F8A;--acc:#E8762A;--onpri:#fff;--ok:#1E7D45;--bad:#C0392B;--warn:#B26A00;--field:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;--warn:#E9B35A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;--warn:#E9B35A;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC','Outfit',system-ui,sans-serif;font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 40px;max-width:560px;margin-inline:auto}
+header{display:flex;align-items:center;gap:12px;padding-block:18px 10px}
+header .dot{width:42px;height:42px;border-radius:12px;background:var(--pri);color:var(--onpri);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;flex:0 0 auto}
+header h1{margin:0;font-size:19px;line-height:1.2}
+header .sub{font-size:12.5px;color:var(--mute)}
+header .out{margin-left:auto;border:0;background:transparent;color:var(--mute);font:inherit;font-size:13px;padding:8px;cursor:pointer}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 1px 0 var(--line)}
+.card h2{margin:0 0 8px;font-size:16px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}
+input,select,textarea{width:100%;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font:inherit;font-size:16px;padding:0 12px}
+textarea{height:76px;padding:10px 12px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+.btn{display:block;width:100%;height:50px;border:0;border-radius:14px;background:var(--pri);color:var(--onpri);font:inherit;font-weight:900;font-size:17px;margin-top:14px;cursor:pointer}
+.btn.acc{background:var(--acc);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.sm{height:36px;font-size:13.5px;width:auto;padding:0 14px;margin:0;border-radius:10px}
+.btn[disabled]{opacity:.55}
+.tabs{display:flex;gap:6px;margin-top:6px;overflow-x:auto}
+.tabs button{flex:1;min-width:max-content;border:0;background:var(--card);color:var(--mute);font:inherit;font-weight:700;padding:11px 14px;border-radius:12px;cursor:pointer}
+.tabs button.on{background:var(--pri);color:var(--onpri)}
+.big{font-family:'Outfit','Noto Sans TC',sans-serif;font-weight:800;font-size:46px;line-height:1.1;text-align:center;font-variant-numeric:tabular-nums}
+.date{text-align:center;color:var(--mute);margin-top:2px}
+.shift{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);margin-top:8px;font-weight:700}
+.shift span{color:var(--mute);font-weight:400}
+.msg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:14px;display:none}
+.msg.ok{display:block;background:rgba(30,125,69,.14);color:var(--ok)}
+.msg.bad{display:block;background:rgba(192,57,43,.13);color:var(--bad)}
+.msg.warn{display:block;background:rgba(178,106,0,.14);color:var(--warn)}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
+.li:first-child{border-top:0}
+.li small{color:var(--mute);display:block;font-size:12.5px}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--mute);margin-left:6px}
+.tag.late{background:rgba(192,57,43,.13);color:var(--bad)}.tag.ok{background:rgba(30,125,69,.14);color:var(--ok)}.tag.wait{background:rgba(178,106,0,.14);color:var(--warn)}
+.hint{font-size:12.5px;color:var(--mute);margin-top:6px}
+.empty{color:var(--mute);text-align:center;padding:18px 0}
+.day{font-weight:900;margin-top:12px;font-size:14px}
+.docg{font-size:12.5px;font-weight:900;color:var(--mute);margin-top:14px;letter-spacing:.06em}
+a.doc{color:inherit;text-decoration:none}
+.hidden{display:none!important}
+.pstat{margin-top:12px;padding:12px;border-radius:12px;text-align:center;font-weight:900;font-size:16px;background:var(--bg);color:var(--mute)}
+.pstat.working{background:rgba(30,125,69,.14);color:var(--ok)}.pstat.done{background:rgba(27,79,138,.12);color:var(--pri)}
+.rbox{margin-top:12px;padding:12px;border-radius:12px;background:rgba(178,106,0,.12)}.rtitle{font-weight:900;color:var(--warn);font-size:14px}
+.rchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.rchips button{min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}.rchips button.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.rbox input{margin-top:8px}
+.annual{display:flex;justify-content:space-between;align-items:center;gap:10px}.annual b{font-family:'Outfit','Noto Sans TC',sans-serif;font-size:34px;line-height:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="dot" id="dot">打</div>
+  <div><h1 id="shop">員工打卡</h1><div class="sub" id="who"></div></div>
+  <button class="out hidden" id="logout">登出</button>
+</header>
+
+<section id="login">
+  <div class="card">
+    <h2>員工登入</h2>
+    <div class="hint" style="margin:0 0 6px">請用店長傳給你的「專屬連結」打開，就是你自己的畫面。換了手機或連結不見，可以在這裡登入。</div>
+    <label for="emp">員工編號</label>
+    <input id="emp" type="text" autocapitalize="characters" autocomplete="off" maxlength="8" placeholder="例如 E001（向店長索取）">
+    <label for="pin">PIN（4～6 位數字）</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="你自己設定的 PIN">
+    <button class="btn" id="go">登入</button>
+    <div class="msg" id="lmsg"></div>
+    <div class="hint">登入後這支手機會記住你。PIN 打錯 5 次會暫時鎖定 15 分鐘。為了保護隱私，這裡不會列出其他同事的名字。</div>
+  </div>
+</section>
+
+<section id="home" class="hidden">
+  <nav class="tabs" id="tabs">
+    <button data-t="punch" data-ic="clock" class="on">打卡</button><button data-t="plan" data-ic="calendar">班表</button><button data-t="leave" data-ic="calendar-x">請假</button><button data-t="docs" data-ic="file-text">文件</button>
+  </nav>
+
+  <div id="t-punch">
+    <div class="card">
+      <div class="big" id="clk">--:--:--</div>
+      <div class="date" id="dt"></div>
+      <div id="todayShift"></div>
+      <div class="pstat" id="pstat"></div>
+      <div class="rbox hidden" id="rbox"><div class="rtitle" id="rtitle"></div><div class="rchips" id="rchips"></div><input id="rother" class="hidden" maxlength="30" placeholder="請寫原因（30 字內）"></div>
+      <button class="btn acc" id="punch">打卡</button>
+      <div class="msg" id="pmsg"></div>
+    </div>
+    <div class="card"><h2>最近的打卡</h2><div id="plist"></div></div>
+  </div>
+
+  <div id="t-plan" class="hidden"><div class="card"><h2>我的班表（未來 3 週）</h2><div id="planBody"></div></div><div class="card hidden" id="orderCard"><h2>今天要叫貨</h2><div id="orderBody"></div><div class="msg" id="orderMsg"></div></div><div class="card hidden" id="handCard"><h2>交接事項（還沒處理）</h2><div id="handBody"></div><div class="msg" id="handMsg"></div></div></div>
+
+  <div id="t-leave" class="hidden">
+    <div class="card"><h2>特休</h2><div id="annual"></div></div>
+    <div class="card">
+      <h2>我要請假</h2>
+      <label for="lt">類別</label><select id="lt"></select>
+      <div class="row"><div><label for="ls">開始日</label><input id="ls" type="date"></div><div><label for="le">結束日</label><input id="le" type="date"></div></div>
+      <label for="lr">事由（選填）</label><textarea id="lr" maxlength="100"></textarea>
+      <button class="btn" id="lsend">送出申請</button>
+      <div class="msg" id="lmsg2"></div>
+    </div>
+    <div class="card"><h2>我的請假紀錄</h2><div id="llist"></div></div>
+  </div>
+
+  <div id="t-docs" class="hidden"><div class="card"><h2>工作守則・教育訓練・常用文件</h2><div id="docBody"></div><div class="msg" id="docMsg"></div></div></div>
+</section>
+
+<script>
+const BOOT = <?!= boot ?>;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+const KEY = 'stclock:' + (BOOT.sid || 'x');
+let TOKEN = '', HOME = null, timer = null, offset = 0;
+
+function run(fn, ...args) {
+  return new Promise((ok, bad) => google.script.run.withSuccessHandler(ok).withFailureHandler(e => bad(new Error((e && e.message) || String(e)))) [fn](...args));
+}
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return ''; }
+function show(el, cls, text) { el.className = 'msg ' + cls; el.textContent = text; }
+function mdw(d) { const x = new Date(d + 'T00:00:00Z'); return (x.getUTCMonth() + 1) + '/' + x.getUTCDate() + '（' + WD[x.getUTCDay()] + '）'; }
+function hm(mins) { return Math.floor(mins / 60) + ' 小時 ' + (mins % 60) + ' 分'; }
+function relogin() { TOKEN = ''; store(KEY, null); $('home').classList.add('hidden'); $('logout').classList.add('hidden'); $('login').classList.remove('hidden'); $('who').textContent = ''; clearInterval(timer); }
+function fail(e, box) {
+  const m = e.message || String(e);
+  if (/重新登入|失效|過期/.test(m)) { relogin(); show($('lmsg'), 'bad', m); return; }
+  show(box, 'bad', m);
+}
+
+(function init() {
+  const b = BOOT.brand || {};
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.primary || '')) { document.documentElement.style.setProperty('--pri', b.primary); const l = parseInt(b.primary.slice(1), 16), r = l >> 16, g = (l >> 8) & 255, bl = l & 255; document.documentElement.style.setProperty('--onpri', (0.299 * r + 0.587 * g + 0.114 * bl) > 150 ? '#16233A' : '#FFFFFF'); }
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.accent || '')) document.documentElement.style.setProperty('--acc', b.accent);
+  $('shop').textContent = (b.name || '') + ' 員工打卡'; $('dot').textContent = (b.name || '打').slice(0, 1); document.title = (b.name || '') + '｜員工打卡';
+  if (BOOT.tok) { TOKEN = BOOT.tok; store(KEY, TOKEN); }   /* 專屬連結：直接是本人 */
+  else TOKEN = store(KEY);
+  if (TOKEN) load();
+})();
+
+$('go').onclick = async () => {
+  const id = $('emp').value.trim().toUpperCase(), pin = $('pin').value.trim();
+  if (!/^E\d{3,}$/.test(id)) return show($('lmsg'), 'bad', '請填員工編號（例如 E001），不知道請問店長');
+  if (!/^\d{4,6}$/.test(pin)) return show($('lmsg'), 'bad', 'PIN 是 4～6 位數字');
+  $('go').disabled = true; show($('lmsg'), 'warn', '登入中…');
+  try { const r = await run('stEmpLogin', BOOT.sid, id, pin); TOKEN = r.token; store(KEY, TOKEN); $('pin').value = ''; $('lmsg').className = 'msg'; await load(); }
+  catch (e) { show($('lmsg'), 'bad', e.message); }
+  $('go').disabled = false;
+};
+$('pin').onkeydown = e => { if (e.key === 'Enter') $('go').click(); };
+$('logout').onclick = relogin;
+
+async function load() {
+  try {
+    HOME = await run('stEmpHome', TOKEN);
+    offset = 0;
+    $('login').classList.add('hidden'); $('home').classList.remove('hidden'); $('logout').classList.remove('hidden');
+    $('who').textContent = HOME.emp.name + (HOME.emp.title ? '・' + HOME.emp.title : '');
+    draw();
+    tick(); clearInterval(timer); timer = setInterval(tick, 1000);
+  } catch (e) { relogin(); if (!/重新登入|失效|過期/.test(e.message)) show($('lmsg'), 'bad', e.message); else show($('lmsg'), 'bad', e.message); }
+}
+
+function tick() {
+  const d = new Date(Date.now() + 8 * 3600e3), p = n => String(n).padStart(2, '0');
+  $('clk').textContent = p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds());
+  $('dt').textContent = d.getUTCFullYear() + '/' + p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate()) + '（週' + WD[d.getUTCDay()] + '）';
+}
+
+function draw() {
+  const H = HOME, todays = H.shifts.filter(s => s.d === H.today);
+  $('todayShift').innerHTML = todays.length ? todays.map(s => `<div class="shift"><b>今天的班：${esc(s.n)}</b><span>${esc(s.s)}–${esc(s.t)}</span></div>`).join('') : '<div class="shift"><b>今天沒有排班</b><span></span></div>';
+  const open = H.open, S = H.status || { state: open ? 'working' : 'none' };
+  $('punch').textContent = '打卡';
+  $('punch').className = 'btn ' + (S.state === 'none' ? 'acc' : '');
+  const ps = $('pstat'); ps.className = 'pstat ' + (S.state === 'working' ? 'working' : S.state === 'done' ? 'done' : '');
+  ps.textContent = S.state === 'none' ? '今天還沒打卡' : S.state === 'working' ? (S.day && S.day !== H.today ? '上班中（' + mdw(S.day) + ' ' + S.in + ' 起）　下班時按一下' : '✓ 今日已打卡 ' + S.in + '　下班時再按一次') : '✓ 今日已完成　' + S.in + ' → ' + (S.out || '');
+  /* 超過上班時間才打卡：要選補打卡原因（選項由店主設定，也能自己寫） */
+  $('rbox').classList.toggle('hidden', !S.needReason);
+  if (S.needReason) {
+    $('rtitle').textContent = '已超過上班時間 ' + S.lateMins + ' 分鐘，請選補打卡原因：';
+    $('rchips').innerHTML = (H.reasons || []).concat(['其他']).map(x => `<button type="button" data-r="${esc(x)}" class="${REASON === x ? 'on' : ''}">${esc(x)}</button>`).join('');
+    $('rother').classList.toggle('hidden', REASON !== '其他');
+  } else REASON = '';
+  $('plist').innerHTML = H.punches.length ? H.punches.map(p => `<div class="li"><div><b>${esc(mdw(p.d))}</b><small>${esc(p.in)} → ${p.out ? esc(p.out) : '還沒下班'}${p.mins ? '・' + hm(p.mins) : ''}${p.reason ? '・補打卡：' + esc(p.reason) : ''}</small></div><div>${p.late ? `<span class="tag late">遲到 ${p.late} 分</span>` : (p.out ? '<span class="tag ok">正常</span>' : (p.missed ? '<span class="tag late">忘了下班</span>' : '<span class="tag wait">上班中</span>'))}</div></div>`).join('') : '<div class="empty">還沒有打卡紀錄</div>';
+  const A = H.annual;
+  $('annual').innerHTML = A && A.ok ? `<div class="annual"><div><small style="color:var(--mute)">特休剩餘（到職日 ${esc(A.hired)}，年資 ${A.years} 年）</small><div><b>${A.left}</b> 天　<span style="color:var(--mute)">共 ${A.days} 天・已休 ${A.used} 天</span></div></div></div><div class="hint">依勞動基準法第 38 條計算（${esc(A.from)} ～ ${esc(A.to)} 這一年度）。</div>` : '<div class="hint">店長還沒填你的到職日，所以還算不出特休天數。</div>';
+  const OR = H.orders || { today: [], overdue: [] }, od = OR.today.concat(OR.overdue);
+  $('orderCard').classList.toggle('hidden', !od.length);
+  $('orderBody').innerHTML = od.map(o => `<div class="li"><div><b>${esc(o.name)}</b>${OR.overdue.indexOf(o) >= 0 ? ' <span class="tag late">昨天沒叫</span>' : ''}<small>${esc(o.time)} 前</small></div><div>${o.done ? '<span class="tag ok">✓ 已叫貨 ' + esc(o.at) + '</span>' : `<button class="btn sm" data-od="${esc(o.vid)}">已叫貨</button>`}</div></div>`).join('');
+  $('handCard').classList.toggle('hidden', !(H.hand && H.hand.length));
+  $('handBody').innerHTML = (H.hand || []).map(h => `<div class="li"><div><b>[${esc(h.prio)}] ${esc(mdw(h.day))} ${esc(h.shift)}</b>${h.mine ? ' <span class="tag late">交給你</span>' : ''}<small>${esc(h.who)}：${esc(h.text)}</small></div><div><button class="btn sm" data-hd="${esc(h.id)}">處理完成</button></div></div>`).join('');
+  const by = {}; H.shifts.forEach(s => (by[s.d] = by[s.d] || []).push(s));
+  const days = Object.keys(by);
+  $('planBody').innerHTML = days.length ? days.map(d => `<div class="day">${esc(mdw(d))}${d === H.today ? '（今天）' : ''}</div>` + by[d].map(s => `<div class="shift"><b>${esc(s.n)}</b><span>${esc(s.s)}–${esc(s.t)}${s.note ? '・' + esc(s.note) : ''}</span></div>`).join('')).join('') : '<div class="empty">未來 3 週還沒有排班</div>';
+  $('lt').innerHTML = H.leaveTypes.map(t => `<option>${esc(t)}</option>`).join('');
+  if (!$('ls').value) { $('ls').value = H.today; $('le').value = H.today; }
+  const st = { '待審': 'wait', '核准': 'ok', '駁回': 'late', '已取消': '' };
+  $('llist').innerHTML = H.leaves.length ? H.leaves.map(l => `<div class="li"><div><b>${esc(l.type)}　${esc(mdw(l.start))}${l.end !== l.start ? ' ～ ' + esc(mdw(l.end)) : ''}</b><small>${esc(l.reason || '')}${l.reply ? '　店長回覆：' + esc(l.reply) : ''}</small></div><div><span class="tag ${st[l.status] || ''}">${esc(l.status)}</span>${l.status === '待審' ? ` <button class="btn sm ghost" data-cancel="${esc(l.id)}">取消</button>` : ''}</div></div>`).join('') : '<div class="empty">還沒有請假紀錄</div>';
+  const g = {}; H.docs.forEach(d => (g[d.cat] = g[d.cat] || []).push(d));
+  const cats = Object.keys(g);
+  $('docBody').innerHTML = cats.length ? cats.map(c => { const n = g[c].filter(d => d.read).length, prog = ['工作守則', '教育訓練'].indexOf(c) >= 0 ? `<span class="tag ${n === g[c].length ? 'ok' : 'wait'}">已完成 ${n}／${g[c].length}</span>` : ''; return `<div class="docg">${esc(c)} ${prog}</div>` + g[c].map(d => `<div class="li"><a class="doc" href="${esc(d.url)}" target="_blank" rel="noopener" style="flex:1;min-width:0"><div><b>${esc(d.title)}</b>${d.must ? ' <span class="tag late">必讀</span>' : ''}<small>${esc(d.name)}・${d.kb} KB</small></div></a>${d.read ? '<span class="tag ok">✓ 已完成</span>' : `<button class="btn sm" data-dr="${esc(d.id)}">我看完了</button>`}</div>`).join(''); }).join('') : '<div class="empty">店家還沒有放文件</div>';
+}
+
+$('tabs').onclick = e => {
+  const b = e.target.closest('[data-t]'); if (!b) return;
+  document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+  ['punch', 'plan', 'leave', 'docs'].forEach(t => $('t-' + t).classList.toggle('hidden', t !== b.dataset.t));
+};
+
+let REASON = '';
+$('rchips').onclick = e => {
+  const b = e.target.closest('[data-r]'); if (!b) return;
+  REASON = b.dataset.r; draw(); if (REASON === '其他') $('rother').focus();
+};
+$('punch').onclick = async () => {
+  const S = HOME.status || {};
+  let why = '';
+  if (S.needReason) {
+    why = REASON === '其他' ? $('rother').value.trim() : REASON;
+    if (!why) return show($('pmsg'), 'warn', REASON === '其他' ? '請寫一下原因' : '已超過上班時間，請先選一個補打卡原因');
+  }
+  $('punch').disabled = true; show($('pmsg'), 'warn', '打卡中…');
+  try {
+    const r = await run('stPunch', TOKEN, '', why);
+    show($('pmsg'), r.warn ? 'warn' : 'ok', '打卡成功 ' + r.time + (r.from ? '（從 ' + r.from + ' 開始）' : '') + (r.reason ? '　補打卡原因：' + r.reason : '') + (r.warn ? '　' + r.warn : ''));
+    REASON = ''; $('rother').value = '';
+    HOME = await run('stEmpHome', TOKEN); draw();
+  } catch (e) { fail(e, $('pmsg')); }
+  $('punch').disabled = false;
+};
+
+$('lsend').onclick = async () => {
+  $('lsend').disabled = true; show($('lmsg2'), 'warn', '送出中…');
+  try {
+    await run('stLeaveSubmit', TOKEN, { type: $('lt').value, start: $('ls').value, end: $('le').value, reason: $('lr').value });
+    $('lr').value = ''; show($('lmsg2'), 'ok', '已送出，等店長審核');
+    HOME = await run('stEmpHome', TOKEN); draw();
+  } catch (e) { fail(e, $('lmsg2')); }
+  $('lsend').disabled = false;
+};
+$('ls').onchange = () => { if ($('le').value < $('ls').value) $('le').value = $('ls').value; };
+$('llist').onclick = async e => {
+  const b = e.target.closest('[data-cancel]'); if (!b) return;
+  b.disabled = true;
+  try { await run('stLeaveCancel', TOKEN, b.dataset.cancel); HOME = await run('stEmpHome', TOKEN); draw(); show($('lmsg2'), 'ok', '已取消'); }
+  catch (er) { fail(er, $('lmsg2')); }
+};
+/* HL-ICONS:BEGIN */
+/* 弘林圖示庫 hl-icons.js v1.0
+   圖形來源：Lucide v0.460.0（ISC 授權，可商用；Copyright (c) Lucide Contributors，部分源自 Feather，MIT）。
+   無外部依賴、不含連續兩個斜線，可直接貼進 Apps Script 的 HTML。
+   用法：
+     1. HTML 寫 <i data-icon="coffee">（空的 i 標籤），可加 data-size="20" data-stroke="2" data-label="咖啡"
+     2. 頁面載入後呼叫 hlIcon.render()（也可傳入某個容器只換那一塊）
+     3. 在程式裡要字串：hlIcon('coffee', { size: 20 })；要元素：hlIcon.el('coffee')
+     4. 顏色跟著文字顏色（currentColor），用 CSS color 改色 */
+(function (root) {
+  var ICONS = {
+    'egg-fried': '<circle cx="11.5" cy="12.5" r="3.5"/><path d="M3 8c0-3.5 2.5-6 6.5-6 5 0 4.83 3 7.5 5s5 2 5 6c0 4.5-2.5 6.5-7 6.5-2.5 0-2.5 2.5-6 2.5s-7-2-7-5.5c0-3 1.5-3 1.5-5C3.5 10 3 9 3 8Z"/>',
+    'egg': '<path d="M12 22c6.23-.05 7.87-5.57 7.5-10-.36-4.34-3.95-9.96-7.5-10-3.55.04-7.14 5.66-7.5 10-.37 4.43 1.27 9.95 7.5 10z"/>',
+    'sandwich': '<path d="m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777"/><path d="M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25"/><path d="M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9"/><path d="m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2"/><rect width="20" height="4" x="2" y="11" rx="1"/>',
+    'croissant': '<path d="m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z"/><path d="m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83"/><path d="M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4"/><path d="m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2"/><path d="M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5"/>',
+    'salad': '<path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1"/><path d="m13 12 4-4"/><path d="M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2"/>',
+    'soup': '<path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 21h10"/><path d="M19.5 12 22 6"/><path d="M16.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.73 1.62"/><path d="M11.25 3c.27.1.8.53.74 1.36-.05.83-.93 1.2-.98 2.02-.06.78.33 1.24.72 1.62"/><path d="M6.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.74 1.62"/>',
+    'cooking-pot': '<path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/>',
+    'beef': '<circle cx="12.5" cy="8.5" r="2.5"/><path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/><path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/>',
+    'drumstick': '<path d="M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23"/><path d="m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59"/>',
+    'ham': '<path d="M13.144 21.144A7.274 10.445 45 1 0 2.856 10.856"/><path d="M13.144 21.144A7.274 4.365 45 0 0 2.856 10.856a7.274 4.365 45 0 0 10.288 10.288"/><path d="M16.565 10.435 18.6 8.4a2.501 2.501 0 1 0 1.65-4.65 2.5 2.5 0 1 0-4.66 1.66l-2.024 2.025"/><path d="m8.5 16.5-1-1"/>',
+    'fish': '<path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/>',
+    'pizza': '<path d="m12 14-1 1"/><path d="m13.75 18.25-1.25 1.42"/><path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12"/><path d="M18.8 9.3a1 1 0 0 0 2.1 7.7"/><path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z"/>',
+    'cake-slice': '<circle cx="9" cy="7" r="2"/><path d="M7.2 7.9 3 11v9c0 .6.4 1 1 1h16c.6 0 1-.4 1-1v-9c0-2-3-6-7-8l-3.6 2.6"/><path d="M16 13H3"/><path d="M16 17H3"/>',
+    'cookie': '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/>',
+    'donut': '<path d="M20.5 10a2.5 2.5 0 0 1-2.4-3H18a2.95 2.95 0 0 1-2.6-4.4 10 10 0 1 0 6.3 7.1c-.3.2-.8.3-1.2.3"/><circle cx="12" cy="12" r="3"/>',
+    'ice-cream-cone': '<path d="m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11"/><path d="M17 7A5 5 0 0 0 7 7"/><path d="M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4"/>',
+    'popcorn': '<path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4"/><path d="M10 22 9 8"/><path d="m14 22 1-14"/><path d="M20 8c.5 0 .9.4.8 1l-2.6 12c-.1.5-.7 1-1.2 1H7c-.6 0-1.1-.4-1.2-1L3.2 9c-.1-.6.3-1 .8-1Z"/>',
+    'coffee': '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+    'cup-soda': '<path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/><path d="m12 8 1-6h2"/>',
+    'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
+    'citrus': '<path d="M21.66 17.67a1.08 1.08 0 0 1-.04 1.6A12 12 0 0 1 4.73 2.38a1.1 1.1 0 0 1 1.61-.04z"/><path d="M19.65 15.66A8 8 0 0 1 8.35 4.34"/><path d="m14 10-5.5 5.5"/><path d="M14 17.85V10H6.15"/>',
+    'glass-water': '<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>',
+    'wine': '<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/>',
+    'beer': '<path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/>',
+    'apple': '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
+    'cherry': '<path d="M2 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M12 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M7 14c3.22-2.91 4.29-8.75 5-12 1.66 2.38 4.94 9 5 12"/><path d="M22 9c-4.29 0-7.14-2.33-10-7 5.71 0 10 4.67 10 7Z"/>',
+    'chef-hat': '<path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/>',
+    'utensils': '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+    'utensils-crossed': '<path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/>',
+    'leaf': '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+    'vegan': '<path d="M16 8q6 0 6-6-6 0-6 6"/><path d="M17.41 3.59a10 10 0 1 0 3 3"/><path d="M2 2a26.6 26.6 0 0 1 10 20c.9-6.82 1.5-9.5 4-14"/>',
+    'wheat': '<path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>',
+    'wheat-off': '<path d="m2 22 10-10"/><path d="m16 8-1.17 1.17"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="m8 8-.53.53a3.5 3.5 0 0 0 0 4.94L9 15l1.53-1.53c.55-.55.88-1.25.98-1.97"/><path d="M10.91 5.26c.15-.26.34-.51.56-.73L13 3l1.53 1.53a3.5 3.5 0 0 1 .28 4.62"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="m16 16-.53.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.49 3.49 0 0 1 1.97-.98"/><path d="M18.74 13.09c.26-.15.51-.34.73-.56L21 11l-1.53-1.53a3.5 3.5 0 0 0-4.62-.28"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'milk-off': '<path d="M8 2h8"/><path d="M9 2v1.343M15 2v2.789a4 4 0 0 0 .672 2.219l.656.984a4 4 0 0 1 .672 2.22v1.131M7.8 7.8l-.128.192A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.472 6.472 0 0 0 3.435.435"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'egg-off': '<path d="M6.399 6.399C5.362 8.157 4.65 10.189 4.5 12c-.37 4.43 1.27 9.95 7.5 10 3.256-.026 5.259-1.547 6.375-3.625"/><path d="M19.532 13.875A14.07 14.07 0 0 0 19.5 12c-.36-4.34-3.95-9.96-7.5-10-1.04.012-2.082.502-3.046 1.297"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'nut': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592A7.003 7.003 0 0 0 19 14v-4"/><path d="M12 4C8 4 4.5 6 4 8c-.243.97-.919 1.952-2 3 1.31-.082 1.972-.29 3-1 .54.92.982 1.356 2 2 1.452-.647 1.954-1.098 2.5-2 .595.995 1.151 1.427 2.5 2 1.31-.621 1.862-1.058 2.5-2 .629.977 1.162 1.423 2.5 2 1.209-.548 1.68-.967 2-2 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4Z"/>',
+    'nut-off': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592a7.01 7.01 0 0 0 4.125-2.939"/><path d="M19 10v3.343"/><path d="M12 12c-1.349-.573-1.905-1.005-2.5-2-.546.902-1.048 1.353-2.5 2-1.018-.644-1.46-1.08-2-2-1.028.71-1.69.918-3 1 1.081-1.048 1.757-2.03 2-3 .194-.776.84-1.551 1.79-2.21m11.654 5.997c.887-.457 1.28-.891 1.556-1.787 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4-.74 0-1.461.068-2.15.192"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'bean': '<path d="M10.165 6.598C9.954 7.478 9.64 8.36 9 9c-.64.64-1.521.954-2.402 1.165A6 6 0 0 0 8 22c7.732 0 14-6.268 14-14a6 6 0 0 0-11.835-1.402Z"/><path d="M5.341 10.62a4 4 0 1 0 5.279-5.28"/>',
+    'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    'star': '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    'thumbs-up': '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+    'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    'award': '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+    'sparkles': '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+    'badge-percent': '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m15 9-6 6"/><path d="M9 9h.01"/><path d="M15 15h.01"/>',
+    'store': '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+    'building-2': '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+    'map-pin': '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    'calendar': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+    'calendar-check': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+    'calendar-x': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+    'calendar-days': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>',
+    'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'user-plus': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'user-check': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+    'clipboard-list': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'clipboard-check': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'notebook-pen': '<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>',
+    'receipt': '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+    'wallet': '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    'banknote': '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    'credit-card': '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+    'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+    'package': '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
+    'truck': '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+    'bike': '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
+    'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    'megaphone': '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+    'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    'printer': '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+    'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    'file-spreadsheet': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
+    'file-check-2': '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/>',
+    'file-down': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/>',
+    'newspaper': '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+    'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+    'palette': '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+    'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    'qr-code': '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>',
+    'scan-line': '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+    'wifi': '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
+    'tag': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    'ticket': '<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>',
+    'gift': '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+    'presentation': '<path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>',
+    'smartphone': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+    'check': '<path d="M20 6 9 17l-5-5"/>',
+    'check-circle-2': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    'minus': '<path d="M5 12h14"/>',
+    'pencil': '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+    'settings': '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    'history': '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    'refresh-cw': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    'undo-2': '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+    'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'upload': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+    'copy': '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+    'link': '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    'eye': '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+    'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+    'lock': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    'shield-check': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    'alert-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'log-in': '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+    'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+    'house': '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'menu': '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+    'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+    'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'play-circle': '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>',
+    'more-horizontal': '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+  var META = [["egg-fried", "荷包蛋 蛋餅 早餐", "餐點"], ["egg", "蛋", "餐點"], ["sandwich", "三明治 吐司", "餐點"], ["croissant", "可頌 麵包", "餐點"], ["salad", "沙拉", "餐點"], ["soup", "湯 羹湯 麵", "餐點"], ["cooking-pot", "鍋 燉煮 火鍋", "餐點"], ["beef", "牛肉 肉排", "餐點"], ["drumstick", "雞腿 炸雞", "餐點"], ["ham", "火腿 豬肉", "餐點"], ["fish", "魚 海鮮", "餐點"], ["pizza", "披薩", "餐點"], ["cake-slice", "蛋糕 甜點", "餐點"], ["cookie", "餅乾 點心", "餐點"], ["donut", "甜甜圈", "餐點"], ["ice-cream-cone", "冰淇淋 冰品", "餐點"], ["popcorn", "爆米花 點心", "餐點"], ["coffee", "咖啡 熱飲", "飲品"], ["cup-soda", "飲料 手搖 冷飲", "飲品"], ["milk", "牛奶 鮮奶", "飲品"], ["citrus", "檸檬 果汁", "飲品"], ["glass-water", "水 冰水", "飲品"], ["wine", "紅酒 酒", "飲品"], ["beer", "啤酒", "飲品"], ["apple", "蘋果 水果", "飲品"], ["cherry", "櫻桃 水果", "飲品"], ["chef-hat", "廚師 主廚", "餐點"], ["utensils", "餐具 內用", "餐點"], ["utensils-crossed", "餐廳 刀叉", "餐點"], ["leaf", "葉 蔬食 素", "標示"], ["vegan", "全素 蔬食", "標示"], ["wheat", "小麥 麩質", "標示"], ["wheat-off", "無麩質", "標示"], ["milk-off", "無乳製品", "標示"], ["egg-off", "不含蛋", "標示"], ["nut", "堅果 花生", "標示"], ["nut-off", "無堅果", "標示"], ["bean", "豆 黃豆 大豆", "標示"], ["flame", "辣 熱門", "標示"], ["star", "推薦 星號", "標示"], ["thumbs-up", "好評 讚", "標示"], ["heart", "喜愛 收藏", "標示"], ["award", "得獎 招牌", "標示"], ["sparkles", "新品 亮點", "標示"], ["badge-percent", "折扣 優惠", "標示"], ["store", "店家 門市", "店務"], ["building-2", "總店 品牌 多門市", "店務"], ["map-pin", "地址 位置", "店務"], ["clock", "營業時間 時間", "店務"], ["calendar", "日曆 行事曆", "店務"], ["calendar-check", "交接 已排定", "店務"], ["calendar-x", "店休 公休", "店務"], ["calendar-days", "營業日", "店務"], ["users", "夥伴 團隊", "店務"], ["user-plus", "邀請夥伴", "店務"], ["user-check", "已綁定", "店務"], ["clipboard-list", "清單 叫貨單", "店務"], ["clipboard-check", "檢查表 完成", "店務"], ["notebook-pen", "交接本 筆記", "店務"], ["receipt", "收據 帳單", "店務"], ["wallet", "零用金 錢包", "店務"], ["banknote", "現金", "店務"], ["credit-card", "信用卡 付款", "店務"], ["calculator", "計算 調價", "店務"], ["trending-up", "漲價 成長", "店務"], ["flag", "目標 里程碑", "店務"], ["package", "包裹 外帶", "店務"], ["truck", "叫貨 送貨", "店務"], ["bike", "外送", "店務"], ["phone", "電話", "店務"], ["message-circle", "訊息 敲敲老闆", "店務"], ["megaphone", "公告 宣傳", "店務"], ["bell", "通知 提醒", "店務"], ["mail", "Email 信件", "店務"], ["printer", "列印 印製", "文宣"], ["file-text", "文件 PDF", "文宣"], ["file-spreadsheet", "試算表 CSV 匯入", "文宣"], ["file-check-2", "已確認文件", "文宣"], ["file-down", "下載檔案", "文宣"], ["newspaper", "海報 公告", "文宣"], ["image", "圖片 照片", "文宣"], ["palette", "配色 Logo", "文宣"], ["layout-grid", "版面 四欄", "文宣"], ["book-open", "菜單", "文宣"], ["qr-code", "QR 桌號", "文宣"], ["scan-line", "掃描", "文宣"], ["wifi", "Wi-Fi 無線網路", "文宣"], ["tag", "標籤 價格", "文宣"], ["ticket", "票券 集點", "文宣"], ["gift", "贈品 活動", "文宣"], ["presentation", "簡報", "文宣"], ["smartphone", "手機", "介面"], ["check", "勾選 完成", "介面"], ["check-circle-2", "已完成", "介面"], ["x", "關閉 取消", "介面"], ["plus", "新增", "介面"], ["minus", "減少", "介面"], ["pencil", "編輯 修改", "介面"], ["trash-2", "刪除", "介面"], ["search", "搜尋", "介面"], ["filter", "篩選", "介面"], ["settings", "設定", "介面"], ["history", "紀錄 歷史", "介面"], ["refresh-cw", "同步 重新整理", "介面"], ["undo-2", "復原", "介面"], ["download", "下載", "介面"], ["upload", "上傳", "介面"], ["copy", "複製", "介面"], ["share-2", "分享", "介面"], ["link", "連結", "介面"], ["external-link", "外部連結", "介面"], ["eye", "顯示 預覽", "介面"], ["eye-off", "隱藏", "介面"], ["lock", "鎖定 唯讀", "介面"], ["shield-check", "安全 授權", "介面"], ["alert-circle", "注意", "介面"], ["alert-triangle", "警告", "介面"], ["info", "說明", "介面"], ["log-in", "登入", "介面"], ["log-out", "登出", "介面"], ["house", "首頁", "介面"], ["menu", "選單", "介面"], ["chevron-down", "展開", "介面"], ["chevron-right", "下一個", "介面"], ["arrow-left", "上一頁", "介面"], ["arrow-right", "下一頁", "介面"], ["play-circle", "播放 示範", "介面"], ["more-horizontal", "更多", "介面"]];
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function hlIcon(name, o) {
+    o = o || {};
+    var body = ICONS[name];
+    if (!body) { body = ICONS['alert-circle']; }
+    var size = o.size || 24, sw = o.stroke || 2;
+    var a = '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="' + (o.color || 'currentColor') +
+      '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" class="hl-icon' + (o.cls ? ' ' + esc(o.cls) : '') + '" data-name="' + esc(name) + '"';
+    a += o.label ? ' role="img" aria-label="' + esc(o.label) + '">' : ' aria-hidden="true" focusable="false">';
+    if (o.label) { a += '<title>' + esc(o.label) + '<' + '/title>'; }
+    return a + body + '<' + '/svg>';
+  }
+
+  hlIcon.el = function (name, o) {
+    var t = document.createElement('span');
+    t.innerHTML = hlIcon(name, o);
+    return t.firstChild;
+  };
+
+  hlIcon.render = function (scope) {
+    var list = (scope || document).querySelectorAll('[data-icon]');
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i], cls = n.getAttribute('class') || '';
+      var svg = hlIcon.el(n.getAttribute('data-icon'), {
+        size: n.getAttribute('data-size'), stroke: n.getAttribute('data-stroke'),
+        label: n.getAttribute('data-label'), cls: cls
+      });
+      n.parentNode.replaceChild(svg, n);
+    }
+  };
+
+  hlIcon.has = function (name) { return !!ICONS[name]; };
+  hlIcon.names = function () { return Object.keys(ICONS); };
+  hlIcon.meta = META;
+  hlIcon.version = '1.0';
+
+  root.hlIcon = hlIcon;
+})(this);
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'), function (el) {
+    if (el.querySelector('svg.hl-icon')) return;
+    el.insertAdjacentHTML('afterbegin', hlIcon(el.getAttribute('data-ic'), { size: 18, stroke: 2, cls: 'ico' }));
+  });
+  hlIcon.render();
+})();
+/* App 外殼（GitHub Pages 的 PWA）：頁面被嵌在外殼裡時，target=_top 的連結改由外殼開，不會跳出外殼 */
+(function shellNav() {
+  var ao = location.ancestorOrigins, tp = ao && ao.length ? ao[ao.length - 1] : '';
+  if (!tp || tp.indexOf('script.google.com') >= 0 || tp.indexOf('googleusercontent.com') >= 0) return;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[target="_top"]') : null;
+    if (!a || !a.href) return;
+    e.preventDefault();
+    try { window.top.postMessage({ hlGo: a.href }, '*'); } catch (x) {}
+  }, true);
+  window.hlShellToken = function (t) { try { window.top.postMessage({ hlToken: t }, '*'); } catch (x) {} };
+})();
+/* HL-ICONS:END */
+$('docBody').onclick = async e => {
+  const b = e.target.closest('[data-dr]'); if (!b) return; b.disabled = true;
+  try { await run('stDocRead', TOKEN, b.dataset.dr); await load(); } catch (er) { show($('docMsg'), 'bad', er.message); b.disabled = false; }
+};
+$('orderBody').onclick = async e => {
+  const b = e.target.closest('[data-od]'); if (!b) return; b.disabled = true;
+  try { await run('stOrderDone', TOKEN, b.dataset.od); show($('orderMsg'), 'ok', '已記錄'); await load(); } catch (er) { show($('orderMsg'), 'bad', er.message); b.disabled = false; }
+};
+$('handBody').onclick = async e => {
+  const b = e.target.closest('[data-hd]'); if (!b) return; b.disabled = true;
+  try { await run('stHandDone', TOKEN, b.dataset.hd); show($('handMsg'), 'ok', '已標記完成'); await load(); }
+  catch (er) { show($('handMsg'), 'bad', er.message); b.disabled = false; }
+};
+window.__hlEnd = true;
+</script>
+</body>
+</html>

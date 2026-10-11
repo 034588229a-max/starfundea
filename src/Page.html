@@ -1,0 +1,2136 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>弘林早午餐｜菜單價格管理</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+.ico{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.4em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --bg: #F2EEE6; --card: #FFFFFF; --ink: #16233A; --mute: #6B7280; --line: #E5E0D6;
+  --navy: #1B4F8A; --orange: #E8762A; --chg: #FDEEDF; --chg-b: #E8762A; --field: #F7F5F0; --chip: #EEF3FA;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171d; --card: #1d222b; --ink: #eef0f4; --mute: #a3aab8; --line: #2e3542;
+    --navy: #8fb6ea; --orange: #F4A259; --chg: #3a2c1a; --chg-b: #F4A259; --field: #262c37; --chip: #253041;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171d; --card: #1d222b; --ink: #eef0f4; --mute: #a3aab8; --line: #2e3542;
+  --navy: #8fb6ea; --orange: #F4A259; --chg: #3a2c1a; --chg-b: #F4A259; --field: #262c37; --chip: #253041;
+}
+*, *::before, *::after { box-sizing: border-box }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 150px); -webkit-text-size-adjust: 100% }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 15px }
+button { font-family: inherit }
+
+/* ---------- top bar ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); padding: 10px 14px 8px }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 880px; margin: 0 auto }
+.brand { font-weight: 900; font-size: 19px; letter-spacing: 1px; white-space: nowrap }
+.brand .n { color: var(--navy) } .brand .o { color: var(--orange) }
+.brand small { font-weight: 700; font-size: 12px; color: var(--mute); margin-left: 6px; letter-spacing: 0 }
+.toolslink { margin-left: auto; font-size: 12.5px; font-weight: 700; color: var(--navy); background: var(--card); border-radius: 999px; padding: 5px 11px; text-decoration: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(22,35,58,.06) }
+.sync { font-size: 12px; color: var(--mute); display: flex; align-items: center; gap: 5px; white-space: nowrap }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: #9aa3b2; display: inline-block }
+.sync.ok i { background: #2e9d5b } .sync.busy i { background: var(--orange) } .sync.local i { background: #c0392b }
+.search { max-width: 880px; margin: 8px auto 0; position: relative }
+.search input { width: 100%; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); padding: 0 36px 0 12px; font: inherit; font-size: 16px }
+.search button { position: absolute; right: 4px; top: 4px; width: 32px; height: 32px; border: 0; background: none; color: var(--mute); font-size: 18px; cursor: pointer; display: none }
+.search.has button { display: block }
+.chips { max-width: 880px; margin: 8px auto 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px }
+.chips::-webkit-scrollbar { display: none }
+.chip { flex: none; border: 0; background: var(--chip); color: var(--navy); font-weight: 700; font-size: 13px; padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap }
+.chip b { color: var(--orange); font-weight: 900; margin-left: 3px }
+
+.banner { display: none; max-width: 856px; margin: 12px auto 0; padding: 11px 13px; border-radius: 12px; background: var(--chg); border: 1.5px solid var(--orange); font-size: 13.5px; line-height: 1.6 }
+@media (max-width: 880px) { .banner { margin: 12px 12px 0 } }
+.f input:disabled { opacity: .75 }
+.steps { max-width: 856px; margin: 12px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px 14px }
+@media (max-width: 880px) { .steps { margin: 12px 12px 0 } }
+.step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line) } .step:last-child { border-bottom: 0 }
+.num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: var(--card); font-weight: 900; display: grid; place-items: center; font-size: 14px }
+.sb { flex: 1; min-width: 0 } .sb > b { display: block; font-size: 15px } .sb > span { display: block; font-size: 12.5px; color: var(--mute); margin: 2px 0 8px }
+.linkbtn { display: block; margin-top: 8px; border: 0; background: none; padding: 0; color: var(--navy); font-size: 13px; text-decoration: underline; cursor: pointer }
+a.btn { text-decoration: none }
+.file { display: inline-flex; align-items: center; position: relative; overflow: hidden }
+.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer }
+.rep { margin-top: 10px; font-size: 13px; line-height: 1.6; background: var(--chip); border-radius: 10px; padding: 9px 11px }
+.rep.bad { background: var(--chg) } .rep ul { margin: 4px 0 0; padding-left: 18px; max-height: 140px; overflow: auto }
+.stat { font-size: 13.5px; line-height: 1.6; padding: 10px 0 6px }
+.stat b { color: var(--navy) }
+.who { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; padding: 4px 0 8px }
+.who input { flex: 1; height: 38px; border-radius: 9px; border: 1px solid var(--line); background: var(--field); color: var(--ink); padding: 0 10px; font: inherit; font-size: 16px; font-weight: 400 }
+.tip { font-size: 12.5px; color: var(--mute); line-height: 1.6; padding: 8px 0 10px }
+.errbox { background: #F8D7DA; color: #7a1c24; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; line-height: 1.6 }
+.pdflink { display: inline-flex; align-items: center; margin-top: 8px; text-decoration: none }
+/* 風格 B：卡片化 */
+.sec, .steps { border: 0 !important; border-radius: 24px !important; box-shadow: 0 8px 24px rgba(22,35,58,.06) }
+.top { background: var(--bg) !important; border-bottom: 0 !important }
+.search input { border-radius: 14px !important; background: var(--card) !important; border: 0 !important; box-shadow: 0 2px 8px rgba(22,35,58,.05) }
+.chip { font-weight: 700 }
+.btn { border-radius: 14px !important }
+.btn.pri { background: var(--orange) !important; border-color: var(--orange) !important; color: #fff !important }
+.f input { border-radius: 12px !important; border: 1.5px solid transparent }
+.bar { border-top: 0 !important; box-shadow: 0 -6px 20px rgba(22,35,58,.08) }
+.sheetbox { border-radius: 24px 24px 0 0 }
+.rep { border-radius: 16px !important }
+.fix { border-radius: 12px !important }
+.btn.big { width: 100%; height: 54px; font-size: 17px; margin-top: 4px }
+.pdflink.big { display: flex; align-items: center; justify-content: center; margin-top: 10px; text-decoration: none }
+.sublink { display: block; text-align: center; font-size: 13px; margin-top: 8px; color: var(--navy) }
+.mailbox { margin-top: 12px; padding: 12px; background: var(--field); border-radius: 16px; text-align: left }
+.mailbox label { display: block; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 6px }
+.mailrow { display: flex; gap: 8px }
+.mailrow input { flex: 1; min-width: 0; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); padding: 0 12px; font: inherit; font-size: 16px }
+.mailrow .btn { flex: none; margin: 0 }
+.mailmsg { font-size: 13px; color: var(--mute); margin-top: 6px; min-height: 18px }
+.it.hid .nm, .it.hid .f { opacity: .45 }
+.hidtag { font-style: normal; font-size: 11px; font-weight: 700; color: var(--mute); background: var(--field); border-radius: 6px; padding: 1px 6px; margin-left: 6px }
+.more { border: 0; background: none; color: var(--mute); font-size: 18px; line-height: 1; padding: 2px 6px; margin-left: 4px; cursor: pointer; border-radius: 8px; vertical-align: middle }
+.more:active { background: var(--field) }
+.addbtn { display: block; width: calc(100% - 28px); margin: 8px 14px 14px; border: 1.5px dashed var(--line); background: none; color: var(--navy); font: inherit; font-weight: 700; font-size: 14px; border-radius: 14px; padding: 10px; cursor: pointer }
+.imbtns { display: flex; flex-direction: column; gap: 8px; margin-top: 14px }
+.btn.danger { background: #fff; color: #c0392b; border-color: #F3C4C4 }
+.btn.danger.sure { background: #c0392b; color: #fff; border-color: #c0392b }
+.btn.ghost { background: none; border-color: transparent; color: var(--mute) }
+.fl { display: block; font-size: 13px; font-weight: 700; margin-top: 12px; color: var(--ink) }
+.fl input, .pc input { display: block; width: 100%; margin-top: 6px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--field); color: var(--ink); padding: 0 12px; font: inherit; font-size: 16px; font-weight: 400 }
+.pcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; margin-top: 6px }
+.pc { font-size: 12px; font-weight: 700; color: var(--mute) }
+.pc input { text-align: center; font-weight: 700 }
+.toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin-top: 14px; cursor: pointer }
+.toggle input { width: 20px; height: 20px; accent-color: var(--orange) }
+/* ---------- list ---------- */
+main { max-width: 880px; margin: 0 auto; padding: 12px 12px 110px }
+.sec { background: var(--card); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 14px; overflow: hidden }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 12px 14px 6px }
+.sec-h h2 { margin: 0; font-size: 17px; font-weight: 900; color: var(--navy) }
+.sec-h span { font-size: 12px; color: var(--mute) }
+.sec-note { font-size: 12px; color: var(--mute); padding: 0 14px 6px; line-height: 1.5 }
+.colh, .it { display: grid; align-items: center; gap: 6px; padding: 0 14px }
+.colh { font-size: 11.5px; color: var(--mute); font-weight: 700; padding-bottom: 4px; border-bottom: 1px solid var(--line) }
+.colh span { text-align: center }
+.it { min-height: 50px; border-bottom: 1px solid var(--line) }
+.it:last-child { border-bottom: 0 }
+.it.hide { display: none }
+.nm { font-size: 14.5px; line-height: 1.35; padding: 6px 0; min-width: 0 }
+.nm .st { color: var(--orange); font-size: 12px; margin-right: 2px }
+.nm small { display: block; font-size: 11.5px; color: var(--mute) }
+.nm mark { background: #ffe08a; color: #1d2433; border-radius: 2px }
+.f { position: relative; text-align: center }
+.f input { width: 100%; height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--field); color: var(--ink); text-align: center; font: inherit; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 2px }
+.f input:focus { outline: 2px solid var(--navy); outline-offset: 0; border-color: transparent }
+.f.chg input { background: var(--chg); border-color: var(--chg-b) }
+.f.empty input { border-style: dashed; border-color: var(--orange) }
+.f .was { position: absolute; left: 0; right: 0; bottom: -13px; font-size: 10px; color: var(--mute); line-height: 12px; pointer-events: none }
+.f .na { display: block; color: var(--mute); font-size: 14px }
+.it.chg-row { min-height: 60px }
+.none { text-align: center; color: var(--mute); padding: 40px 0; display: none }
+
+/* ---------- bottom bar ---------- */
+.bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--card); border-top: 1px solid var(--line); padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)) }
+.bar-in { max-width: 880px; margin: 0 auto; display: flex; gap: 8px; align-items: center }
+.bar .info { flex: 1; font-size: 12px; color: var(--mute); line-height: 1.4; min-width: 0 }
+.btn { height: 44px; border-radius: 11px; border: 1px solid var(--line); background: var(--card); color: var(--navy); font-weight: 700; font-size: 15px; padding: 0 14px; cursor: pointer; white-space: nowrap }
+.btn.pri { background: var(--navy); border-color: var(--navy); color: var(--card) }
+.btn:disabled { opacity: .5 }
+
+/* ---------- modal ---------- */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(10,14,22,.55); display: none; align-items: flex-end; justify-content: center }
+.modal.open { display: flex }
+.sheetbox { background: var(--card); width: 100%; max-width: 560px; border-radius: 18px 18px 0 0; padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px)); max-height: 92vh; overflow: auto }
+@media (min-width: 700px) { .modal { align-items: center } .sheetbox { border-radius: 18px; max-width: 980px } }
+.sheetbox h3 { margin: 0 0 12px; font-size: 18px; color: var(--navy) }
+.opt { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 8px; cursor: pointer }
+.opt input { margin-top: 3px; accent-color: var(--navy); width: 18px; height: 18px }
+.opt b { display: block; font-size: 15px } .opt span { font-size: 12.5px; color: var(--mute) }
+.opt:has(input:checked) { border-color: var(--navy) }
+.warn { background: var(--chg); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 8px 0; line-height: 1.5 }
+.warn button { border: 0; background: none; color: var(--navy); font-weight: 700; text-decoration: underline; padding: 0; cursor: pointer; font-size: 13px }
+.row-btns { display: flex; gap: 8px; margin-top: 12px } .row-btns .btn { flex: 1 }
+.msg { font-size: 13px; color: var(--mute); margin-top: 10px; min-height: 18px }
+.pv-wrap { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: #fff; margin-top: 4px }
+.pv-inner { transform-origin: 0 0 }
+.pv-note { font-size: 12px; color: var(--mute); margin: 8px 0 0 }
+.pv-note.top { margin: 0 0 8px; font-size: 13.5px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center }
+.pv-note .btn.sm { height: 32px; font-size: 13px; padding: 0 12px; margin-left: auto }
+.lg { font-size: 12px; padding: 1px 6px; border-radius: 4px; color: #1d2433 } .pcl { background: #FFB84D } .pel { border: 1.5px dashed #E07A1F }
+.pv-wrap.zoom { overflow: auto } .pv-size { position: relative; overflow: hidden }
+.pv-inner .pk { cursor: pointer; border-radius: 3px }
+.pv-inner .pk:hover { outline: 2px solid #1B4F8A }
+.pv-inner .pc { background: #FFB84D; color: #1d2433 !important; box-shadow: 0 0 0 1.5px #E07A1F }
+.pv-inner .pe { outline: 1.5px dashed #E07A1F; color: #E07A1F }
+.modal.ed { z-index: 70 }
+.edbox { max-width: 420px !important }
+.edl { font-size: 17px; font-weight: 900; color: var(--navy); line-height: 1.4 }
+.edw { font-size: 13px; color: var(--mute); margin-top: 4px; min-height: 18px }
+.edrow { display: flex; align-items: center; gap: 8px; margin-top: 10px } .edrow span { font-size: 18px; font-weight: 700 }
+.edrow input { flex: 1; height: 54px; border-radius: 12px; border: 2px solid var(--navy); background: var(--field); color: var(--ink); font: inherit; font-size: 26px; font-weight: 900; text-align: center }
+.fixh { margin-top: 8px } .fixes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; max-height: 190px; overflow: auto }
+.fix { border: 1.5px dashed var(--orange); background: var(--card); color: var(--ink); border-radius: 9px; padding: 6px 9px; font: inherit; font-size: 13px; cursor: pointer; text-align: left }
+.fix small { color: #c0392b }
+.fix.dif { border: 1.5px solid var(--orange); background: var(--chg) }
+.fix .arr { display: block; font-size: 12.5px; color: var(--mute); margin-top: 1px } .fix .arr b { color: var(--orange); font-size: 14px }
+.chip.chg { background: var(--chg); color: var(--orange); border: 1.5px solid var(--orange) } .chip.chg.on { background: var(--orange); color: var(--card) } .chip.chg.on b { color: var(--card) }
+.f.chg input { font-weight: 900; box-shadow: 0 0 0 2px var(--orange) } .more { font-size: 12px; color: var(--mute); align-self: center }
+
+/* ---------- A3 printable sheet — 風格 B：現代卡片式 ---------- */
+#render { position: fixed; left: -30000px; top: 0 }
+.sheet { width: 1587px; height: 1123px; background: #F2EEE6; color: #16233A; font-family: var(--font); padding: 26px 28px 16px; display: flex; flex-direction: column; overflow: hidden }
+.sheet .grid { flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; min-height: 0 }
+.sheet .col { display: flex; flex-direction: column; gap: 12px; min-width: 0 }
+.sheet .hero { background: var(--sp, #1B4F8A); color: var(--sop, #fff); border-radius: 22px; padding: 14px; display: flex; gap: 14px; align-items: center; box-shadow: 0 8px 20px rgba(27,79,138,.18) }
+.sheet .hero img { width: 100px; height: 100px; border-radius: 20px; object-fit: cover; flex: none }
+.sheet .hero img.tile { object-fit: contain; padding: 8px }
+.sheet .hero h1 { margin: 0; font-size: 33px; font-weight: 900; letter-spacing: 1px; line-height: 1.1; color: var(--sop, #fff) }
+.sheet .hero .o { color: var(--sal, #FFB36B) }
+.sheet .tag { font-size: 12.5px; font-weight: 700; color: var(--sop, #D6E3F5); opacity: .88; margin: 3px 0 5px }
+.sheet .info { font-size: 10.5px; line-height: 1.55; color: var(--sop, #EAF0F8); opacity: .92 }
+.sheet .info b { color: var(--sal, #FFB36B) }
+.sheet .qrb { display: flex; align-items: center; gap: 12px; background: var(--sa, #E8762A); border-radius: 22px; padding: 10px 14px; color: var(--soa, #fff); box-shadow: 0 8px 20px rgba(232,118,42,.2) }
+.sheet .qri { width: 84px; height: 84px; background: #fff; border-radius: 12px; padding: 4px; flex: none }
+.sheet .qri svg { display: block }
+.sheet .qrt b { display: block; font-size: 19px; font-weight: 900; color: var(--soa, #fff); line-height: 1.3 }
+.sheet .qrt span { display: block; font-size: 11.5px; line-height: 1.5; margin-top: 3px; color: var(--soa, #FFE9D6); opacity: .92 }
+.sheet .s { background: #fff; border-radius: 20px; padding: 11px 12px 9px; box-shadow: 0 6px 16px rgba(22,35,58,.05) }
+.sheet .s h2 { display: flex; align-items: center; gap: 7px; margin: 0 0 3px; font-size: 16px; font-weight: 900; color: #16233A }
+.sheet .s h2 .bar { width: 6px; height: 16px; border-radius: 3px; background: var(--bar, var(--sa, #E8762A)); flex: none }
+.sheet .hl h2 .bar { background: var(--bar, var(--sp, #1B4F8A)) }
+.sheet .note { font-size: 10px; color: #6B7280; margin: 0 0 3px 1px; line-height: 1.45 }
+.sheet .r { display: grid; align-items: center; font-size: var(--fs, 12.5px); height: var(--rh, 17.6px); padding: 0 6px; border-radius: 7px; column-gap: 3px }
+.sheet { position: relative }
+.sheet .wm { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 260px; font-weight: 900; color: rgba(22,35,58,.07); transform: rotate(-24deg); pointer-events: none; z-index: 5 }
+.sheets { display: flex; flex-direction: column; gap: 24px }
+.sheet .hero.cont { padding: 12px 18px } .sheet .hero.cont h1 { font-size: 28px }
+.sheet .s h2 .cn { font-size: 11px; font-weight: 700; color: #6B7280; margin-left: 4px }
+.sheet .r:nth-child(even):not(.h):not(.rec) { background: #F7F5F0 }
+.sheet .r.rec { background: var(--sat, #FEF3E8); font-weight: 700 }
+.sheet .r.rec b { color: var(--sad, #B4541A) }
+.sheet .r.h { height: 15px }
+.sheet .r.h b { font-size: 9.5px; color: #6B7280; font-family: var(--font); font-weight: 700 }
+.sheet .r b { text-align: right; font-family: 'Outfit', var(--font); font-weight: 700; font-size: calc(var(--fs, 12.5px) + 1px); font-variant-numeric: tabular-nums; color: #16233A }
+.sheet .r .rn { display: flex; align-items: center; gap: 3px; white-space: nowrap; overflow: hidden }
+.tg { display: inline-block; font-size: 10.5px; line-height: 15px; padding: 0 5px; border-radius: 5px; margin-left: 4px; font-weight: 700; background: #EEF0F4; color: #555 }
+.tg.d { background: #DDF1E4; color: #1f6b3a } .tg.f { background: #FBE0DC; color: #B3261E }
+.sheet .tg { font-size: 8.5px; line-height: 11px; padding: 0 3px; border-radius: 3px; margin-left: 2px; flex: none }
+.tgrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px } .tgh { font-size: 12px; font-weight: 700; color: var(--mute); margin-top: 10px }
+.tgpick { border: 1.5px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer }
+.tgpick.on { background: var(--navy); border-color: var(--navy); color: var(--card) }
+.nm .tgs { margin-left: 2px }
+.adjrow { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13.5px } .adjrow b { margin-left: auto; white-space: nowrap }
+.sheet .st, .sheet .sp { width: 10px; height: 10px; flex: none }
+.sheet .st { fill: var(--sa, #E8762A) }
+.sheet .r small { font-size: 9.5px; color: #6B7280; white-space: nowrap; padding: 0 3px; font-weight: 400 }
+.sheet .ex { font-size: 9.5px; color: #6B7280; padding: 0 6px 1px 19px; line-height: 13px }
+.sheet .bx { display: inline-block; width: 30px; height: 14px; border: 1px solid #8A93A3; border-radius: 4px; vertical-align: middle }
+.sheet.blank { background: #fff }
+.sheet.blank .hero { background: #fff; color: #16233A; box-shadow: none; border: 1.5px solid var(--sp, #1B4F8A) }
+.sheet.blank .hero h1 { color: var(--sp, #1B4F8A) } .sheet.blank .hero .o { color: var(--sa, #E8762A) }
+.sheet.blank .tag { color: var(--sp, #1B4F8A); opacity: 1 } .sheet.blank .info { color: #16233A; opacity: 1 } .sheet.blank .info b { color: var(--sad, #B4541A) }
+.sheet.blank .s { box-shadow: none; padding: 0; background: transparent; border-radius: 0 }
+.sheet.blank .r { height: var(--rh, 19px); border-bottom: 1px solid #dde1e7; border-radius: 0; background: none !important }
+.sheet.blank .r.h { height: 15px; border-bottom: 1.5px solid var(--sp, #1B4F8A) }
+.sheet.blank .r b { text-align: center }
+.sheet .foot .fl { flex: 1; display: flex; justify-content: center; align-items: center; gap: 4px; padding-left: 190px }
+.sheet .foot .ver { width: 190px; text-align: right; font-weight: 700; color: var(--sp, #1B4F8A); font-size: 11px; white-space: nowrap }
+.sheet .foot { margin-top: 8px; padding-top: 6px; border-top: 1px solid #D9D3C7; font-size: 10.5px; color: #6B7280; display: flex; justify-content: center; align-items: center; gap: 4px; flex: none }
+.sheet .sign { display: flex; gap: 14px; font-size: 12px; margin-top: 6px } .sheet .sign u { display: inline-block; width: 90px; border-bottom: 1px solid #333 }
+
+@media print {
+  @page { size: 420mm 297mm; margin: 0 }
+  body > *:not(#render) { display: none !important }
+  #render { position: static }
+  .sheet { width: 420mm; height: 297mm }
+}
+</style>
+<script>
+window.addEventListener('load', function () {
+  if (window.__hlEnd) return;
+  document.body.innerHTML = '<div style="font-family:sans-serif;padding:24px;line-height:1.7;font-size:17px"><h2 style="color:#c0392b">檔案沒有貼完整</h2>這個頁面的程式檔沒有貼完整（Page）。請店長用電腦重新貼上完整的 Page.html，確認最後幾行有「hl-end」，儲存後重新部署。</div>';
+});
+</script>
+</head>
+<body>
+<div class="top">
+  <div class="top-row">
+    <div class="brand" id="brandTop"></div>
+    <a class="toolslink" id="homeLink" target="_top" style="display:none" data-ic="house">主畫面</a>
+    <a class="toolslink" id="ledgerLink" target="_top" style="display:none;margin-left:6px" data-ic="wallet">收支</a>
+    <a class="toolslink" id="toolsLink" data-ic="settings" target="_top" style="display:none">店家工具 ›</a>
+    <a class="toolslink" id="staffLink" data-ic="users" target="_top" style="display:none;margin-left:6px">人員班表</a>
+    <a class="toolslink" id="brandLink" data-ic="building-2" target="_top" style="display:none;margin-left:6px">分店</a>
+    <a class="toolslink" id="backLink" data-ic="arrow-left" target="_top" style="display:none;margin-left:6px">回總店</a>
+    <a class="toolslink" id="setupLink" data-ic="settings" target="_top" style="display:none;margin-left:6px">店家設定</a>
+    <a class="toolslink" id="thLink" data-ic="palette" style="display:none;margin-left:6px">外觀</a>
+    <a class="toolslink" id="secLink" data-ic="layout-grid" style="display:none;margin-left:6px">分類</a>
+    <a class="toolslink" id="acctLink" data-ic="user-check" target="_top" style="display:none;margin-left:6px">帳號</a>
+    <div class="sync busy" id="sync"><i></i><span>連線中…</span></div>
+  </div>
+  <div class="search" id="searchBox">
+    <input id="q" type="search" placeholder="搜尋品項，例如：豬排、奶茶、赤焰" autocomplete="off">
+    <button id="qx" aria-label="清除">×</button>
+  </div>
+  <nav class="chips" id="chips"></nav>
+</div>
+
+<div class="steps">
+  <div class="stat" id="stat">正在讀取 Google 試算表的價格…</div>
+  <div id="upReport"></div>
+  <button class="btn" id="adjBtn" data-ic="calculator" style="margin:4px 0 8px;width:100%">調價助手（整批漲價／降價）</button>
+  <button class="btn" id="impBtn" data-ic="file-spreadsheet" style="display:none;margin:4px 0 8px;width:100%">菜單範本：下載、填寫、上傳（批量設定）</button>
+  <button class="btn" id="aiBtn" data-ic="image" style="display:none;margin:4px 0 8px;width:100%">上傳菜單，AI 協助建立初稿</button>
+  <div class="tip">在下面直接改價格，<b>會自動存到 Google 試算表</b>，其他人打開就是最新的。按「預覽」可以點菜單上的價格改；改好按「輸出 PDF」。</div>
+</div>
+<div class="steps" id="emptyHint" style="display:none">
+  <div class="stat"><b>還沒有任何品項，從這裡開始：</b></div>
+  <div class="tip" style="line-height:1.9">
+    ① 往下找到分類（例如「主餐」），按該分類最下面的 <b>「＋ 新增品項」</b>，填名稱和價格，按「新增」。<br>
+    ② 分類不對？按右上角 <b>「分類」</b>，可以套用「早餐店、飲料店、小吃店…」範本，或自己改名、增減分類與價格欄（例如「中杯,大杯」）。<br>
+    ③ 品項很多？之後可以用「調價助手」整批調價；也可以在品項的「⋯」選單設定過敏原、素食標示。
+  </div>
+  <button class="btn pri" id="emptyGo" style="width:100%;margin:4px 0 8px">先新增第一個品項</button>
+  <button class="btn" id="emptyDemo" data-ic="utensils" style="display:none;width:100%;margin:4px 0 8px">載入弘林範例菜單（測試帳號專用）</button>
+  <div class="tip" id="emptyDemoMsg" style="display:none"></div>
+</div>
+<main id="list"></main>
+<p class="none" id="none">找不到符合的品項</p>
+
+<div class="bar"><div class="bar-in">
+  <div class="info" id="barInfo">&nbsp;</div>
+  <button class="btn" id="pvBtn">預覽</button>
+  <button class="btn pri" id="expBtn">輸出 PDF</button>
+</div></div>
+
+<div class="modal" id="expModal"><div class="sheetbox">
+  <h3 style="display:flex;justify-content:space-between;align-items:center">輸出 A3 菜單 PDF <button class="btn" id="expCancel" style="height:36px">關閉</button></h3>
+  <div class="msg" id="expSrc" style="margin:0 0 8px"></div><div id="expWarn"></div>
+  <button class="btn pri big" id="dlBtn">輸出 PDF 到手機</button>
+  <div class="mailbox"><label for="mailTo">或寄到信箱</label>
+    <div class="mailrow"><input id="mailTo" type="email" inputmode="email" autocomplete="email" placeholder="收件人 Email"><button class="btn" id="mailBtn">寄出</button></div>
+  </div>
+  <div class="msg" id="expMsg"></div>
+</div></div>
+
+<div class="modal" id="pvModal"><div class="sheetbox">
+  <h3 style="display:flex;justify-content:space-between;align-items:center">A3 預覽 <button class="btn" id="pvClose" style="height:36px">關閉</button></h3>
+  <p class="pv-note top"><b>點任何價格就能直接改</b>　<span class="lg pcl">橘底＝跟上次不一樣</span>　<span class="lg pel">？＝還沒填</span>　<span id="pvStat"></span>　<label style="white-space:nowrap"><input type="checkbox" class="singleChk"> 只印單面</label>
+    <button class="btn sm" id="pvZoomBtn">放大</button></p>
+  <div class="pv-wrap" id="pvWrap"><div class="pv-size" id="pvSize"><div class="pv-inner" id="pvInner"></div></div></div>
+  <p class="pv-note">橘底和？只在預覽出現，輸出的 PDF 不會有。</p>
+</div></div>
+
+<div class="modal ed" id="edModal"><div class="sheetbox edbox">
+  <div class="edl" id="edLabel"></div>
+  <div class="edw" id="edWas"></div>
+  <div class="edrow"><input id="edInput" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="價格"><span>元</span></div>
+  <div class="row-btns"><button class="btn" id="edCancel">取消</button><button class="btn pri" id="edOk">確定</button></div>
+</div></div>
+
+<div class="modal ed" id="imModal"><div class="sheetbox edbox">
+  <div class="edl" id="imName"></div><div class="edw" id="imSec"></div>
+  <div class="tgh">標示（過敏原、素食、辣）</div><div id="imTags"></div><button class="btn" id="imTagSave" style="margin-top:8px;width:100%">儲存標示</button>
+    <div class="imbtns">
+    <button class="btn big" id="imHide"></button>
+    <button class="btn big danger" id="imDel">刪除這個品項</button>
+    <button class="btn big ghost" id="imCancel">取消</button>
+  </div>
+  <div class="msg" id="imMsg"></div>
+</div></div>
+
+<div class="modal ed" id="addModal"><div class="sheetbox edbox">
+  <div class="edl">新增品項・<span id="addSec"></span></div>
+  <label class="fl">品項名稱<input id="addName" maxlength="30" autocomplete="off" placeholder="例如：起司薯餅蛋餅"></label>
+  <label class="fl" id="addSideF">附餐說明（選填）<input id="addSide" maxlength="30" autocomplete="off" placeholder="例如：附脆薯"></label>
+  <div id="addCols"></div>
+  <label class="toggle"><input type="checkbox" id="addStar">店長推薦（菜單上標星星）</label>
+  <div class="tgh">標示（選填）</div><div id="addTags"></div>
+  <div class="row-btns"><button class="btn" id="addCancel">取消</button><button class="btn pri" id="addOk">新增</button></div>
+  <div class="msg" id="addMsg"></div>
+</div></div>
+
+<div class="modal ed" id="secModal"><div class="sheetbox edbox" style="max-height:90vh;overflow:auto">
+  <div class="edl">菜單分類</div>
+  <div class="edw">改名、增減分類。規格欄用逗號分開，例如「中杯,大杯」；只有一個價格就填「價格」。</div>
+  <div class="fl" style="margin-top:10px">不知道怎麼分？先套用範本，再自己改</div>
+  <div id="secTpl" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+  <div class="edw" style="margin-top:4px">套用範本會換掉目前的分類（已經有品項的分類不能刪，要先刪品項）。</div>
+  <div id="secList"></div>
+  <button class="addbtn" id="secAdd" style="width:100%;margin:10px 0">＋ 新增分類</button>
+  <div class="row-btns"><button class="btn" id="secCancel">取消</button><button class="btn pri" id="secSave">儲存</button></div>
+  <div class="msg" id="secMsg"></div>
+</div></div>
+
+<div class="modal ed" id="adjModal"><div class="sheetbox" style="max-width:560px;max-height:92vh;overflow:auto">
+  <div class="edl">調價助手</div>
+  <div class="edw">一次調整一個分類或全部品項的價格。先看預覽，確認每一項的新價格，按「套用」才會儲存；套用後可以一鍵復原。</div>
+  <label class="fl">範圍<select id="adjScope" style="width:100%;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 10px;font:inherit;font-size:16px;margin-top:6px"></select></label>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <label class="fl" style="flex:1;margin:0">方式<select id="adjMode" style="width:100%;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 10px;font:inherit;font-size:16px;margin-top:6px"><option value="amt">加減金額（元）</option><option value="pct">加減百分比（%）</option></select></label>
+    <label class="fl" style="flex:1;margin:0">數字（降價用負數）<input id="adjVal" inputmode="decimal" placeholder="例如 5 或 -3" style="width:100%;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 10px;font:inherit;font-size:16px;margin-top:6px"></label>
+    <label class="fl" style="flex:1;margin:0">取整<select id="adjRound" style="width:100%;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 10px;font:inherit;font-size:16px;margin-top:6px"><option value="1">到整數</option><option value="5">到 5 元</option><option value="10">到 10 元</option></select></label>
+  </div>
+  <label class="toggle"><input type="checkbox" id="adjHid" checked>包含已隱藏的品項</label>
+  <div id="adjSum" class="tip" style="padding:8px 0 0"></div>
+  <div id="adjList" style="max-height:34vh;overflow:auto;margin-top:6px"></div>
+  <div class="row-btns"><button class="btn" id="adjClose">關閉</button><button class="btn" id="adjUndo" style="display:none">復原上次調價</button><button class="btn pri" id="adjApply">套用</button></div>
+  <div class="msg" id="adjMsg"></div>
+</div></div>
+
+<div class="modal ed" id="thModal"><div class="sheetbox" style="max-width:720px;max-height:94vh;overflow:auto">
+  <div class="edl">外觀與顏色</div>
+  <div class="edw">選好顏色，下面的 A3 菜單會<b>馬上</b>換成新顏色。按「儲存」才會套用到菜單、海報與顧客頁。</div>
+  <div class="fl" style="margin-top:10px">快速配色</div><div id="thPresets" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"></div>
+  <div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap">
+    <label class="fl" style="margin:0;flex:1;min-width:140px">主色（標題區、重點）<input type="color" id="thP" style="height:46px;padding:2px"></label>
+    <label class="fl" style="margin:0;flex:1;min-width:140px">強調色（LINE 區、推薦、星號）<input type="color" id="thA" style="height:46px;padding:2px"></label>
+  </div>
+  <div id="thWarn"></div>
+  <div id="thCatBox"><div class="fl" style="margin-top:12px">各分類的區分顏色（分類標題前的小色條，方便客人一眼分辨；不選＝跟強調色）</div><div id="thCats"></div></div>
+  <div class="pv-wrap" id="thWrap" style="margin-top:12px"><div class="pv-size" id="thSize"><div class="pv-inner" id="thInner" style="width:1587px"></div></div></div>
+  <div class="pv-note" id="thNote"></div>
+  <div class="row-btns"><button class="btn" id="thCancel">取消</button><button class="btn pri" id="thSave">儲存</button></div>
+  <div class="msg" id="thMsg"></div>
+</div></div>
+
+<div class="modal ed" id="impModal"><div class="sheetbox" style="max-width:560px;max-height:92vh;overflow:auto">
+  <div class="edl">菜單範本：批量設定</div>
+  <div class="edw" style="line-height:1.7">① 下載範本（或「匯出目前菜單」）→ ② 用 Excel 或 Google 試算表填好或修改 → ③ 存成 CSV 上傳 → ④ 在畫面上檢查、微調，按「確認並儲存」才會寫入。</div>
+  <div class="row-btns" style="margin-top:10px"><button class="btn" id="impTpl">⬇ 下載空白範本</button><button class="btn" id="impExp">⬇ 匯出目前菜單</button></div>
+  <div class="tip" style="padding:8px 0 0">用 Excel 存檔時選「CSV UTF-8（逗號分隔）」中文才不會亂碼；Google 試算表選「檔案 → 下載 → 逗號分隔值 (.csv)」。以 # 開頭的列會被忽略（範本裡的說明與範例）。</div>
+  <label class="fl">上傳填好的檔案（.csv）<input type="file" id="impFile" accept=".csv,text/csv,text/plain" style="margin-top:6px;width:100%"></label>
+  <div id="impWarn"></div>
+  <div class="row-btns"><button class="btn" id="impClose">關閉</button></div>
+  <div class="msg" id="impMsg"></div>
+</div></div>
+
+<div class="modal ed" id="aiModal"><div class="sheetbox" style="max-width:640px;max-height:92vh;overflow:auto">
+  <div class="edl" id="aiTitle">上傳菜單，AI 協助建立初稿</div>
+  <div id="ai1">
+    <div class="edw" style="line-height:1.6">選菜單的照片或 PDF（可以選好幾張）。AI 會整理出分類、品項和價格當初稿，<b>你可以先修改，確認沒問題才會儲存</b>。<br>照片請拍清楚、不要反光；一次辨識一頁約 20～40 秒。圖片會傳給 AI 服務辨識，不會存起來。</div>
+    <input type="file" id="aiFile" accept="image/*,application/pdf" multiple style="margin-top:10px;width:100%">
+    <div class="row-btns"><button class="btn" id="aiCancel1">取消</button><button class="btn pri" id="aiRun">開始辨識</button></div>
+  </div>
+  <div id="ai2" style="display:none">
+    <div id="aiWarn"></div><div id="aiList"></div>
+    <div id="aiBr" style="display:none"><div class="tgh">同時套用到分店（會新增或更新分店的品項價格、推薦、標示）</div><div id="aiBrList"></div></div>
+    <button class="addbtn" id="aiAddSec" style="width:100%;margin:10px 0">＋ 新增分類</button>
+    <div class="row-btns"><button class="btn" id="aiBack">重新上傳</button><button class="btn pri" id="aiApply">確認並儲存</button></div>
+  </div>
+  <div class="msg" id="aiMsg"></div>
+</div></div>
+
+<div id="render"></div>
+
+<script>
+// 載入出錯時直接顯示在畫面上，方便截圖回報
+window.onerror = function (msg, src, line) {
+  var el = document.getElementById('stat');
+  if (el) el.innerHTML = '<div class="errbox">頁面載入出錯：' + String(msg).replace(/</g, '&lt;') + '（第 ' + line + ' 行）<br>請截圖給店長。</div>';
+};
+</script>
+<script>
+const BRAND = <?!= brand ?>;   // 店名、地址、電話、LINE 等（單店模式是弘林的資料）
+const BRAND_HTML = BRAND.nameB ? `<span class="n">${BRAND.nameA}</span><span class="o">${BRAND.nameB}</span>` : `<span class="n">${BRAND.name}</span>`;
+document.getElementById('brandTop').innerHTML = BRAND_HTML + '<small>菜單工具</small>';
+document.title = BRAND.name + '｜菜單價格管理';
+const LOGO = <?!= logo ?>;   // 由伺服器從雲端硬碟讀取「弘林logo」圖片
+const LOGO_BG = <?!= logoBg ?>;   // 店家工具上傳的 Logo 底色（空白＝照原本樣式）
+const HOME_URL = <?!= homeUrl ?>, LEDGER_URL = <?!= ledgerUrl ?>;
+const STAFF_URL = <?!= staffUrl ?>;
+const TOOLS_URL = <?!= toolsUrl ?>;   // 店家工具網址（沒有 Tools.gs 時是空白）
+const ACCT_URL = <?!= acctUrl ?>;
+const BRANCHES = <?!= branches ?>, BRAND_URL = <?!= brandUrl ?>, BRAND_BACK = <?!= brandBack ?>;
+if (BRAND_URL && BRANCHES.length) { const bl = document.getElementById('brandLink'); bl.href = BRAND_URL; bl.style.display = ''; bl.textContent = '分店 ' + BRANCHES.length; }
+if (BRAND_BACK) { const bk = document.getElementById('backLink'); bk.href = BRAND_BACK; bk.style.display = ''; }
+const SETUP_URL = <?!= setupUrl ?>, NEED_SETUP = <?!= needSetup ?>;
+if (SETUP_URL) { const sl = document.getElementById('setupLink'); sl.href = SETUP_URL; sl.style.display = ''; if (NEED_SETUP) sl.textContent = '⚠ 完成店家設定'; }
+if (ACCT_URL) { const al = document.getElementById('acctLink'); al.href = ACCT_URL; al.style.display = ''; }
+if (HOME_URL) { const hm = document.getElementById('homeLink'); hm.href = HOME_URL; hm.style.display = ''; }
+if (LEDGER_URL) { const lg = document.getElementById('ledgerLink'); lg.href = LEDGER_URL; lg.style.display = ''; }
+if (STAFF_URL) { const sf = document.getElementById('staffLink'); sf.href = STAFF_URL; sf.style.display = ''; }
+if (TOOLS_URL) { const tl = document.getElementById('toolsLink'); tl.href = TOOLS_URL; tl.style.display = ''; }
+var QR = (function () {
+  var ECW = [
+    [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+    [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
+    [-1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+    [-1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+  ];
+  var NB = [
+    [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
+    [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
+    [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
+    [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]
+  ];
+  var LV = { L: [0, 1], M: [1, 0], Q: [2, 3], H: [3, 2] };
+
+  function bit(x, i) { return ((x >>> i) & 1) !== 0; }
+  function gmul(x, y) {
+    var z = 0;
+    for (var i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; }
+    return z & 0xFF;
+  }
+  function rawModules(v) {
+    var r = (16 * v + 128) * v + 64;
+    if (v >= 2) { var n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; }
+    return r;
+  }
+  function dataCw(v, t) { return Math.floor(rawModules(v) / 8) - ECW[t][v] * NB[t][v]; }
+  function rsDivisor(d) {
+    var r = [], i, j, root = 1;
+    for (i = 0; i < d - 1; i++) r.push(0);
+    r.push(1);
+    for (i = 0; i < d; i++) {
+      for (j = 0; j < r.length; j++) { r[j] = gmul(r[j], root); if (j + 1 < r.length) r[j] ^= r[j + 1]; }
+      root = gmul(root, 0x02);
+    }
+    return r;
+  }
+  function rsRem(data, div) {
+    var r = div.map(function () { return 0; });
+    data.forEach(function (b) {
+      var f = b ^ r.shift(); r.push(0);
+      div.forEach(function (c, i) { r[i] ^= gmul(c, f); });
+    });
+    return r;
+  }
+  function utf8(s) {
+    var out = [], b = unescape(encodeURIComponent(s));
+    for (var i = 0; i < b.length; i++) out.push(b.charCodeAt(i));
+    return out;
+  }
+  function alignPos(v) {
+    if (v === 1) return [];
+    var n = Math.floor(v / 7) + 2, size = v * 4 + 17;
+    var step = (v === 32) ? 26 : Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2;
+    var res = [6];
+    for (var p = size - 7; res.length < n; p -= step) res.splice(1, 0, p);
+    return res;
+  }
+
+  function encode(text, ecl) {
+    var bytes = utf8(text), lvName = LV[ecl] ? ecl : 'Q', t = LV[lvName][0], v, cap;
+    for (v = 1; v <= 40; v++) {
+      cap = dataCw(v, t) * 8;
+      if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= cap) break;
+    }
+    if (v > 40) throw new Error('網址太長，無法產生 QR');
+    ['M', 'Q', 'H'].forEach(function (n) {
+      var tt = LV[n][0];
+      if (tt > t && 4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= dataCw(v, tt) * 8) { t = tt; lvName = n; }
+    });
+    cap = dataCw(v, t) * 8;
+    var bits = [];
+    function push(val, len) { for (var i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1); }
+    push(4, 4); push(bytes.length, v < 10 ? 8 : 16);
+    bytes.forEach(function (b) { push(b, 8); });
+    push(0, Math.min(4, cap - bits.length));
+    push(0, (8 - bits.length % 8) % 8);
+    for (var pad = 0xEC; bits.length < cap; pad ^= 0xEC ^ 0x11) push(pad, 8);
+    var data = [];
+    for (var i = 0; i < bits.length; i += 8) {
+      var by = 0; for (var k = 0; k < 8; k++) by = (by << 1) | bits[i + k]; data.push(by);
+    }
+    var nb = NB[t][v], ec = ECW[t][v], raw = Math.floor(rawModules(v) / 8);
+    var nShort = nb - raw % nb, shortLen = Math.floor(raw / nb), div = rsDivisor(ec), blocks = [], pos = 0;
+    for (i = 0; i < nb; i++) {
+      var dat = data.slice(pos, pos + shortLen - ec + (i < nShort ? 0 : 1));
+      pos += dat.length;
+      var e = rsRem(dat, div);
+      if (i < nShort) dat.push(0);
+      blocks.push(dat.concat(e));
+    }
+    var cw = [];
+    for (i = 0; i < blocks[0].length; i++) {
+      for (var j = 0; j < blocks.length; j++) {
+        if (i !== shortLen - ec || j >= nShort) cw.push(blocks[j][i]);
+      }
+    }
+    return build(v, LV[lvName][1], cw, lvName);
+  }
+
+  function build(v, fbits, cw, lvName) {
+    var size = v * 4 + 17, m = [], fn = [], x, y, i;
+    for (y = 0; y < size; y++) { m.push([]); fn.push([]); for (x = 0; x < size; x++) { m[y].push(false); fn[y].push(false); } }
+    function setF(xx, yy, d) { m[yy][xx] = d; fn[yy][xx] = true; }
+    for (i = 0; i < size; i++) { setF(6, i, i % 2 === 0); setF(i, 6, i % 2 === 0); }
+    function finder(cx, cy) {
+      for (var dy = -4; dy <= 4; dy++) for (var dx = -4; dx <= 4; dx++) {
+        var dist = Math.max(Math.abs(dx), Math.abs(dy)), xx = cx + dx, yy = cy + dy;
+        if (xx >= 0 && xx < size && yy >= 0 && yy < size) setF(xx, yy, dist !== 2 && dist !== 4);
+      }
+    }
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    var ap = alignPos(v), na = ap.length;
+    for (i = 0; i < na; i++) for (var j = 0; j < na; j++) {
+      if ((i === 0 && j === 0) || (i === 0 && j === na - 1) || (i === na - 1 && j === 0)) continue;
+      for (var dy2 = -2; dy2 <= 2; dy2++) for (var dx2 = -2; dx2 <= 2; dx2++) {
+        setF(ap[i] + dx2, ap[j] + dy2, Math.max(Math.abs(dx2), Math.abs(dy2)) !== 1);
+      }
+    }
+    function format(mask) {
+      var d = fbits << 3 | mask, r = d;
+      for (var k = 0; k < 10; k++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      var b = (d << 10 | r) ^ 0x5412;
+      for (k = 0; k <= 5; k++) setF(8, k, bit(b, k));
+      setF(8, 7, bit(b, 6)); setF(8, 8, bit(b, 7)); setF(7, 8, bit(b, 8));
+      for (k = 9; k < 15; k++) setF(14 - k, 8, bit(b, k));
+      for (k = 0; k < 8; k++) setF(size - 1 - k, 8, bit(b, k));
+      for (k = 8; k < 15; k++) setF(8, size - 15 + k, bit(b, k));
+      setF(8, size - 8, true);
+    }
+    format(0);
+    if (v >= 7) {
+      var r = v;
+      for (i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25);
+      var vb = v << 12 | r;
+      for (i = 0; i < 18; i++) {
+        var a = size - 11 + i % 3, b2 = Math.floor(i / 3), bb = bit(vb, i);
+        setF(a, b2, bb); setF(b2, a, bb);
+      }
+    }
+    var idx = 0;
+    for (var right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (var vert = 0; vert < size; vert++) for (var jj = 0; jj < 2; jj++) {
+        x = right - jj;
+        var up = ((right + 1) & 2) === 0;
+        y = up ? size - 1 - vert : vert;
+        if (!fn[y][x] && idx < cw.length * 8) { m[y][x] = bit(cw[idx >>> 3], 7 - (idx & 7)); idx++; }
+      }
+    }
+    function maskFn(k, xx, yy) {
+      switch (k) {
+        case 0: return (xx + yy) % 2 === 0;
+        case 1: return yy % 2 === 0;
+        case 2: return xx % 3 === 0;
+        case 3: return (xx + yy) % 3 === 0;
+        case 4: return (Math.floor(xx / 3) + Math.floor(yy / 2)) % 2 === 0;
+        case 5: return xx * yy % 2 + xx * yy % 3 === 0;
+        case 6: return (xx * yy % 2 + xx * yy % 3) % 2 === 0;
+        default: return ((xx + yy) % 2 + xx * yy % 3) % 2 === 0;
+      }
+    }
+    function applyMask(k) {
+      for (var yy = 0; yy < size; yy++) for (var xx = 0; xx < size; xx++) {
+        if (!fn[yy][xx] && maskFn(k, xx, yy)) m[yy][xx] = !m[yy][xx];
+      }
+    }
+    function penalty() {
+      var p = 0, xx, yy, run, dark = 0;
+      for (var pass = 0; pass < 2; pass++) {
+        for (yy = 0; yy < size; yy++) {
+          run = 1;
+          var line = [];
+          for (xx = 0; xx < size; xx++) line.push(pass ? m[xx][yy] : m[yy][xx]);
+          for (xx = 1; xx < size; xx++) {
+            if (line[xx] === line[xx - 1]) { run++; if (run === 5) p += 3; else if (run > 5) p++; }
+            else run = 1;
+          }
+          var s = line.map(function (q) { return q ? '1' : '0'; }).join('');
+          var pat1 = '00001011101', pat2 = '10111010000', at = -1;
+          while ((at = s.indexOf(pat1, at + 1)) >= 0) p += 40;
+          at = -1;
+          while ((at = s.indexOf(pat2, at + 1)) >= 0) p += 40;
+        }
+      }
+      for (yy = 0; yy < size - 1; yy++) for (xx = 0; xx < size - 1; xx++) {
+        var c = m[yy][xx];
+        if (c === m[yy][xx + 1] && c === m[yy + 1][xx] && c === m[yy + 1][xx + 1]) p += 3;
+      }
+      for (yy = 0; yy < size; yy++) for (xx = 0; xx < size; xx++) if (m[yy][xx]) dark++;
+      var total = size * size;
+      p += (Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1) * 10;
+      return p;
+    }
+    var best = 0, bestP = Infinity;
+    for (var k = 0; k < 8; k++) {
+      applyMask(k); format(k);
+      var pp = penalty();
+      if (pp < bestP) { bestP = pp; best = k; }
+      applyMask(k);
+    }
+    applyMask(best); format(best);
+    return { version: v, size: size, level: lvName, mask: best, modules: m };
+  }
+
+  return { encode: encode };
+})();
+/* 網址 → QR 的 SVG（自寫編碼器，不依賴外部服務） */
+function qrSvg(url) {
+  try {
+    const q = QR.encode(url, 'Q'), m = 4, n = q.size + m * 2;
+    let p = '';
+    for (let y = 0; y < q.size; y++) for (let x = 0; x < q.size; x++) if (q.modules[y][x]) p += `M${x + m} ${y + m}h1v1h-1z`;
+    return `<svg viewBox="0 0 ${n} ${n}" width="100%" height="100%"><path d="${p}" fill="#13365f"/></svg>`;
+  } catch (e) { return ''; }
+}
+const LINE_QR_OLD = `<svg viewBox="0 0 108 108" width="100%" height="100%" class="segno"><path transform="scale(4)" class="qrline" stroke="#13365f" d="M1 1.5h7m1 0h1m2 0h1m3 0h1m2 0h7m-25 1h1m5 0h1m1 0h1m4 0h2m3 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h4m1 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m2 0h1m3 0h2m3 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h2m1 0h2m3 0h1m1 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m4 0h1m1 0h1m2 0h1m1 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h3m1 0h1m1 0h2m-17 1h1m2 0h7m2 0h4m1 0h1m2 0h1m1 0h3m-25 1h2m1 0h2m2 0h1m2 0h1m1 0h1m1 0h1m4 0h5m-23 1h1m1 0h1m2 0h2m1 0h9m2 0h2m2 0h1m-25 1h2m1 0h1m3 0h1m1 0h1m1 0h2m1 0h2m2 0h7m-23 1h2m1 0h2m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m4 0h1m-25 1h1m1 0h1m2 0h1m3 0h1m3 0h1m1 0h1m4 0h1m2 0h1m-24 1h8m1 0h1m1 0h2m1 0h2m1 0h1m2 0h5m-25 1h1m1 0h2m1 0h1m2 0h1m1 0h2m2 0h1m4 0h1m1 0h2m1 0h1m-25 1h1m1 0h1m3 0h3m4 0h1m1 0h6m1 0h2m-16 1h1m1 0h5m1 0h1m3 0h1m1 0h2m-24 1h7m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m-25 1h1m5 0h1m1 0h3m1 0h5m3 0h1m-21 1h1m1 0h3m1 0h1m1 0h2m2 0h2m1 0h6m2 0h2m-25 1h1m1 0h3m1 0h1m1 0h1m5 0h3m1 0h1m4 0h2m-25 1h1m1 0h3m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m2 0h5m-25 1h1m5 0h1m2 0h2m8 0h2m1 0h3m-25 1h7m1 0h3m1 0h3m1 0h2m3 0h1m2 0h1"/></svg>`;  // https://lin.ee/VpY3C6z
+const LINE_QR = BRAND.legacy ? LINE_QR_OLD : (BRAND.lineUrl ? qrSvg(BRAND.lineUrl) : '');
+
+/* ---------------- menu data ----------------
+   價格：數字 = 預設價格；'' = 尚未定價；null = 此規格不供應（印成 –）
+   名稱前加 * = 店長推薦 */
+const SECTIONS = [
+ {id:'chao', t:'超值特餐', hl:1, combo:1, cols:['價格'], note:()=> '套餐飲料皆附中杯義美鮮奶茶　▲恕無法更換其他飲料', rows:[
+  ['*辣培根薯泥起司蛋堡套餐','附脆薯',150],
+  ['炸物拼盤套餐','附巧克力厚片',160,'拼盤有脆薯、雞米花、雞柳條｜厚片換其他口味 +{add:厚片換口味} 元'],
+  ['花醬美式總匯套餐','附脆薯',155],
+  ['焗烤招牌厚片套餐','附脆薯、玉米炒蛋',160],
+  ['*起司辣肉醬麵肉蛋雙拼套餐','附薯餅',150],
+  ['鮪魚玉米乳酪蛋餅','附脆薯',155],
+  ['*塔香豬排起司蛋抓餅套餐','附原味卡啦雞腿排',165]]},
+ {id:'jing', t:'經濟特餐', hl:1, cols:['價格'], note:()=> '套餐飲料中杯可選奶茶、紅茶、無糖紅茶　▲恕無法更換其他飲料', rows:[
+  ['01 火腿起司蛋吐司',75],['*02 豬肉起司蛋堡',80],['03 玉米起司蛋餅',70],['04 香雞起司蛋堡',85],['*05 煎餃＋熱狗（2根）',75],
+  ['06 豬排蛋蔥抓餅',85],['07 果醬厚片＋薯條',85],['08 薯條＋雞塊（4塊）',90],['09 火腿起司蛋乳酪餅',80],
+  ['10 美式炒蛋＋薯餅＋熱狗（2根）',85],['*11 鐵板麵（蘑菇／黑胡椒）＋蛋',80],['12 港式蘿蔔糕炒蛋',80]]},
+ {id:'danbing', t:'蛋餅／抓餅蛋／河粉', cols:['蛋餅','抓餅蛋','河粉'], note:()=> '加九層塔 +{add:蛋餅加九層塔}｜加起司 +{add:蛋餅加起司}｜加 1 份蔬菜 +{add:蛋餅加蔬菜}｜加乳酪絲 +{add:蛋餅加乳酪絲}', rows:[
+  ['原味',30,50,35],['九層塔／香蔥',40,60,45],['蔬菜／起司／玉米',45,60,50],['火腿／熱狗／肉鬆',45,60,50],['鮪魚／培根／豬肉',45,60,50],
+  ['檸檬雞柳／洋蔥起司',50,65,55],['燻雞／薯餅／豬排',55,70,60],['蝦排起司／鮪魚玉米',60,75,65],['薯泥培根',65,80,70],['蒙特婁熱狗起司',70,85,75],
+  ['川麻辣五花（辣）',70,85,75],['泡菜豬排',70,85,75],['德腸菜菜',75,90,80],['*美式',80,95,85],['香辣皮蛋肉鬆',80,95,85]]},
+ {id:'chiyan', t:'赤焰蛋餅', cols:['價格'], note:()=> '口味選擇同蛋餅｜加料價格同蛋餅', rows:[
+  ['原味',''],['九層塔／香蔥',''],['蔬菜／起司／玉米',''],['火腿／熱狗／肉鬆',''],['鮪魚／培根／豬肉',''],
+  ['檸檬雞柳／洋蔥起司',''],['燻雞／薯餅／豬排',''],['蝦排起司／鮪魚玉米',''],['薯泥培根',''],['蒙特婁熱狗起司',''],
+  ['川麻辣五花（辣）',''],['泡菜豬排',''],['德腸菜菜',''],['美式',''],['香辣皮蛋肉鬆','']]},
+ {id:'cheese', t:'招牌牽絲乳酪', cols:['蛋餅','抓餅蛋'], rows:[
+  ['歐陸香料乳酪',65,80],['肉鬆乳酪',75,90],['培根乳酪',75,90],['*塔香豬肉乳酪',75,90],['*薯泥乳酪',80,95],
+  ['燻雞乳酪',80,95],['*塔香椒鹽皮蛋',90,105],['*德式香腸乳酪',95,110]]},
+ {id:'spread', t:'抹醬吐司／厚片／乳酪餅', cols:['薄片','厚片','乳酪餅'], rows:[
+  ['花生／奶酥',20,35,35],['香蒜／奶油',20,35,35],['巧克力／草莓',20,35,35],['鹹鹹厚片',null,40,null],
+  ['*四色厚片',null,50,null],['*蒜香雙料厚片',null,65,null]]},
+ {id:'bake', t:'焗烤厚片', cols:['厚片'], rows:[
+  ['焗烤花生厚片',55],['焗烤香蒜厚片',55],['焗烤奶油厚片',55],['*焗烤招牌厚片',70],['焗烤薯泥厚片',70],['*焗烤川麻燒豬',75]]},
+ {id:'toast', t:'吐司／漢堡／乳酪餅', cols:['吐司','漢堡','乳酪餅'], note:()=> '皆加蛋｜加花生醬 +{add:吐司加花生醬}｜加起司 +{add:吐司加起司}｜加 1 份蔬菜 +{add:吐司加蔬菜}｜加薯餅 +{add:吐司加薯餅}', rows:[
+  ['玉米／蔬菜／起司',45,50,60],['火腿／香雞／肉鬆',45,50,60],['培根／豬肉／鮪魚',45,50,60],['泰式醬鮮蔬',50,55,65],
+  ['豬排／燻雞／薯餅',55,60,70],['自製薯泥蛋沙拉',55,60,70],['檸檬雞柳',55,60,70],['藍帶豬排',60,65,75],['特製辣蝦',60,65,75],
+  ['鮪魚玉米蛋',60,65,75],['*塔香豬排',60,65,75],['蒜香辣燻雞',60,65,75],['*辣蝦排',60,65,75],
+  ['*三層薯泥起司軟吐司',75,null,null],['*孟老師的大漢堡',null,105,null],['辣鮪魚火腿',65,70,80],['泡菜辣培根',65,70,80],
+  ['卡啦雞腿（原／辣味）',70,75,85],['*川麻燒豬（辣）',70,75,85],['*辣鮪魚薯餅',75,80,90],['花生醬雙培根起司',75,80,90],
+  ['*雙金鮪魚',75,80,90],['*辣德腸起司',75,80,90],['泰式醬雞柳起司',75,80,90],['豬排薯餅',75,80,90],['*豬排起司辣薯',80,85,95],
+  ['*辣培根薯泥起司',80,85,95],['草莓肉鬆豬排蛋',80,85,95],['*花醬培根厚蛋燒',85,90,100],['*豬排薯泥玉米蛋',95,100,110]]},
+ {id:'club', t:'總匯吐司', cols:['價格'], rows:[
+  ['豬肉總匯',70],['鮪魚／香雞總匯',75],['特製辣蝦／雙金鮪魚總匯',80],['豬排／美式／藍帶豬排總匯',85],['*海陸總匯',90],['泰式蝦排起司總匯',90],
+  ['豬排薯餅總匯',95],['*雙層豬肉起司總匯',95],['培根薯泥起司總匯',95],['花醬辣培根總匯',95],['*塔香雙豬排總匯',100],['*綿羊羊超級總匯',110]]},
+ {id:'single', t:'單點', cols:['價格'], rows:[
+  ['荷包蛋／炒蛋',15],['薯餅',25],['熱狗',35],['黑胡椒豬排片',40],['雞米花',40],['薯條／雞塊',40],['小肉豆',40],['檸檬雞柳',45],['蘿蔔糕',45],
+  ['煎餃',45],['藍帶豬排',45],['椒鹽炸餃',45],['辛香脆薯',50],['卡啦雞腿排（原／辣）',55],['蘿蔔糕炒蛋',60],['*塔香蘿蔔糕牽絲乳酪炒蛋',85],['*煎餃炒蛋',60],['*薯餅塔',65],
+  ['快樂小兒童',65],['胡麻燻雞皮蛋沙拉（輕食）',80],['超級薯餅塔',95],['*卡啦卡啦塔',125]]},
+ {id:'tpm', t:'鐵板麵', cols:['單點','加蛋','加肉','九層塔','起士','雙起士'], note:()=> '口味分開定價，點餐請說清楚口味和加料', rows:[
+  ['蘑菇鐵板麵',50,'','','','',''],['黑胡椒鐵板麵',50,'','','','',''],['肉醬鐵板麵','','','','','','']]},
+ {id:'teppan', t:'鐵板麵組合', cols:['價格'], rows:[
+  ['塔香起司辣肉醬麵',80],['蘑菇鐵板麵肉蛋雙拼',85],['黑胡椒鐵板麵肉蛋雙拼',85],
+['*起司辣肉醬麵肉蛋雙拼',105],['*鐵板麵豪華三拼（菇／黑）',110]]},
+ {id:'drink', t:'喝點什麼', cols:['中杯','大杯'], note:()=> '鮮奶茶、拿鐵皆使用義美鮮奶', rows:[
+  ['紅茶',25,30],['奶茶',25,30],['無糖紅茶',25,30],['無糖豆漿',25,30],['豆漿紅茶',30,35],['*啊！害啊！（紅茶混奶茶）',30,35],['義美鮮奶茶',35,40],
+  ['*雙倍義美鮮奶茶',45,50],['研磨咖啡／黑咖啡',35,40],['*咖啡拿鐵',45,50],['*鴛鴦奶茶',null,50],['*招牌暖暖濃湯（冬季限定）',60,null]]},
+ {id:'add', t:'加料／加價', cols:['加價'], sub:'印在各分類的說明文字裡', rows:[
+  ['蛋餅加九層塔',10],['蛋餅加起司',10],['蛋餅加蔬菜',10],['蛋餅加乳酪絲',30],
+  ['吐司加花生醬',5],['吐司加起司',10],['吐司加蔬菜',10],['吐司加薯餅',25],['厚片換口味',5]]},
+];
+// A3 版面：四欄
+const LAYOUT = [['HERO','QR','chao','jing','cheese'], ['danbing','chiyan','spread','bake'], ['toast','club'], ['single','tpm','teppan','drink']];
+/* 線上服務的店家：分類存在伺服器（店長可以自己改）；弘林沒存過就用上面內建的 */
+const CUSTOM_SECTIONS = <?!= sections ?>;
+const AI_ON = <?!= aiOn ?>;   // AI 建立菜單初稿：預留功能，預設關閉（Script Properties aiEnabled=1 才開放）
+if (CUSTOM_SECTIONS) {
+  SECTIONS.length = 0;
+  CUSTOM_SECTIONS.forEach(c => SECTIONS.push({ id: c.id, t: c.t, cols: c.cols.slice(), hl: c.hl ? 1 : 0, color: c.color || '', note: c.note ? () => c.note : null, rows: [] }));
+  LAYOUT.length = 0; LAYOUT.push(['HERO', 'QR'].concat(SECTIONS.map(s => s.id)));
+}
+
+/* ---------------- state ---------------- */
+const BYID = Object.fromEntries(SECTIONS.map(s => [s.id, s]));
+const clean = n => n.replace(/^\*/, '');
+const key = (sid, name, c) => sid + '|' + clean(name) + '|' + c;
+const priceIdx = s => s.combo ? 2 : 1;
+SECTIONS.forEach(s => { s.base = s.rows.slice(); });   // 內建的品項順序、附餐文字、推薦
+const DEFAULTS = {}, LABEL = {}, HIDDEN = new Set();
+const itemId = k => k.split('|').slice(0, 2).join('|');
+function computeKeys() {
+  for (const k in DEFAULTS) delete DEFAULTS[k];
+  for (const k in LABEL) delete LABEL[k];
+  for (const s of SECTIONS) for (const r of s.rows) s.cols.forEach((_, c) => {
+    const v = r[priceIdx(s) + c];
+    if (v !== null && v !== undefined) {
+      const k = key(s.id, r[0], c);
+      DEFAULTS[k] = v === '' ? '' : String(v);
+      LABEL[k] = s.t.split('／')[0] + '・' + clean(r[0]) + (s.cols.length > 1 ? '・' + s.cols[c] : '');
+    }
+  });
+}
+computeKeys();
+
+// 試算表是品項的唯一來源：有哪些品項、隱藏、推薦都以試算表為準
+let layoutSig = '';
+const ITEM_TAGS = {};   /* 'sid|品項' → ['egg','veg',…] */
+let TAGDEFS = [];
+const tagDef = c => TAGDEFS.find(d => d.c === c);
+const tagBadges = iid => (ITEM_TAGS[iid] || []).map(c => { const d = tagDef(c); return d ? `<span class="tg ${d.g === 'd' ? 'd' : d.g === 'f' ? 'f' : ''}">${d.t}</span>` : ''; }).join('');
+/* 勾選標示的小元件：el 是容器，回傳 { get() } */
+function tagPicker(el, sel) {
+  const on = new Set(sel || []), G = [['a', '含有的過敏原'], ['d', '飲食'], ['f', '口味']];
+  el.innerHTML = G.map(([g, t]) => `<div class="tgh">${t}</div><div class="tgrow">${TAGDEFS.filter(d => d.g === g).map(d => `<button type="button" class="tgpick${on.has(d.c) ? ' on' : ''}" data-c="${d.c}">${d.t}</button>`).join('')}</div>`).join('');
+  el.onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; const c = b.dataset.c; if (on.has(c)) on.delete(c); else on.add(c); b.classList.toggle('on'); };
+  return { get: () => TAGDEFS.map(d => d.c).filter(c => on.has(c)) };
+}
+function rebuildFromRows(rows) {
+  const bySid = {};
+  rows.forEach(r => {
+    const [sid, name, c] = r.k.split('|');
+    const g = bySid[sid] = bySid[sid] || {};
+    const it = g[name] = g[name] || { cols: {}, hidden: false, star: null, side: '', order: Object.keys(g).length };
+    it.cols[c] = true;
+    if (r.hidden) it.hidden = true;
+    if (r.star !== null && r.star !== undefined) it.star = !!r.star;
+    if (r.side) it.side = r.side;
+  });
+  HIDDEN.clear();
+  for (const k in ITEM_TAGS) delete ITEM_TAGS[k];
+  rows.forEach(r => { const p = r.k.split('|'); if (r.tags && !ITEM_TAGS[p[0] + '|' + p[1]]) ITEM_TAGS[p[0] + '|' + p[1]] = r.tags.split(',').filter(Boolean); });
+  for (const s of SECTIONS) {
+    const items = bySid[s.id] || {};
+    const baseBy = {}; s.base.forEach((r, i) => { baseBy[clean(r[0])] = { r, i }; });
+    const names = Object.keys(items).sort((a, b) => {
+      const A = baseBy[a], B = baseBy[b];
+      if (A && B) return A.i - B.i; if (A) return -1; if (B) return 1;
+      return items[a].order - items[b].order;
+    });
+    s.rows = names.map(nm => {
+      const it = items[nm], b = baseBy[nm] && baseBy[nm].r;
+      const star = it.star !== null ? it.star : !!(b && b[0].startsWith('*'));
+      if (it.hidden) HIDDEN.add(s.id + '|' + nm);
+      const label = (star ? '*' : '') + nm;
+      if (s.combo) return [label, it.side || (b ? b[1] : ''), it.cols[0] ? '' : null, b ? (b[3] || '') : ''];
+      return [label, ...s.cols.map((_, c) => it.cols[c] ? '' : null)];
+    });
+  }
+  computeKeys();
+  const sig = JSON.stringify(SECTIONS.map(s => s.rows.map(r => [r[0], s.combo ? r[1] : '', r.map(v => v === null)]))) + '#' + [...HIDDEN].join(',') + '#' + JSON.stringify(ITEM_TAGS);
+  if (sig === layoutSig) return false;
+  layoutSig = sig; buildList(); applySearch();
+  return true;
+}
+let prices = { ...DEFAULTS };
+let base = { ...DEFAULTS };   // 最近一次上傳後的價格（檔案有填用檔案，沒填沿用上次）
+let prev = { ...DEFAULTS };   // 上次的價格：用來比對「這次哪裡不一樣」
+let onlyChg = false;
+let meta = { updatedAt: null };
+const get = (sid, name, c) => prices[key(sid, name, c)] ?? '';
+
+/* ---------------- editor list ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+const tpl = s => `grid-template-columns: minmax(0,1fr) repeat(${s.cols.length}, ${s.cols.length > 4 ? '42px' : s.cols.length > 2 ? '54px' : '64px'})`;
+
+function buildList() {
+  let h = '';
+  for (const s of SECTIONS) {
+    h += `<section class="sec" id="sec-${s.id}" data-sec="${s.id}"><div class="sec-h"><h2>${s.t}</h2><span>${s.sub || s.rows.length + ' 項'}</span></div>`;
+    if (s.note) h += `<div class="sec-note" data-note="${s.id}"></div>`;
+    h += `<div class="colh" style="${tpl(s)}"><span></span>${s.cols.map(c => `<span>${c}</span>`).join('')}</div>`;
+    for (const r of s.rows) {
+      const star = r[0].startsWith('*');
+      const side = s.combo ? `<small>${esc(r[1])}</small>` : '';
+      const iid = s.id + '|' + clean(r[0]), hid = HIDDEN.has(iid);
+      h += `<div class="it${hid ? ' hid' : ''}" data-name="${esc(clean(r[0]))}" style="${tpl(s)}"><div class="nm">${star ? '<span class="st">★</span>' : ''}<span class="t">${esc(clean(r[0]))}</span><span class="tgs">${tagBadges(iid)}</span>${hid ? '<em class="hidtag">已隱藏</em>' : ''}<button class="more" data-item="${esc(iid)}" aria-label="品項設定">⋯</button>${side}</div>`;
+      s.cols.forEach((_, c) => {
+        const k = key(s.id, r[0], c);
+        if (!(k in DEFAULTS)) { h += `<div class="f"><span class="na">–</span></div>`; return; }
+        h += `<div class="f" data-k="${esc(k)}"><input inputmode="numeric" pattern="[0-9]*" maxlength="4" aria-label="${esc(clean(r[0]) + ' ' + s.cols[c])}"><span class="was"></span></div>`;
+      });
+      h += `</div>`;
+    }
+    h += `<button class="addbtn" data-sid="${s.id}">＋ 新增品項</button></section>`;
+  }
+  $('list').innerHTML = h;
+  $('list').querySelectorAll('.f[data-k] input').forEach(inp => {
+    inp.addEventListener('input', () => {
+      if (!loaded) { inp.value = prices[inp.parentElement.dataset.k] ?? ''; return; }
+      const v = inp.value.replace(/[^0-9]/g, '');
+      if (v !== inp.value) inp.value = v;
+      const k = inp.parentElement.dataset.k;
+      prices[k] = v;
+      paintField(inp.parentElement);
+      refreshNotes(); refreshSummary();
+      scheduleSave(k);
+    });
+    inp.addEventListener('focus', () => inp.select());
+  });
+  $('chips').innerHTML = `<button class="chip chg" id="chgChip" style="display:none">只看有變動<b></b></button>` + SECTIONS.map(s => `<button class="chip" data-go="${s.id}">${s.t.split('／')[0]}<b data-cnt="${s.id}"></b></button>`).join('');
+
+}
+
+let chipsBound = false;
+function bindChips() {
+  if (chipsBound) return; chipsBound = true;
+  $('chips').addEventListener('click', e => {
+    if (e.target.closest('#chgChip')) { onlyChg = !onlyChg; applySearch(); refreshSummary(); window.scrollTo({ top: 0 }); return; }
+    const b = e.target.closest('[data-go]'); if (!b) return;
+    if ($('q').value) { $('q').value = ''; applySearch(); }
+    $('sec-' + b.dataset.go).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });}
+function paintField(f) {
+  const k = f.dataset.k, v = prices[k] ?? '', d = prev[k] ?? '';
+  const inp = f.querySelector('input');
+  if (document.activeElement !== inp && inp.value !== v) inp.value = v;
+  const changed = v !== d;
+  f.classList.toggle('chg', changed);
+  f.classList.toggle('empty', v === '');
+  f.querySelector('.was').textContent = changed ? '上次 ' + (d === '' ? '空白' : d) : '';
+  f.closest('.it').classList.toggle('chg-row', !!f.closest('.it').querySelector('.f.chg'));
+}
+function paintAll() { $('list').querySelectorAll('.f[data-k]').forEach(paintField); refreshNotes(); refreshSummary(); }
+
+function fillNote(s, mode) {
+  if (!s.note) return '';
+  return s.note().replace(/\{add:([^}]+)\}/g, (_, n) => {
+    if (mode === 'blank') return '____';
+    return get('add', n, 0) || '__';
+  });
+}
+function refreshNotes() { SECTIONS.forEach(s => { const el = document.querySelector(`[data-note="${s.id}"]`); if (el) el.textContent = fillNote(s, 'menu'); }); }
+
+function counts() {
+  let empty = [], changedKeys = [], diffKeys = [];
+  for (const k in DEFAULTS) {
+    if (HIDDEN.has(itemId(k))) continue;   // 隱藏的品項不印，不用檢查
+    const v = prices[k] ?? '';
+    if (v === '') empty.push(k);
+    if (v !== (base[k] ?? '')) changedKeys.push(k);   // 在工具裡手動改的
+    if (v !== (prev[k] ?? '')) diffKeys.push(k);      // 跟上次不一樣的
+  }
+  return { changed: changedKeys.length, changedKeys, diffKeys, empty };
+}
+function refreshSummary() {
+  const { diffKeys, empty } = counts();
+  const bySec = {};
+  empty.forEach(k => { const s = k.split('|')[0]; bySec[s] = (bySec[s] || 0) + 1; });
+  document.querySelectorAll('[data-cnt]').forEach(b => { const n = bySec[b.dataset.cnt]; b.textContent = n ? ' ' + n : ''; });
+  const when = meta.updatedAt ? '最後更新 ' + new Date(meta.updatedAt).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  $('barInfo').innerHTML = `跟上次印的不同 <b style="color:var(--orange)">${diffKeys.length}</b> 格${empty.length ? `・未填 <b>${empty.length}</b> 格` : ''}${when ? '<br>' + when : ''}`;
+  const cb = $('chgChip'); if (cb) { cb.querySelector('b').textContent = ' ' + diffKeys.length; cb.style.display = diffKeys.length || onlyChg ? '' : 'none'; cb.classList.toggle('on', onlyChg); }
+}
+
+/* ---------------- search (索引) ---------------- */
+function applySearch() {
+  const q = $('q').value.trim();
+  $('searchBox').classList.toggle('has', !!q);
+  let any = 0;
+  document.querySelectorAll('.sec').forEach(sec => {
+    let hit = 0;
+    const secMatch = q && BYID[sec.dataset.sec].t.includes(q);
+    sec.querySelectorAll('.it').forEach(it => {
+      const name = it.dataset.name, ok = (!q || secMatch || name.includes(q)) && (!onlyChg || !!it.querySelector('.f.chg'));
+      it.classList.toggle('hide', !ok); if (ok) hit++;
+      const t = it.querySelector('.t');
+      t.innerHTML = q && !secMatch && ok ? esc(name).split(esc(q)).join(`<mark>${esc(q)}</mark>`) : esc(name);
+    });
+    sec.style.display = hit || (!q && !onlyChg) ? '' : 'none'; any += hit;   /* 沒有搜尋時，空的分類也要顯示（要有「＋ 新增品項」按鈕） */
+  });
+  $('none').style.display = any || (!q && !onlyChg) ? 'none' : 'block';
+  const total = SECTIONS.reduce((a, s) => a + s.rows.length, 0);
+  $('emptyHint').style.display = total ? 'none' : '';
+}
+$('q').addEventListener('input', applySearch);
+$('emptyGo').addEventListener('click', () => { const b = document.querySelector('.addbtn'); if (b) { b.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => b.click(), 350); } });
+$('emptyDemo').addEventListener('click', async () => {
+  const b = $('emptyDemo'), m = $('emptyDemoMsg'); b.disabled = true; m.style.display = ''; m.textContent = '匯入中，約需 10～30 秒…';
+  try { const r = await call('ownDemoMenuLoad', STAFF_KEY); m.textContent = '已匯入 ' + r.added + ' 個品項，重新載入…'; location.reload(); }
+  catch (e) { m.textContent = '沒有匯入：' + errText(e); b.disabled = false; }
+});
+$('qx').addEventListener('click', () => { $('q').value = ''; applySearch(); $('q').focus(); });
+
+/* ---------------- Google 試算表同步 ---------------- */
+const HAS_GS = !!(window.google && google.script && google.script.run);
+const STAFF_KEY = <?!= staffKey ?>;
+const BOOT_DATA = <?!= boot ?>;
+function call(fn, ...args) {
+  return new Promise((ok, no) => {
+    if (!HAS_GS) return no(new Error('offline'));
+    google.script.run.withSuccessHandler(ok).withFailureHandler(no)[fn](...args);
+  });
+}
+let pending = {}, saveTimer = null, saving = false, who = '', server = null, loaded = false;
+function setSync(cls, text) { const el = $('sync'); el.className = 'sync ' + cls; el.querySelector('span').textContent = text; }
+const fmtT = t => t ? new Date(t).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+
+function applyData(d) {
+  if (!d || d.error) {
+    const why = d && d.error === 'noSheet' ? '試算表裡還沒有「價格表」分頁。'
+      : d && d.error === 'noBook' ? '程式還不知道是哪一份試算表。'
+      : '讀不到價格表' + (d && d.detail ? '（' + esc(d.detail) + '）' : '') + '。';
+    $('stat').innerHTML = `<div class="errbox">${why}<br>請店長用電腦打開試算表，按選單「🍳 弘林菜單 → 建立／整理價格表」執行一次，再重新整理這頁。</div>`;
+    setSync('local', '讀取失敗'); return;
+  }
+  server = d; if (d.tagDefs) TAGDEFS = d.tagDefs;
+  if (d.rows) rebuildFromRows(d.rows);
+  const act = document.activeElement, focusK = act && act.closest && act.closest('.f') ? act.closest('.f').dataset.k : null;
+  for (const k in DEFAULTS) {
+    if (k in pending || k === focusK) continue;   // 正在打字的格子先不覆蓋
+    prices[k] = d.prices[k] ?? '';
+  }
+  prev = {};
+  for (const k in DEFAULTS) prev[k] = (d.last[k] ?? '') !== '' ? d.last[k] : (d.prices[k] ?? '');
+  base = { ...prices };
+  meta = { updatedAt: d.updatedAt || null };
+  const missing = Object.keys(DEFAULTS).filter(k => !(k in d.prices)).length;
+  $('stat').innerHTML = `已連線 Google 試算表<br>最後修改：<b>${fmtT(d.updatedAt) || '—'}</b>・上次印菜單：<b>${fmtT(d.printedAt) || '還沒印過'}</b>${d.ver ? `・目前菜單版本 <b>V${d.ver}</b>` : ''}` +
+    (missing ? `<div class="errbox" style="margin-top:6px">價格表少了 ${missing} 格品項，請店長在試算表按「🍳 弘林菜單 → 建立／整理價格表」補上。</div>` : '');
+  loaded = true;
+  if (d.lic && d.lic.msg) $('stat').innerHTML += `<div class="errbox" style="margin-top:6px">${esc(d.lic.msg)}</div>`;
+  const busy = $('edModal').classList.contains('open');
+  paintAll(); renderReport();
+  if ($('pvModal').classList.contains('open') && !busy) renderPreview();
+  if (!Object.keys(pending).length) setSync('ok', '已同步');
+}
+function scheduleSave(k) {
+  pending[k] = prices[k] ?? '';
+  setSync('busy', '儲存中…');
+  clearTimeout(saveTimer); saveTimer = setTimeout(flush, 700);
+}
+async function flush() {
+  clearTimeout(saveTimer);
+  if (saving || !Object.keys(pending).length) return;
+  saving = true;
+  const batch = pending; pending = {};
+  try { const d = await call('setPrices', batch, STAFF_KEY); saving = false; applyData(d); }
+  catch (e) {
+    if (/只能查看|停用|重新登入|失效|已過期/.test(String(e && e.message))) { saving = false; setSync('local', '無法儲存'); $('stat').innerHTML = `<div class="errbox">${esc(String(e.message).replace(/^Error:\s*/, ''))}</div>`; return; }
+    for (const k in batch) if (!(k in pending)) pending[k] = batch[k];
+    saving = false; setSync('local', '沒存到，3 秒後重試'); setTimeout(flush, 3000); return;
+  }
+  if (Object.keys(pending).length) flush();
+}
+async function refresh() {
+  if (document.hidden || saving || Object.keys(pending).length) return;
+  if ($('edModal').classList.contains('open')) return;
+  try { applyData(await call('getData', STAFF_KEY)); } catch (e) { setSync('local', '連線不穩，稍後自動重試'); }
+}
+setInterval(refresh, 15000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+
+function renderReport() {
+  if (!loaded) return;
+  const { diffKeys, empty } = counts();
+  let h = '';
+  if (diffKeys.length) {
+    h += `<div class="rep bad"><div><b>跟上次印的菜單不一樣：${diffKeys.length} 格</b>（點一下可以改）</div><div class="fixes">`;
+    h += diffKeys.slice(0, 60).map(k => `<button class="fix dif" data-k="${esc(k)}">${esc(LABEL[k])}<span class="arr">${esc(prev[k] || '空白')} → <b>${esc(prices[k] || '空白')}</b></span></button>`).join('');
+    if (diffKeys.length > 60) h += `<span class="more">…還有 ${diffKeys.length - 60} 格，按上方「只看有變動」</span>`;
+    h += `</div></div>`;
+  } else h += `<div class="rep">✅ 價格跟上次印的菜單一樣</div>`;
+  if (empty.length) {
+    h += `<div class="rep bad"><b>還有 ${empty.length} 格沒有價格</b>（例如新品項），點一下補上：<div class="fixes">`;
+    h += empty.slice(0, 40).map(k => `<button class="fix" data-k="${esc(k)}">${esc(LABEL[k])}</button>`).join('');
+    if (empty.length > 40) h += `<span class="more">…還有 ${empty.length - 40} 格</span>`;
+    h += `</div></div>`;
+  }
+  $('upReport').innerHTML = h;
+}
+$('upReport').addEventListener('click', e => { const b = e.target.closest('.fix'); if (b) openEditor(b.dataset.k); });
+
+/* 單格修改視窗：狀態區、預覽、清單共用 */
+let edKey = null;
+function openEditor(k) {
+  edKey = k;
+  $('edLabel').textContent = LABEL[k];
+  const pv = prev[k] ?? '';
+  $('edWas').textContent = `上次印的價格：${pv === '' ? '沒有' : pv + ' 元'}`;
+  $('edInput').value = prices[k] ?? '';
+  $('edModal').classList.add('open');
+  setTimeout(() => { $('edInput').focus(); $('edInput').select(); }, 60);
+}
+function closeEditor() { $('edModal').classList.remove('open'); edKey = null; }
+function saveEditor() {
+  if (!edKey) return;
+  const k = edKey, v = $('edInput').value.replace(/[^0-9]/g, '');
+  prices[k] = v; scheduleSave(k);
+  closeEditor();
+  paintAll(); renderReport();
+  if ($('pvModal').classList.contains('open')) renderPreview();
+}
+$('edOk').addEventListener('click', saveEditor);
+$('edCancel').addEventListener('click', closeEditor);
+$('edInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveEditor(); });
+$('edModal').addEventListener('click', e => { if (e.target === $('edModal')) closeEditor(); });
+
+/* ---------------- A3 sheet ---------------- */
+const STAR = '<svg class="st" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>';
+const EGG = '<svg viewBox="0 0 40 40"><path d="M20 3c7 0 10 5 14 8s4 11 0 16-8 10-15 10S6 33 4 26 3 12 8 8s7-5 12-5z" fill="#fff" stroke="#1B4F8A" stroke-width="2.4"/><circle cx="20" cy="20" r="7.5" fill="#F29A2E" stroke="#1B4F8A" stroke-width="2"/></svg>';
+
+/* ---------------- A3 版面引擎：自動分欄、品項太多自動排到背面、拉高列距減少留白 ----------------
+   1. 先在畫面外量出每個分類（標題、說明、列、附註）的真實高度
+   2. 依 FLOW 順序把分類塞進四欄；放不下的分類拆到下一欄（標題加「續」），正面放不下就排到背面
+   3. 一頁放得下時，把四欄「平均分攤」；每欄再把列距拉高（最多 +7px）、區塊間距拉開，吃掉剩下的留白
+   正面＋背面都放不下 → overflow，輸出會被擋下並提示要隱藏多少列 */
+const SHEET_W = 1587, SHEET_H = 1123;
+const PAGE_MAX = 2;                        /* A3 雙面：正面＋背面 */
+const GAP0 = 12, GAP_MAX = 24, SAFE = 6;   /* 區塊間距、每欄保留的安全距離（px） */
+const ROW_GROW = 7.4;                      /* 列高最多放大幾 px（17.6 → 25） */
+const SPLIT_TOP = 3, SPLIT_BOT = 2;        /* 分類拆到下一欄時，上、下至少各留幾列 */
+const FLOW = LAYOUT.flat().filter(id => id !== 'HERO' && id !== 'QR');
+let lastPlan = null;
+/* ---- 店家顏色：主色＋強調色（＋各分類的區分色）。要換成 6 位數 hex 才能讓 html2canvas 畫進 PDF，所以淡色、深色都在這裡算好 ---- */
+const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const rgb2hex = a => '#' + a.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+const mixHex = (a, b, t) => { const x = hex2rgb(a), y = hex2rgb(b); return rgb2hex(x.map((v, i) => v * (1 - t) + y[i] * t)); };
+const lumHex = h => { const [r, g, b] = hex2rgb(h).map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return .2126 * r + .7152 * g + .0722 * b; };
+const contrast = (a, b) => { const l1 = lumHex(a), l2 = lumHex(b); return (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05); };
+const THEME = { primary: /^#[0-9A-Fa-f]{6}$/.test(BRAND.primary || '') ? BRAND.primary.toUpperCase() : '#1B4F8A', accent: /^#[0-9A-Fa-f]{6}$/.test(BRAND.accent || '') ? BRAND.accent.toUpperCase() : '#E8762A', colors: {} };
+function themeVars(t) {
+  t = t || THEME;
+  const sop = contrast(t.primary, '#FFFFFF') >= contrast(t.primary, '#16233A') ? '#FFFFFF' : '#16233A';
+  const soa = contrast(t.accent, '#FFFFFF') >= contrast(t.accent, '#16233A') ? '#FFFFFF' : '#16233A';
+  const sal = sop === '#FFFFFF' ? mixHex(t.accent, '#FFFFFF', .4) : mixHex(t.accent, '#000000', .35);
+  return `--sp:${t.primary};--sa:${t.accent};--sop:${sop};--soa:${soa};--sal:${sal};--sat:${mixHex(t.accent, '#FFFFFF', .9)};--sad:${mixHex(t.accent, '#000000', .3)}`;
+}
+const themeWarn = t => {
+  const w = [];
+  if (Math.max(contrast(t.primary, '#FFFFFF'), contrast(t.primary, '#16233A')) < 4.5) w.push('主色不深不淺，標題區的字可能不夠清楚，建議選更深或更淺的顏色。');
+  if (contrast(t.accent, '#FFFFFF') < 1.6 && contrast(t.accent, '#16233A') < 4) w.push('強調色不夠明顯。');
+  if (contrast(t.primary, t.accent) < 1.3) w.push('主色和強調色太接近，標題區會分不清楚。');
+  return w;
+};
+
+const secShowHead = (s, blank) => s.cols.length > 1 || blank || s.id === 'bake';
+const secGrid = (s, blank) => { const pc = blank ? '36px' : '34px'; return s.combo ? `grid-template-columns:minmax(0,1fr) auto ${pc}` : `grid-template-columns:minmax(0,1fr) repeat(${s.cols.length},${pc})`; };
+function secHeadHTML(s, mode, cont) {
+  const blank = mode === 'blank';
+  let h = `<h2><i class="bar"></i><span>${s.t}${cont ? '<small class="cn">（續）</small>' : ''}</span></h2>`;
+  if (s.note && !cont) h += `<div class="note">${esc(fillNote(s, mode))}</div>`;
+  if (secShowHead(s, blank)) h += `<div class="r h" style="${secGrid(s, blank)}"><span></span>${s.combo ? '<span></span>' : ''}${s.cols.map(c => `<b>${c}</b>`).join('')}</div>`;
+  return h;
+}
+/* 每個品項一個單位：[{html, ex}]；ex 是附餐說明那一行（combo）的高度，量完才填 */
+function secUnits(s, mode) {
+  const blank = mode === 'blank', gt = secGrid(s, blank);
+  const cell = (r, c) => {
+    const k = key(s.id, r[0], c);
+    if (!(k in DEFAULTS)) return '<b style="color:#999">–</b>';
+    if (blank) return '<b><span class="bx"></span></b>';
+    const v = prices[k] ?? '';
+    if (mode === 'preview') return `<b data-k="${esc(k)}" class="pk${v === '' ? ' pe' : ''}${v !== (prev[k] ?? '') ? ' pc' : ''}">${v === '' ? '？' : esc(v)}</b>`;
+    return `<b>${esc(v)}</b>`;
+  };
+  const out = [];
+  for (const r of s.rows) {
+    if (HIDDEN.has(s.id + '|' + clean(r[0]))) continue;
+    const nm = `<span class="rn">${r[0].startsWith('*') ? STAR : '<span class="sp"></span>'}${esc(clean(r[0]))}${blank ? '' : tagBadges(s.id + '|' + clean(r[0]))}</span>`;
+    const rec = r[0].startsWith('*') && !blank ? ' rec' : '';
+    if (s.combo) {
+      let h = `<div class="r${rec}" style="${gt}">${nm}<small>${esc(r[1])}</small>${cell(r, 0)}</div>`;
+      if (r[3]) h += `<div class="ex">${esc(r[3].replace(/\{add:([^}]+)\}/g, (_, n) => blank ? '____' : (get('add', n, 0) || '__')))}</div>`;
+      out.push({ html: h });
+    } else out.push({ html: `<div class="r${rec}" style="${gt}">${nm}${s.cols.map((_, c) => cell(r, c)).join('')}</div>` });
+  }
+  return out;
+}
+function secPartHTML(s, mode, units, cont, rh) {
+  const col = s.color || (THEME.colors && THEME.colors[s.id]) || '';
+  const st = rh ? ` style="--rh:${rh.h.toFixed(2)}px;--fs:${rh.fs.toFixed(2)}px${col ? ';--bar:' + col : ''}"` : '';
+  return `<div class="s ${s.hl ? 'hl' : ''}"${st}>${secHeadHTML(s, mode, cont)}${units.map(u => u.html).join('')}</div>`;
+}
+function heroHTML(mode) {
+  const blank = mode === 'blank';
+  const logoImg = LOGO ? (LOGO_BG ? `<img class="tile" src="${LOGO}" alt="" style="background:${esc(LOGO_BG)}">` : `<img src="${LOGO}" alt="">`) : '';
+  return `<div class="hero">${logoImg}<div>
+    <h1>${BRAND_HTML}</h1>
+    <div class="tag">${esc(blank ? '菜單價格核對表' : (BRAND.heroTag || ''))}</div>
+    <div class="info">${[BRAND.address, BRAND.phone, BRAND.hours].filter(Boolean).map(esc).join('<br>')}${BRAND.closedText || BRAND.lineId ? '<br>' : ''}${BRAND.closedText ? '<b>' + esc(BRAND.closedText) + '</b>' : ''}${BRAND.closedText && BRAND.lineId ? '｜' : ''}${BRAND.lineId ? 'LINE ID：' + esc(BRAND.lineId) : ''}</div>
+    ${blank ? '<div class="sign"><span>核對人：<u></u></span><span>日期：<u></u></span></div>' : ''}
+  </div></div>`;
+}
+const qrHTML = mode => mode === 'blank' || !LINE_QR ? '' : `<div class="qrb"><div class="qri">${LINE_QR}</div><div class="qrt"><b>點餐掃碼超方便！</b><span>用手機掃一下，加入 LINE 官方帳號就能點餐，不用排隊劃單</span></div></div>`;
+const contHTML = mode => `<div class="hero cont"><div><h1>${BRAND_HTML}</h1><div class="tag">${mode === 'blank' ? '菜單價格核對表' : '菜單'}・背面</div></div></div>`;
+
+/* 在畫面外量高度。量一次約幾十毫秒；字型載入前後差異由 SAFE 吸收，輸出 PDF 前會在字型載入後重排一次 */
+function measureSheet(mode) {
+  let host = document.getElementById('measure');
+  if (!host) { host = document.createElement('div'); host.id = 'measure'; host.style.cssText = 'position:fixed;left:-30000px;top:0;visibility:hidden'; document.body.appendChild(host); }
+  const blank = mode === 'blank';
+  host.innerHTML = `<div class="sheet ${blank ? 'blank' : ''}"><div class="grid"><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div></div><div class="foot"><span class="fl">&nbsp;</span><span class="ver">&nbsp;</span></div></div>`;
+  const col = host.querySelector('.col'), grid = host.querySelector('.grid');
+  const M = { gridH: grid.clientHeight, colW: col.clientWidth, secs: [] };
+  const hOf = el => { const cs = getComputedStyle(el); return el.getBoundingClientRect().height + parseFloat(cs.marginTop || 0) + parseFloat(cs.marginBottom || 0); };
+  const blockH = html => { col.innerHTML = html; return html ? col.firstElementChild.getBoundingClientRect().height : 0; };
+  M.heroH = blockH(heroHTML(mode)); M.qrH = blockH(qrHTML(mode)); M.contH = blockH(contHTML(mode));
+  for (const id of FLOW) {
+    const s = BYID[id], units = secUnits(s, mode);
+    if (!units.length) continue;
+    col.innerHTML = secPartHTML(s, mode, units, false, null);
+    const box = col.firstElementChild, kids = [...box.children];
+    let sum = 0, h2 = 0, note = 0, head = 0;
+    kids.forEach(k => { const h = hOf(k); sum += h; if (k.tagName === 'H2') h2 = h; else if (k.classList.contains('note')) note = h; else if (k.classList.contains('h')) head = h; });
+    const rows = kids.filter(k => k.classList.contains('r') && !k.classList.contains('h'));
+    M.base = M.base || rows[0].getBoundingClientRect().height;
+    units.forEach((u, i) => { const nx = rows[i].nextElementSibling; u.ex = nx && nx.classList.contains('ex') ? hOf(nx) : 0; });
+    const exSum = units.reduce((a, u) => a + u.ex, 0);
+    M.secs.push({ s, units, chrome: box.getBoundingClientRect().height - (sum), headFirst: h2 + note + head, headCont: h2 + head, exSum });
+  }
+  /* chrome = 卡片外框的內距（上下 padding），用「整張卡高度 − 所有子元素高度」算出來 */
+  M.secs.forEach(e => { e.chrome = Math.max(0, e.chrome); });
+  host.innerHTML = '';
+  return M;
+}
+
+/* 把 secs 依序塞進 ncols 欄（每頁 4 欄）。Ht(ci) 是第 ci 欄的目標高度，rb 是這次用的列高。
+   firstPage = 0 時第一欄放標題區（Logo＋QR），其他頁第一欄放小標題。放不下回傳 { ok:false, left } */
+function packFlow(M, secs, Ht, ncols, firstPage, rb) {
+  const cols = [];
+  let ci = -1, left = 0, failed = false;
+  const open = () => {
+    ci++; if (ci >= ncols) { failed = true; return false; }
+    const pg = firstPage + Math.floor(ci / 4);
+    let c = { blocks: [], h: 0, nb: 0, rows: 0, res: '', page: pg };
+    if (ci % 4 === 0) { if (pg === 0) { c.h = M.heroH + (M.qrH ? GAP0 + M.qrH : 0); c.nb = M.qrH ? 2 : 1; c.res = 'hero'; } else { c.h = M.contH; c.nb = 1; c.res = 'cont'; } }
+    cols.push(c);
+    return true;
+  };
+  const place = (col, e, i, j, cont) => {
+    let h = e.chrome + (cont ? e.headCont : e.headFirst);
+    for (let k = i; k < j; k++) h += rb + e.units[k].ex;
+    col.h += (col.nb ? GAP0 : 0) + h; col.nb++; col.rows += j - i;
+    col.blocks.push({ e, from: i, to: j, cont, h });
+  };
+  open();
+  for (const e of secs) {
+    const n = e.units.length; let i = 0;
+    while (i < n && !failed) {
+      const col = cols[ci];
+      const cont = i > 0, head = e.chrome + (cont ? e.headCont : e.headFirst);
+      const avail = Ht(ci) - SAFE - col.h - (col.nb ? GAP0 : 0) - head;
+      let k = 0, acc = 0;
+      while (i + k < n && acc + rb + e.units[i + k].ex <= avail) { acc += rb + e.units[i + k].ex; k++; }
+      const rem = n - i, empty = col.blocks.length === 0;
+      if (k >= rem) { place(col, e, i, n, cont); i = n; break; }
+      let take = k;
+      if (rem < splitMin) take = 0;                                        /* 小分類不拆，整個換欄 */
+      else if (avoidSplit && !empty && i === 0 && e.chrome + e.headFirst + n * rb + e.exSum + SAFE <= Ht(ci)) take = 0;   /* 整個分類放得進一欄就不拆 */
+      else { if (take > 0 && rem - take < SPLIT_BOT) take = rem - SPLIT_BOT; if (take < SPLIT_TOP) take = 0; }
+      if (take <= 0) {
+        if (!empty) { open(); continue; }
+        take = Math.max(1, k);                                                 /* 空欄也放不下：至少放一列，避免卡住 */
+      }
+      place(col, e, i, i + take, cont); i += take;
+      if (i < n) open();
+    }
+    if (i < n || failed) left += n - i;
+  }
+  return { ok: !failed && left === 0, left, cols };
+}
+
+/* 二分搜尋：在 [lo, hi] 裡找讓 fn(x).ok 成立的最小值（fn 越大越容易放得下） */
+function minFit(lo, hi, fn) { while (hi - lo > 2) { const mid = (lo + hi) / 2; if (fn(mid).ok) hi = mid; else lo = mid; } return hi; }
+const secsContent = (M, secs, rb) => secs.reduce((a, e) => a + e.chrome + e.headFirst + e.units.length * rb + e.exSum + GAP0, 0);
+const secHeight = (e, rb) => e.chrome + e.headFirst + e.units.length * rb + e.exSum + SAFE;
+let splitMin = SPLIT_TOP + SPLIT_BOT + 1;   /* 列數少於這個數字的分類不拆欄 */
+let SINGLE_PAGE = false;                    /* 只印單面：不排到背面，寧可把列高縮到更小（最多 20%）；還放不下就要店家自己隱藏品項 */
+try { SINGLE_PAGE = localStorage.getItem('hl-single') === '1'; } catch (e) {}
+let avoidSplit = false;                     /* true：整個分類放得進一欄就不拆（balance 先試這個） */
+
+/* 在 4 欄裡把 secs 平均分攤：先試「完全不拆分類」，欄與欄高度差太多或放不下才改成可拆（二分搜尋最小欄高） */
+function balance(M, secs, page, rb, H) {
+  const f = x => packFlow(M, secs, () => x, 4, page, rb);
+  const tall = Math.max(...secs.map(e => secHeight(e, rb)));
+  avoidSplit = true;
+  let best = null;
+  if (f(H).ok) {
+    const r = f(minFit(Math.min(tall, H), H, f)), hs = r.cols.filter(c => c.blocks.length).map(c => c.h);
+    if (r.ok && Math.max(...hs) - Math.min(...hs) <= 0.45 * H) best = r;
+  }
+  avoidSplit = false;
+  return best || f(minFit(200, H, f));
+}
+
+/* 排法等級：越小越好 */
+const HOW_RANK = { one: 0, tight: 1, two: 2 };
+function planWith(M, mode) {
+  const H = M.gridH, base = M.base, rbMin = base * (SINGLE_PAGE ? 0.8 : 0.886);
+  const rowsTotal = M.secs.reduce((a, e) => a + e.units.length, 0);
+  const cap1 = 4 * H - M.heroH - (M.qrH ? GAP0 + M.qrH : 0), cap2 = cap1 + 4 * H - M.contH;
+  const content = secsContent(M, M.secs, base);
+  const full = Ht => () => Ht;
+  let how = 'one', rb = base, packs = [];
+  if (packFlow(M, M.secs, full(H), 4, 0, base).ok) {
+    packs = [balance(M, M.secs, 0, base, H)];
+  } else if (packFlow(M, M.secs, full(H), 4, 0, rbMin).ok) {
+    let lo = rbMin, hi = base;
+    while (hi - lo > 0.05) { const mid = (lo + hi) / 2; if (packFlow(M, M.secs, full(H), 4, 0, mid).ok) lo = mid; else hi = mid; }
+    rb = lo; how = 'tight';
+    packs = [balance(M, M.secs, 0, rb, H)];
+  } else if (SINGLE_PAGE) {
+    how = 'tight'; rb = rbMin;                                 /* 單面：放不下就回報還差幾列，不排到背面 */
+    packs = [packFlow(M, M.secs, full(H), 4, 0, rbMin)];
+  } else {
+    how = 'two';
+    for (let k = M.secs.length - 1; k >= 1; k--) {
+      const A = M.secs.slice(0, k), B = M.secs.slice(k);
+      if (!packFlow(M, A, full(H), 4, 0, base).ok) continue;
+      /* 這是正面放得下的最多分類；再少只會讓背面更擠。正面太空或背面放不下就改成逐列接續 */
+      if (secsContent(M, A, base) / cap1 >= 0.85 && packFlow(M, B, full(H), 4, 1, base).ok) packs = [balance(M, A, 0, base, H), balance(M, B, 1, base, H)];
+      break;
+    }
+    if (!packs.length) {
+      const all = packFlow(M, M.secs, full(H), 8, 0, base);
+      if (all.ok) { const hb = minFit(200, H, x => packFlow(M, M.secs, c => c < 4 ? H : x, 8, 0, base)); packs = [packFlow(M, M.secs, c => c < 4 ? H : hb, 8, 0, base)]; }
+      else packs = [all];
+    }
+  }
+  const ok = packs.every(p => p.ok), left = packs.reduce((a, p) => a + p.left, 0);
+  let cols = [];
+  packs.forEach(p => { while (p.cols.length % 4 && p.cols.length < 4 * PAGE_MAX) p.cols.push({ blocks: [], h: 0, nb: 0, rows: 0, res: '' }); cols = cols.concat(p.cols); });
+  /* 每欄把列距、區塊間距拉開去吃留白 */
+  cols = cols.map(c => {
+    const rowsN = c.rows, blocks = c.nb;
+    const extra = Math.max(0, H - SAFE - c.h);
+    const d = rowsN ? Math.min(ROW_GROW, extra / rowsN) : 0;
+    const g = blocks > 1 ? Math.min(GAP_MAX - GAP0, Math.max(0, (extra - d * rowsN) / (blocks - 1))) : 0;
+    const used = c.h + d * rowsN + g * Math.max(0, blocks - 1);
+    return { ...c, d, g, used, fill: used / H };
+  });
+  const pageCount = Math.max(1, Math.ceil(cols.length / 4));
+  const used = cols.reduce((a, c) => a + c.used, 0);
+  const splits = cols.reduce((a, c) => a + c.blocks.filter(b => b.cont).length, 0);
+  return { M, cols, rb, how, pageCount: Math.min(PAGE_MAX, pageCount), overflow: !ok, left, rowsTotal, splits,
+    usage: content / cap1, usage2: content / cap2, fill: used / (pageCount * 4 * H), gridH: H };
+}
+
+/* 決定頁數、列高與每欄目標高度。順序：
+   ① 一頁放得下 → 四欄平均分攤
+   ② 超出不多 → 列高縮小（最多縮 11%）仍擠進一頁
+   ③ 還是放不下 → 排到背面：以「整個分類」為單位切到背面（不把同一分類硬切在正反兩面）；正面太空才改成逐列接續
+   每欄再把列距拉高（最多 +7px）、區塊間距拉開，吃掉留白。
+   小分類（少於 9 列）盡量不拆欄；這樣會讓排法變差（要縮列高或要排到背面）時，才允許拆 */
+function planMenu(mode) {
+  const M = measureSheet(mode);
+  splitMin = 9; const strict = planWith(M, mode);
+  splitMin = SPLIT_TOP + SPLIT_BOT + 1;
+  const loose = strict.overflow || strict.how !== 'one' || strict.splits > 0 ? planWith(M, mode) : strict;
+  const rank = x => x.overflow ? 9 : HOW_RANK[x.how];
+  lastPlan = rank(loose) < rank(strict) || (rank(loose) === rank(strict) && loose.splits < strict.splits) ? loose : strict;
+  return lastPlan;
+}
+
+function pageHTML(plan, pi, mode, ver) {
+  const blank = mode === 'blank', M = plan.M;
+  const cols = plan.cols.slice(pi * 4, pi * 4 + 4);
+  while (cols.length < 4) cols.push({ blocks: [], d: 0, g: 0, res: '' });
+  const colsHTML = cols.map(c => {
+    let h = '';
+    if (c.res === 'hero') h += heroHTML(mode) + qrHTML(mode); else if (c.res === 'cont') h += contHTML(mode);
+    h += c.blocks.map(b => secPartHTML(b.e.s, mode, b.e.units.slice(b.from, b.to), b.cont, { h: plan.rb + c.d, fs: 12.5 - (M.base - plan.rb) * 0.55 + Math.min(c.d, 5) * 0.2 })).join('');
+    return `<div class="col" style="gap:${(GAP0 + c.g).toFixed(1)}px">${h}</div>`;
+  }).join('');
+  const foot = blank
+    ? `${STAR}＝店長推薦　·　請在空格內填寫價格（新台幣／元），「–」表示該項無此供應`
+    : `${STAR}＝店長推薦　·　價格單位：新台幣（元）　·　不需劃單，櫃檯點餐`;
+  let used = new Set(); if (!blank) for (const id of FLOW) for (const r of BYID[id].rows) if (!HIDDEN.has(id + '|' + clean(r[0]))) (ITEM_TAGS[id + '|' + clean(r[0])] || []).forEach(c => used.add(c));
+  const al = TAGDEFS.filter(d => d.g === 'a' && used.has(d.c)).map(d => d.t);
+  const legend = used.size ? '　·　標示：' + [al.length ? al.join('、') + '＝含該過敏原' : '', used.has('veg') ? '素＝蛋奶素' : '', used.has('vegan') ? '純素＝不含蛋奶蜂蜜' : '', used.has('spicy') ? '辣＝辣味' : ''].filter(Boolean).join('　') : '';
+  const more = plan.pageCount > 1 && pi === 0 ? '　·　<b style="color:var(--sa)">背面還有更多品項 ▶</b>' : '';
+  const vtag = (ver ? ver : (mode === 'preview' ? '版本號：輸出時自動編號' : '')) + (plan.pageCount > 1 ? `${ver || mode === 'preview' ? '｜' : ''}第 ${pi + 1}／${plan.pageCount} 頁` : '');
+  const wm = server && server.lic && server.lic.watermark && mode !== 'preview' ? '<div class="wm">試用版</div>' : '';
+  return `<div class="sheet ${blank ? 'blank' : ''}" data-page="${pi + 1}" style="${themeVars()}">${wm}<div class="grid">${colsHTML}</div><div class="foot"><span class="fl">${foot}${legend}${more}</span>${vtag ? `<span class="ver">${esc(vtag)}</span>` : ''}</div></div>`;
+}
+function sheetHTML(mode, ver) {
+  const plan = planMenu(mode);
+  let h = '';
+  for (let p = 0; p < plan.pageCount; p++) h += pageHTML(plan, p, mode, ver);
+  return `<div class="sheets">${h}</div>`;
+}
+
+/* ---------------- preview ---------------- */
+let pvZoom = false;
+function renderPreview() {
+  const st = $('pvWrap').scrollTop, sl = $('pvWrap').scrollLeft;
+  $('pvInner').innerHTML = sheetHTML('preview'); fitPreview(); $('pvStat').innerHTML = fitText();
+  $('pvWrap').scrollTop = st; $('pvWrap').scrollLeft = sl;
+}
+function fitPreview() {
+  const w = $('pvWrap').clientWidth, sc = pvZoom ? Math.max(0.62, w / 1587) : w / 1587;
+  $('pvInner').style.width = '1587px';
+  $('pvZoomBtn').textContent = pvZoom ? '看整頁' : '放大';
+  $('pvWrap').classList.toggle('zoom', pvZoom);
+  const np = lastPlan ? lastPlan.pageCount : 1, tall = np * 1123 + (np - 1) * 24;
+  $('pvSize').style.width = (1587 * sc) + 'px'; $('pvSize').style.height = (tall * sc) + 'px';
+  $('pvInner').style.transform = `scale(${sc})`;
+  $('pvWrap').style.height = pvZoom ? '62vh' : (tall * sc) + 'px';
+}
+$('pvBtn').addEventListener('click', () => {
+  $('pvModal').classList.add('open'); renderPreview();
+});
+document.addEventListener('change', e => {
+  if (!e.target.classList || !e.target.classList.contains('singleChk')) return;
+  SINGLE_PAGE = e.target.checked; try { localStorage.setItem('hl-single', SINGLE_PAGE ? '1' : '0'); } catch (x) {}
+  document.querySelectorAll('.singleChk').forEach(c => { c.checked = SINGLE_PAGE; });
+  lastFile = null;
+  if ($('pvModal').classList.contains('open')) renderPreview();
+  if ($('expModal').classList.contains('open')) renderWarn();
+});
+$('pvZoomBtn').addEventListener('click', () => { pvZoom = !pvZoom; fitPreview(); });
+$('pvInner').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) openEditor(b.dataset.k); });
+$('pvClose').addEventListener('click', () => $('pvModal').classList.remove('open'));
+window.addEventListener('resize', () => { if ($('pvModal').classList.contains('open')) fitPreview(); });
+
+/* ---------------- export ---------------- */
+/* ---------------- 輸出：下載到手機／寄到信箱 ---------------- */
+function fitText() {
+  const p = lastPlan; if (!p) return '';
+  const pct = Math.round(p.usage * 100);
+  if (p.overflow && SINGLE_PAGE) return `<span style="color:#c0392b"><b>只印單面放不下</b>（列高已縮到最小），還差約 ${p.left} 列。請隱藏一些品項，或取消「只印單面」改成雙面。</span>`;
+  if (p.overflow) return `<span style="color:#c0392b"><b>品項太多：正面＋背面都放不下</b>，還差約 ${p.left} 列。請隱藏或刪除一些品項。</span>`;
+  if (p.pageCount > 1) {
+    const back = p.cols.slice(4).reduce((a, c) => a + c.rows, 0);
+    return `菜單 ${p.rowsTotal} 列，正面放不下（用量 ${pct}%），<b>其餘分類排到背面</b>（共 ${p.pageCount} 頁）${back <= 25 ? `<br>背面只有 ${back} 列，會很空。想只印單面可勾選「只印單面」（列高縮小，放不下會告訴你還差幾列）。` : ''}`;
+  }
+  if (p.how === 'tight') return `菜單 ${p.rowsTotal} 列，A3 正面用量 ${pct}%：<b>列高自動縮小 ${Math.round((1 - p.rb / p.M.base) * 100)}%</b> 擠進正面（再多就會排到背面）`;
+  return `菜單 ${p.rowsTotal} 列，A3 正面用量 ${pct}%（超過 100% 會先縮小列高，再多才排到背面）`;
+}
+let lastFile = null;   // { id, name, url, sig }：同一份價格只產生一次，下載和寄信共用
+const priceSig = () => JSON.stringify(prices);
+function renderWarn() {
+  const { empty, diffKeys } = counts();
+  const reuse = lastFile && lastFile.sig === priceSig();
+  $('expSrc').innerHTML = reuse
+    ? `使用剛剛產生的 <b>${esc(lastFile.label)}</b>（價格沒有再改過）`
+    : `價格來源：Google 試算表（最後修改 ${fmtT(meta.updatedAt) || '—'}）<br>這次會是 <b>V${(server && server.ver || 0) + 1}</b>，自動記進「印製紀錄」${diffKeys.length ? `（變動 ${diffKeys.length} 格）` : ''}`;
+  if (empty.length && !reuse) {
+    const secs = [...new Set(empty.map(k => k.split('|')[0]))].map(id => BYID[id].t);
+    $('expWarn').innerHTML = `<div class="warn">還有 <b>${empty.length}</b> 格價格沒填（${secs.join('、')}），印出來會是空白。<br><button id="goEmpty">先去填寫</button></div>`;
+    $('goEmpty').onclick = () => { $('expModal').classList.remove('open'); openEditor(empty[0]); };
+  } else $('expWarn').innerHTML = '';
+  planMenu('menu');
+  $('expWarn').innerHTML += `<label class="toggle" style="margin-top:8px"><input type="checkbox" class="singleChk"${SINGLE_PAGE ? ' checked' : ''}>只印單面（不排到背面）</label>` + `<div class="tip" style="padding:6px 0 0">${fitText()}</div>`;
+}
+$('expBtn').addEventListener('click', () => {
+  $('expMsg').textContent = '';
+  let mail = ''; try { mail = localStorage.getItem('hl-mail') || ''; } catch (e) {}
+  if (!$('mailTo').value) $('mailTo').value = mail || (server && server.menuEmail) || '';
+  renderWarn(); $('expModal').classList.add('open');
+});
+$('expCancel').addEventListener('click', () => $('expModal').classList.remove('open'));
+
+async function makePdf() {
+  if (lastFile && lastFile.sig === priceSig()) return lastFile;
+  if (Object.keys(pending).length) await flush();
+  planMenu('menu');   /* 先檢查放不放得下，不要白白用掉一個版本號 */
+  if (lastPlan.overflow) throw new Error('品項太多，正面＋背面都放不下（還差約 ' + lastPlan.left + ' 列）。請先隱藏或刪除一些品項再輸出。');
+  $('expMsg').textContent = '正在取得版本號…';
+  const V = await call('reserveVersion', 'menu', STAFF_KEY);
+  $('expMsg').textContent = '正在排版與產生 PDF（' + V.label + '），約 10 秒…';
+  const host = $('render');
+  host.innerHTML = sheetHTML('menu', V.label);
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 400));
+  await document.fonts.ready;
+  host.innerHTML = sheetHTML('menu', V.label);          /* 字型載入後重新量一次，排版才準 */
+  if (lastPlan.overflow) { host.innerHTML = ''; throw new Error('品項太多，正面＋背面都放不下（還差約 ' + lastPlan.left + ' 列）。請先隱藏或刪除一些品項再輸出。'); }
+  const pdf = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a3', compress: true });
+  const pgs = [...host.querySelectorAll('.sheet')];
+  for (let i = 0; i < pgs.length; i++) {
+    const canvas = await html2canvas(pgs[i], { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    if (i) pdf.addPage('a3', 'landscape');
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 420, 297);
+  }
+  host.innerHTML = '';
+  const d = new Date(), stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}_${String(d.getHours()).padStart(2, '0')}${String(d.getMinutes()).padStart(2, '0')}`;
+  const filename = `${BRAND.name}_菜單_V${V.no}_${stamp}.pdf`;
+  $('expMsg').textContent = '正在存到雲端硬碟並記錄版本…';
+  const sig = priceSig();
+  const r = await call('savePdf', pdf.output('datauristring').split(',')[1], filename, 'menu', STAFF_KEY, V.label);
+  applyData(r.data);
+  lastFile = { id: r.fileId, name: filename, url: r.url, label: V.label, sig };
+  return lastFile;
+}
+function busy(on) { $('dlBtn').disabled = on; $('mailBtn').disabled = on; }
+const errText = e => HAS_GS ? ((e && e.message) || '請確認網路後再試一次').replace(/^Error:\s*/, '') : '這個頁面要從菜單工具網址打開才能使用';
+
+$('dlBtn').addEventListener('click', async () => {
+  busy(true);
+  try {
+    const f = await makePdf();
+    const dl = 'https:' + '/' + '/drive.google.com/uc?export=download&id=' + encodeURIComponent(f.id);   // 不寫成連續兩個斜線：Apps Script 會把它當註解砍掉
+    $('expMsg').innerHTML = `✅ ${esc(f.label)} 完成，已自動記錄<a class="btn pri pdflink big" href="${dl}" target="_blank" rel="noopener">下載 PDF 到手機</a><a class="sublink" href="${f.url}" target="_blank" rel="noopener">或直接打開預覽</a>`;
+  } catch (e) { $('expMsg').textContent = '產生失敗：' + errText(e); }
+  finally { busy(false); renderWarn(); }
+});
+
+$('mailBtn').addEventListener('click', async () => {
+  const to = $('mailTo').value.trim();
+  if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(to)) { $('expMsg').textContent = 'Email 格式好像不對，再檢查一下'; return; }
+  busy(true);
+  try {
+    const f = await makePdf();
+    $('expMsg').textContent = '寄送中…';
+    await call('emailPdf', f.id, to, STAFF_KEY);
+    try { localStorage.setItem('hl-mail', to); } catch (e) {}
+    $('expMsg').innerHTML = `✅ 已寄到 <b>${esc(to)}</b><br>附件：${esc(f.name)}（已自動記錄）`;
+  } catch (e) { $('expMsg').textContent = '寄送失敗：' + errText(e); }
+  finally { busy(false); renderWarn(); }
+});
+
+/* ---------------- 品項管理：隱藏、刪除、新增 ---------------- */
+let imItem = null, delArmed = false;
+function secOf(sid) { return SECTIONS.find(x => x.id === sid); }
+$('list').addEventListener('click', e => {
+  const m = e.target.closest('.more');
+  if (m) { e.preventDefault(); openItemMenu(m.dataset.item); return; }
+  const a = e.target.closest('.addbtn');
+  if (a) openAdd(a.dataset.sid);
+});
+function openItemMenu(iid) {
+  imItem = iid; delArmed = false;
+  const [sid, name] = iid.split('|');
+  $('imName').textContent = name; $('imSec').textContent = secOf(sid).t;
+  $('imHide').textContent = HIDDEN.has(iid) ? '取消隱藏（重新印在菜單上）' : '隱藏（暫時不印在菜單上）';
+  $('imDel').textContent = '刪除這個品項'; $('imDel').classList.remove('sure');
+  $('imMsg').textContent = ''; imPick = tagPicker($('imTags'), ITEM_TAGS[iid]); $('imModal').classList.add('open');
+}
+let imPick = null;
+$('imTagSave').onclick = async () => {
+  imBusy(true); $('imMsg').textContent = '儲存中…';
+  try { if (Object.keys(pending).length) await flush(); applyData(await call('setTags', imItem, imPick.get(), STAFF_KEY)); $('imMsg').textContent = '已儲存'; setTimeout(() => $('imModal').classList.remove('open'), 500); }
+  catch (e) { $('imMsg').textContent = '沒有儲存：' + errText(e); }
+  finally { imBusy(false); }
+};
+function imBusy(on) { ['imHide', 'imDel', 'imCancel'].forEach(id => $(id).disabled = on); }
+$('imCancel').onclick = () => $('imModal').classList.remove('open');
+$('imModal').addEventListener('click', e => { if (e.target === $('imModal')) $('imModal').classList.remove('open'); });
+$('imHide').onclick = async () => {
+  imBusy(true); $('imMsg').textContent = '處理中…';
+  try {
+    if (Object.keys(pending).length) await flush();
+    applyData(await call('setHidden', imItem, !HIDDEN.has(imItem), STAFF_KEY));
+    $('imModal').classList.remove('open');
+  } catch (e) { $('imMsg').textContent = '沒有成功：' + errText(e); }
+  finally { imBusy(false); }
+};
+$('imDel').onclick = async () => {
+  if (!delArmed) { delArmed = true; $('imDel').textContent = '確定刪除？再按一次'; $('imDel').classList.add('sure'); return; }
+  imBusy(true); $('imMsg').textContent = '刪除中…';
+  try {
+    if (Object.keys(pending).length) await flush();
+    applyData(await call('deleteItem', imItem, STAFF_KEY));
+    $('imModal').classList.remove('open');
+  } catch (e) { $('imMsg').textContent = '沒有刪除：' + errText(e); }
+  finally { imBusy(false); }
+};
+
+let addSid = null, addPick = null;
+const singleCol = s => s.cols.length === 1;
+function openAdd(sid) {
+  addSid = sid; const s = secOf(sid);
+  $('addSec').textContent = s.t; $('addName').value = ''; $('addSide').value = ''; $('addStar').checked = false; $('addMsg').textContent = '';
+  $('addSideF').style.display = s.combo ? '' : 'none';
+  $('addCols').innerHTML = `<div class="fl" style="margin-bottom:0">${singleCol(s) ? '價格' : '價格（空白＝這個規格不賣）'}</div><div class="pcs">` +
+    s.cols.map((c, i) => `<label class="pc">${esc(c)}<input data-c="${i}" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="${singleCol(s) ? '之後再填也可以' : '–'}"></label>`).join('') + '</div>';
+  addPick = tagPicker($('addTags'), []); $('addModal').classList.add('open');
+  setTimeout(() => $('addName').focus(), 60);
+}
+$('addCancel').onclick = () => $('addModal').classList.remove('open');
+$('addOk').onclick = async () => {
+  const s = secOf(addSid), name = $('addName').value.trim();
+  if (!name) { $('addMsg').textContent = '請輸入品項名稱'; return; }
+  if (s.rows.some(r => clean(r[0]) === name)) { $('addMsg').textContent = '這個分類已經有「' + name + '」了'; return; }
+  const cols = [...$('addCols').querySelectorAll('input')].map(inp => {
+    const v = inp.value.replace(/[^0-9]/g, ''), c = +inp.dataset.c;
+    return { spec: singleCol(s) && (s.cols[0] === '價格' || s.cols[0] === '加價') ? '' : s.cols[c], price: v === '' && !singleCol(s) ? null : v };
+  });
+  if (!cols.some(c => c.price !== null)) { $('addMsg').textContent = '至少填一個規格的價格'; return; }
+  $('addOk').disabled = true; $('addMsg').textContent = '新增中…';
+  try {
+    if (Object.keys(pending).length) await flush();
+    applyData(await call('addItem', { sid: s.id, cat: s.t, name, side: $('addSide').value.trim(), star: $('addStar').checked, tags: addPick ? addPick.get() : [], cols }, STAFF_KEY));
+    $('addModal').classList.remove('open');
+    const el = [...document.querySelectorAll(`#sec-${s.id} .it`)].find(x => x.dataset.name === name);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.animate([{ background: '#FDEEDF' }, { background: 'transparent' }], 1600); }
+  } catch (e) { $('addMsg').textContent = '沒有新增：' + errText(e); }
+  finally { $('addOk').disabled = false; }
+};
+
+/* ---------------- 分類設定（線上服務的店家）---------------- */
+let edSecs = [];
+function drawSecs() {
+  $('secList').innerHTML = edSecs.map((s, i) => `<div style="border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;margin-top:8px" data-i="${i}">
+    <input class="s-t" value="${esc(s.t)}" placeholder="分類名稱" maxlength="14" style="width:100%;height:40px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 10px;font:inherit;font-size:16px">
+    <input class="s-c" value="${esc(s.cols.join(','))}" placeholder="規格欄，例如：中杯,大杯" style="width:100%;height:40px;margin-top:6px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 10px;font:inherit;font-size:16px">
+    <div style="display:flex;gap:6px;margin-top:6px"><button class="btn" data-act="up" style="height:32px;flex:1">▲</button><button class="btn" data-act="down" style="height:32px;flex:1">▼</button><button class="btn danger" data-act="del" style="height:32px;flex:1">刪除</button></div></div>`).join('');
+}
+function readSecs() { $('secList').querySelectorAll('[data-i]').forEach(el => { const s = edSecs[+el.dataset.i]; s.t = el.querySelector('.s-t').value.trim(); s.cols = el.querySelector('.s-c').value.split(/[,，、]/).map(x => x.trim()).filter(Boolean); }); }
+const CAT_TPLS = {
+  '早餐店': [['蛋餅／抓餅', ['蛋餅', '抓餅蛋']], ['吐司／漢堡', ['吐司', '漢堡']], ['鐵板麵／飯類', ['價格']], ['單點小食', ['價格']], ['飲料', ['中杯', '大杯']], ['加料／加價', ['價格']]],
+  '飲料店': [['茗茶', ['中杯', '大杯']], ['奶茶', ['中杯', '大杯']], ['果汁／冰沙', ['中杯', '大杯']], ['咖啡', ['中杯', '大杯']], ['配料加購', ['價格']]],
+  '小吃店': [['主食', ['小', '大']], ['湯品', ['小', '大']], ['小菜', ['價格']], ['飲料', ['價格']]],
+  '咖啡廳': [['咖啡', ['熱', '冰']], ['茶飲', ['熱', '冰']], ['輕食', ['價格']], ['甜點', ['價格']]],
+  '便當／餐盒': [['便當', ['價格']], ['套餐', ['價格']], ['單點配菜', ['價格']], ['湯品飲料', ['價格']]]
+};
+$('secTpl').innerHTML = Object.keys(CAT_TPLS).map(k => `<button class="btn" data-tpl="${k}" style="height:36px;font-size:13px">${k}</button>`).join('');
+$('secTpl').addEventListener('click', e => { const b = e.target.closest('[data-tpl]'); if (!b) return; edSecs = CAT_TPLS[b.dataset.tpl].map(([t, cols]) => ({ id: '', t, cols: cols.slice(), note: '', hl: 0 })); drawSecs(); $('secMsg').textContent = '已套用「' + b.dataset.tpl + '」範本，可以再改名稱和規格欄，按儲存才會生效。'; });
+if (CUSTOM_SECTIONS && ACCT_URL) {
+  const sl = $('secLink'); sl.style.display = '';
+  sl.addEventListener('click', () => { edSecs = CUSTOM_SECTIONS.map(s => ({ ...s, cols: s.cols.slice() })); drawSecs(); $('secMsg').textContent = ''; $('secModal').classList.add('open'); });
+  $('secCancel').onclick = () => $('secModal').classList.remove('open');
+  $('secAdd').onclick = () => { readSecs(); edSecs.push({ id: '', t: '', cols: ['價格'] }); drawSecs(); };
+  $('secList').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    readSecs(); const i = +b.closest('[data-i]').dataset.i;
+    if (b.dataset.act === 'del') edSecs.splice(i, 1);
+    else { const k = b.dataset.act === 'up' ? i - 1 : i + 1; if (k >= 0 && k < edSecs.length) [edSecs[i], edSecs[k]] = [edSecs[k], edSecs[i]]; }
+    drawSecs();
+  });
+  $('secSave').onclick = async () => {
+    readSecs(); $('secMsg').textContent = '儲存中…'; $('secSave').disabled = true;
+    try { await call('saveSections', edSecs, STAFF_KEY); $('secMsg').textContent = '已儲存，重新載入…'; location.reload(); }
+    catch (e) { $('secMsg').textContent = '沒有儲存：' + errText(e); $('secSave').disabled = false; }
+  };
+}
+
+/* ---------------- 調價助手 ---------------- */
+let adjRows = [], adjUndoData = null;
+try { adjUndoData = JSON.parse(localStorage.getItem('hl-adj-undo') || 'null'); } catch (e) {}
+function adjBuild() {
+  const mode = $('adjMode').value, v = parseFloat($('adjVal').value), rd = +$('adjRound').value, scope = $('adjScope').value, hid = $('adjHid').checked;
+  adjRows = [];
+  if (isNaN(v) || v === 0) { $('adjSum').textContent = '請填要調整的數字。'; $('adjList').innerHTML = ''; $('adjApply').disabled = true; return; }
+  for (const k in DEFAULTS) {
+    const sid = k.split('|')[0];
+    if (scope && sid !== scope) continue;
+    if (!hid && HIDDEN.has(itemId(k))) continue;
+    const old = prices[k] ?? ''; if (old === '') continue;
+    const o = Number(old); let n = mode === 'amt' ? o + v : o * (1 + v / 100);
+    n = Math.max(0, Math.min(9999, Math.round(n / rd) * rd));
+    if (n !== o) adjRows.push({ k, o, n, on: true });
+  }
+  adjDraw();
+}
+function adjDraw() {
+  const on = adjRows.filter(r => r.on);
+  $('adjList').innerHTML = adjRows.map((r, i) => `<label class="adjrow"><input type="checkbox" data-i="${i}"${r.on ? ' checked' : ''}><span>${esc(LABEL[r.k])}</span><b>${r.o} → <span style="color:var(--orange)">${r.n}</span></b></label>`).join('');
+  const tot = on.reduce((a, r) => a + (r.n - r.o), 0);
+  $('adjSum').innerHTML = adjRows.length ? `共 <b>${on.length}</b> 項會變動（已取消 ${adjRows.length - on.length} 項），平均 ${on.length ? (tot / on.length >= 0 ? '+' : '') + (tot / on.length).toFixed(1) : 0} 元。` : '這樣調整沒有品項會變動（可能都被取整抵銷了）。';
+  $('adjApply').disabled = !on.length;
+}
+$('adjBtn').onclick = () => {
+  $('adjScope').innerHTML = '<option value="">全部分類</option>' + SECTIONS.map(s => `<option value="${s.id}">${esc(s.t)}</option>`).join('');
+  $('adjVal').value = ''; adjRows = []; $('adjList').innerHTML = ''; $('adjSum').textContent = '請填要調整的數字。'; $('adjMsg').textContent = ''; $('adjApply').disabled = true;
+  $('adjUndo').style.display = adjUndoData ? '' : 'none';
+  $('adjModal').classList.add('open');
+};
+['adjScope', 'adjMode', 'adjVal', 'adjRound', 'adjHid'].forEach(id => $(id).addEventListener('input', adjBuild));
+$('adjList').addEventListener('change', e => { const c = e.target.closest('[data-i]'); if (c) { adjRows[+c.dataset.i].on = c.checked; adjDraw(); } });
+$('adjClose').onclick = () => $('adjModal').classList.remove('open');
+$('adjApply').onclick = async () => {
+  const on = adjRows.filter(r => r.on); if (!on.length) return;
+  $('adjApply').disabled = true; $('adjMsg').textContent = '儲存中…';
+  try {
+    if (Object.keys(pending).length) await flush();
+    const batch = {}, undo = {}; on.forEach(r => { batch[r.k] = String(r.n); undo[r.k] = String(r.o); });
+    applyData(await call('setPrices', batch, STAFF_KEY));
+    adjUndoData = undo; try { localStorage.setItem('hl-adj-undo', JSON.stringify(undo)); } catch (e) {}
+    $('adjMsg').innerHTML = `已調整 ${on.length} 項。輸出新菜單時，變動的價格會用橘底標出來；要通知客人，可以到${TOOLS_URL ? `<a href="${esc(TOOLS_URL)}" target="_top">店家工具</a>` : '店家工具'}做一張「價格調整」公告。`;
+    $('adjUndo').style.display = ''; adjRows = []; $('adjList').innerHTML = ''; $('adjSum').textContent = ''; $('adjVal').value = '';
+  } catch (e) { $('adjMsg').textContent = '沒有儲存：' + errText(e); $('adjApply').disabled = false; }
+};
+$('adjUndo').onclick = async () => {
+  if (!adjUndoData) return; $('adjUndo').disabled = true; $('adjMsg').textContent = '復原中…';
+  try { applyData(await call('setPrices', adjUndoData, STAFF_KEY)); adjUndoData = null; try { localStorage.removeItem('hl-adj-undo'); } catch (e) {} $('adjUndo').style.display = 'none'; $('adjMsg').textContent = '已復原上次調價。'; }
+  catch (e) { $('adjMsg').textContent = '沒有復原：' + errText(e); }
+  finally { $('adjUndo').disabled = false; }
+};
+
+/* ---------------- 外觀與顏色（即時預覽）---------------- */
+const PRESETS = [['經典藍橘', '#1B4F8A', '#E8762A'], ['森林綠', '#2E6B4F', '#E8A33D'], ['酒紅金', '#8C2F39', '#D9A441'], ['墨黑金', '#22272E', '#C9A24B'],
+  ['咖啡橘', '#6B4226', '#E8762A'], ['海洋青', '#13708A', '#F26B5B'], ['莓果紫', '#5B3A8C', '#F28C28'], ['晴空', '#2F6FB5', '#2BA89B'],
+  ['陽光早餐', '#F4B63F', '#2F6FB5'], ['奶茶暖棕', '#8A5A3C', '#E3A87A'], ['抹茶日式', '#4F6F52', '#C8553D'], ['復古紅', '#B23A2E', '#2C5D74'],
+  ['夜市熱鬧', '#C0392B', '#F1C40F'], ['清爽薄荷', '#1E8E7E', '#F2A65A'], ['文青灰藍', '#3E5C76', '#D98E73'], ['蜜桃粉', '#D9627F', '#3C8D93'],
+  ['鐵灰橘', '#3B4252', '#F08A24'], ['葡萄冰沙', '#6C4AB6', '#2EC4B6'], ['焦糖咖啡', '#4B2E1E', '#D9904A'], ['海鹽藍白', '#E8F1F8', '#1F6FB2']];
+const CAT_COLORS = ['#E8762A', '#1B4F8A', '#2E7D4F', '#C0392B', '#8E44AD', '#00897B', '#B8336A', '#A0522D', '#6B7280'];
+let thSaved = null, thTimer = null;
+function thSampleOn() {
+  const has = FLOW.some(id => BYID[id].rows.some(r => !HIDDEN.has(id + '|' + clean(r[0]))));
+  if (has) return null;
+  const bak = { rows: SECTIONS.map(s => s.rows), prices: { ...prices } };
+  SECTIONS.forEach(s => { s.rows = ['*範例品項 A', '範例品項 B', '範例品項 C', '範例品項 D'].map(n => [n, ...s.cols.map(() => '')]); });
+  computeKeys(); for (const k in DEFAULTS) prices[k] = '60';
+  return bak;
+}
+function thSampleOff(bak) { if (!bak) return; SECTIONS.forEach((s, i) => { s.rows = bak.rows[i]; }); computeKeys(); for (const k in prices) delete prices[k]; Object.assign(prices, bak.prices); }
+function thRender() {
+  const bak = thSampleOn();
+  let html; try { html = sheetHTML('menu', '預覽'); } finally { thSampleOff(bak); }
+  $('thInner').innerHTML = html;
+  const w = $('thWrap').clientWidth || 600, sc = w / 1587;
+  $('thInner').style.transform = `scale(${sc})`; $('thSize').style.width = w + 'px'; $('thSize').style.height = (1123 * sc) + 'px'; $('thWrap').style.height = (1123 * sc) + 'px';
+  $('thInner').querySelectorAll('.sheets > .sheet:not(:first-child)').forEach(el => el.remove());
+  $('thNote').textContent = bak ? '菜單還沒有品項，預覽用範例品項示意。' : (lastPlan && lastPlan.pageCount > 1 ? '只顯示正面；背面用同一組顏色。' : '');
+  const w2 = themeWarn(THEME); $('thWarn').innerHTML = w2.length ? `<div class="warn">${w2.map(esc).join('<br>')}</div>` : '';
+  $('thP').value = THEME.primary.toLowerCase(); $('thA').value = THEME.accent.toLowerCase();
+}
+function thLater() { clearTimeout(thTimer); thTimer = setTimeout(thRender, 80); }
+function thDrawCats() {
+  if (!CUSTOM_SECTIONS) { $('thCatBox').style.display = 'none'; return; }
+  $('thCats').innerHTML = SECTIONS.map(s => `<div style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap" data-c="${esc(s.id)}"><b style="min-width:84px;font-size:13px">${esc(s.t)}</b>` +
+    ['', ...CAT_COLORS].map(c => `<button class="btn" data-col="${c}" title="${c || '跟強調色'}" style="height:30px;min-width:30px;padding:0 ${c ? 0 : 8}px;${c ? 'background:' + c + ';' : ''}${(THEME.colors[s.id] || '') === c ? 'outline:3px solid var(--ink);' : ''}font-size:12px">${c ? '' : '自動'}</button>`).join('') + '</div>').join('');
+}
+if (ACCT_URL) {
+  const tl = $('thLink'); tl.style.display = '';
+  tl.addEventListener('click', () => {
+    thSaved = JSON.stringify(THEME); $('thMsg').textContent = '';
+    $('thPresets').innerHTML = PRESETS.map((p, i) => `<button class="btn" data-p="${i}" style="height:40px;padding:0 10px;display:flex;align-items:center;gap:6px;font-size:13px"><i style="width:18px;height:18px;border-radius:50%;background:${p[1]};display:inline-block;border:1px solid rgba(0,0,0,.15)"></i><i style="width:18px;height:18px;border-radius:50%;background:${p[2]};display:inline-block;margin-left:-10px;border:1px solid rgba(0,0,0,.15)"></i>${p[0]}</button>`).join('');
+    thDrawCats(); $('thModal').classList.add('open'); setTimeout(thRender, 50);
+  });
+  $('thPresets').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; const p = PRESETS[+b.dataset.p]; THEME.primary = p[1]; THEME.accent = p[2]; thLater(); });
+  $('thP').addEventListener('input', e => { THEME.primary = e.target.value.toUpperCase(); thLater(); });
+  $('thA').addEventListener('input', e => { THEME.accent = e.target.value.toUpperCase(); thLater(); });
+  $('thCats').addEventListener('click', e => { const b = e.target.closest('[data-col]'); if (!b) return; const id = b.closest('[data-c]').dataset.c; if (b.dataset.col) THEME.colors[id] = b.dataset.col; else delete THEME.colors[id]; SECTIONS.forEach(s => { if (s.id === id) s.color = b.dataset.col; }); thDrawCats(); thLater(); });
+  $('thCancel').onclick = () => { const o = JSON.parse(thSaved); THEME.primary = o.primary; THEME.accent = o.accent; THEME.colors = o.colors; SECTIONS.forEach(s => { s.color = THEME.colors[s.id] || ''; }); $('thModal').classList.remove('open'); };
+  $('thSave').onclick = async () => {
+    $('thSave').disabled = true; $('thMsg').textContent = '儲存中…';
+    try { await call('ownThemeSave', STAFF_KEY, { primary: THEME.primary, accent: THEME.accent, colors: THEME.colors }); $('thMsg').textContent = '已儲存，重新載入…'; location.reload(); }
+    catch (e) { $('thMsg').textContent = '沒有儲存：' + errText(e); $('thSave').disabled = false; }
+  };
+  SECTIONS.forEach(s => { if (s.color) THEME.colors[s.id] = s.color; });
+}
+
+/* ---------------- AI 協助建立菜單初稿 ---------------- */
+let aiDraft = { sections: [], warnings: [] };
+const aiImg = file => new Promise((ok, no) => {
+  const fr = new FileReader();
+  fr.onerror = () => no(new Error('讀不到檔案'));
+  fr.onload = () => {
+    if (file.type === 'application/pdf') return ok({ mime: file.type, b64: String(fr.result).split(',')[1] });
+    const im = new Image();
+    im.onerror = () => no(new Error('看不懂這張圖片：' + file.name));
+    im.onload = () => {
+      const k = Math.min(1, 1800 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      ok({ mime: 'image/jpeg', b64: c.toDataURL('image/jpeg', 0.85).split(',')[1] });
+    };
+    im.src = fr.result;
+  };
+  fr.readAsDataURL(file);
+});
+function aiMerge(d) {
+  for (const s of d.sections || []) {
+    const ex = aiDraft.sections.find(x => x.title === s.title && x.columns.join() === s.columns.join());
+    if (ex) { const seen = new Set(ex.items.map(i => i.name)); s.items.forEach(i => { if (!seen.has(i.name)) ex.items.push(i); }); }
+    else aiDraft.sections.push(s);
+  }
+  aiDraft.warnings.push(...(d.warnings || []));
+}
+function aiRead() {
+  $('aiList').querySelectorAll('[data-s]').forEach(el => {
+    const s = aiDraft.sections[+el.dataset.s]; if (!s) return;
+    s.title = el.querySelector('.a-t').value.trim();
+    s.columns = el.querySelector('.a-c').value.split(/[,，、]/).map(x => x.trim()).filter(Boolean); if (!s.columns.length) s.columns = ['價格'];
+    s.items = [...el.querySelectorAll('[data-i]')].map(r => ({ ...(s.items[+r.dataset.i] || {}), name: r.querySelector('.a-n').value.trim(), star: r.querySelector('.a-st').checked,
+      prices: s.columns.map((_, c) => { const v = r.querySelector('.a-p' + c); return v && v.value.trim() !== '' ? Number(v.value.replace(/[^0-9]/g, '')) : null; }) }));
+  });
+}
+const aiIn = 'style="height:38px;border-radius:9px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);padding:0 8px;font:inherit;font-size:15px;min-width:0"';
+function aiDraw() {
+  $('aiWarn').innerHTML = aiDraft.warnings.length ? `<div class="warn"><b>請特別確認：</b><br>${aiDraft.warnings.map(esc).join('<br>')}</div>` : '';
+  $('aiList').innerHTML = aiDraft.sections.map((s, si) => `<div data-s="${si}" style="border:1.5px solid var(--line);border-radius:14px;padding:10px;margin-top:10px">
+    <div style="display:flex;gap:6px"><input class="a-t" value="${esc(s.title)}" placeholder="分類名稱" ${aiIn} style="flex:1;font-weight:700"><button class="btn danger" data-act="delsec" style="height:38px">刪除分類</button></div>
+    <input class="a-c" value="${esc(s.columns.join(','))}" placeholder="價格欄，例如：中杯,大杯" ${aiIn} style="width:100%;margin-top:6px">
+    ${s.items.map((it, ii) => `<div data-i="${ii}" style="display:flex;gap:4px;align-items:center;margin-top:6px"><input class="a-n" value="${esc(it.name)}" ${aiIn} style="flex:1">${s.columns.map((_, c) => `<input class="a-p${c}" inputmode="numeric" value="${it.prices[c] == null ? '' : it.prices[c]}" placeholder="${esc(s.columns[c])}" ${aiIn} style="width:${s.columns.length > 2 ? 52 : 70}px;text-align:center">`).join('')}<label title="推薦" style="font-size:18px"><input type="checkbox" class="a-st"${it.star ? ' checked' : ''}>★</label><button class="btn" data-act="delit" style="height:34px;padding:0 8px">✕</button></div>${(it.tags && it.tags.length) || it.side || it.hidden ? `<div style="font-size:11.5px;color:var(--mute);margin:2px 0 0 4px">${(it.tags || []).map(c => { const d = tagDef(c); return d ? `<span class="tg ${d.g === 'd' ? 'd' : d.g === 'f' ? 'f' : ''}">${d.t}</span>` : ''; }).join('')}${it.side ? ' 附餐：' + esc(it.side) : ''}${it.hidden ? ' （隱藏）' : ''}</div>` : ''}`).join('')}
+    <button class="addbtn" data-act="addit" style="width:100%;margin:8px 0 0">＋ 新增品項</button></div>`).join('');
+  const n = aiDraft.sections.reduce((a, s) => a + s.items.length, 0);
+  let ex = 0; if (reviewMode === 'import') aiDraft.sections.forEach(s => { const sec = SECTIONS.find(x => x.t === s.title); if (sec) s.items.forEach(i => { if (sec.rows.some(r => clean(r[0]) === i.name)) ex++; }); });
+  $('aiMsg').textContent = `共 ${aiDraft.sections.length} 個分類、${n} 個品項。價格留白＝還沒定價（之後可以在菜單工具補）；多規格留白＝不供應。` + (reviewMode === 'import' ? `其中 ${ex} 個品項已經在菜單裡，儲存時會更新它們的價格（價格留白的不動）、推薦、標示、附餐說明、隱藏。` : '');
+}
+let reviewMode = 'ai';
+function openReview(draft, mode) {
+  reviewMode = mode; aiDraft = draft;
+  $('aiTitle').textContent = mode === 'import' ? '檢查匯入的菜單' : '上傳菜單，AI 協助建立初稿';
+  $('aiBack').textContent = mode === 'import' ? '關閉' : '重新上傳';
+  $('ai1').style.display = 'none'; $('ai2').style.display = ''; $('aiModal').classList.add('open'); aiDraw();
+  const showBr = mode === 'import' && BRANCHES.length > 0;
+  $('aiBr').style.display = showBr ? '' : 'none';
+  $('aiBrList').innerHTML = showBr ? BRANCHES.map(b => `<label class="toggle" style="margin-top:6px"><input type="checkbox" data-br="${esc(b.id)}">${esc(b.name)}</label>`).join('') : '';
+}
+if (CUSTOM_SECTIONS && ACCT_URL && AI_ON) {
+  $('aiBtn').style.display = '';
+  $('aiBtn').onclick = () => { reviewMode = 'ai'; $('aiTitle').textContent = '上傳菜單，AI 協助建立初稿'; $('aiBack').textContent = '重新上傳'; $('ai1').style.display = ''; $('ai2').style.display = 'none'; $('aiMsg').textContent = ''; $('aiFile').value = ''; aiDraft = { sections: [], warnings: [] }; $('aiModal').classList.add('open'); };
+  $('aiCancel1').onclick = () => $('aiModal').classList.remove('open');
+  $('aiRun').onclick = async () => {
+    const files = [...$('aiFile').files]; if (!files.length) { $('aiMsg').textContent = '請先選檔案'; return; }
+    $('aiRun').disabled = true; aiDraft = { sections: [], warnings: [] };
+    try {
+      for (let i = 0; i < files.length; i++) {
+        $('aiMsg').textContent = `辨識第 ${i + 1}／${files.length} 個檔案…（約 20～40 秒，請不要關閉）`;
+        const f = await aiImg(files[i]);
+        const r = await call('aiMenuDraft', f, STAFF_KEY);
+        aiMerge(r.draft); if (r.truncated) aiDraft.warnings.push('「' + files[i].name + '」內容太多，可能只辨識到一部分，請分頁上傳或補上缺的品項');
+      }
+      if (!aiDraft.sections.length) { $('aiMsg').textContent = '沒有辨識出品項，請換更清楚的照片再試。'; return; }
+      $('ai1').style.display = 'none'; $('ai2').style.display = ''; aiDraw();
+    } catch (e) { $('aiMsg').textContent = '辨識失敗：' + errText(e); }
+    finally { $('aiRun').disabled = false; }
+  };
+}
+
+/* ---------------- 菜單範本：下載、匯出、上傳（CSV）---------------- */
+const IMP_HEAD = ['分類', '價格欄', '品項', '價格1', '價格2', '價格3', '價格4', '價格5', '價格6', '推薦', '標示', '附餐說明', '隱藏'];
+const csvEsc = v => { v = String(v == null ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+function downloadCsv(name, rows) {
+  const blob = new Blob(['\ufeff' + rows.map(r => r.map(csvEsc).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function impTemplateRows() {
+  const tagNames = TAGDEFS.map(d => d.t).join(' ');
+  return [
+    ['#說明：每一列一個品項。「價格欄」只要在每個分類的第一列填一次，用 | 分開（例如 中杯|大杯）；只有一個價格就填「價格」或留空。'],
+    ['#價格1、價格2…依「價格欄」的順序填數字；某規格不供應就留空。推薦填「是」；隱藏填「是」。'],
+    ['#標示可填：' + tagNames + '（多個用「、」分開）。附餐說明是品項旁的小字（選填）。'],
+    ['#下面三列是範例（開頭有 #，不會被匯入）。請從標題列下面開始填你的菜單，同一分類的品項放在一起。'],
+    IMP_HEAD,
+    ['#飲料', '中杯|大杯', '紅茶', 25, 30, '', '', '', '', '', '', '', ''],
+    ['#飲料', '', '鮮奶茶', 45, 50, '', '', '', '', '是', '奶', '', ''],
+    ['#主餐', '價格', '招牌便當', 100, '', '', '', '', '', '是', '蛋、麩質', '附湯', ''],
+  ];
+}
+function impExportRows() {
+  const out = [...impTemplateRows().slice(0, 5)], side = {}, hid = new Set();
+  (server && server.rows || []).forEach(r => { const p = r.k.split('|'), iid = p[0] + '|' + p[1]; if (r.side && !side[iid]) side[iid] = r.side; if (r.hidden) hid.add(iid); });
+  const nm = Object.fromEntries(TAGDEFS.map(d => [d.c, d.t]));
+  for (const s of SECTIONS) s.rows.forEach((r, i) => {
+    const iid = s.id + '|' + clean(r[0]), pr = s.cols.map((_, c) => { const k = key(s.id, r[0], c); return k in DEFAULTS ? (prices[k] ?? '') : ''; });
+    out.push([s.t, i === 0 ? s.cols.join('|') : '', clean(r[0]), ...[0, 1, 2, 3, 4, 5].map(c => pr[c] ?? ''), r[0].startsWith('*') ? '是' : '', (ITEM_TAGS[iid] || []).map(c => nm[c] || c).join('、'), side[iid] || '', hid.has(iid) ? '是' : '']);
+  });
+  return out;
+}
+function parseCsv(text) {
+  text = text.replace(/^\ufeff/, '');
+  const first = text.split(/\r?\n/).find(l => l.trim()) || '', delim = first.indexOf('\t') >= 0 && first.indexOf(',') < 0 ? '\t' : ',';
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === delim) { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); cur = ''; rows.push(row); row = []; }
+    else cur += c;
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows;
+}
+const TAG_ALIAS = { '蛋奶素': 'veg', '素食': 'veg', '全素': 'vegan', '海鮮': 'shellfish', '蝦': 'shellfish', '蟹': 'shellfish', '牛奶': 'milk', '乳': 'milk', '小麥': 'gluten', '辣味': 'spicy', '小辣': 'spicy', '中辣': 'spicy', '大辣': 'spicy' };
+function csvToDraft(rows) {
+  const warns = [], secs = [], by = {};
+  let hi = rows.findIndex(r => r.some(c => c.trim() === '品項') && r.some(c => c.trim() === '分類'));
+  if (hi < 0) return { error: '找不到標題列（需要「分類」和「品項」欄）。請用下載的範本，不要刪掉標題那一列。' };
+  const H = rows[hi].map(c => c.trim()), ix = n => H.indexOf(n);
+  const iC = ix('分類'), iCol = ix('價格欄'), iN = ix('品項'), iP = [1, 2, 3, 4, 5, 6].map(n => ix('價格' + n)).filter(i => i >= 0), iS = ix('推薦'), iT = ix('標示'), iSide = ix('附餐說明'), iH = ix('隱藏');
+  const yes = v => /^(是|y|yes|1|v|✓|★|true)$/i.test(String(v || '').trim()), cell = (r, i) => i >= 0 && r[i] != null ? String(r[i]).trim() : '';
+  const names = Object.fromEntries(TAGDEFS.map(d => [d.t, d.c]));
+  let lastCat = '';
+  for (let li = hi + 1; li < rows.length; li++) {
+    const r = rows[li], no = li + 1;
+    if (!r.some(c => String(c).trim())) continue;
+    if (String(r[0] || '').trim().startsWith('#')) continue;
+    const cat = cell(r, iC) || lastCat, name = cell(r, iN);
+    if (!name) { if (r.some(c => String(c).trim())) warns.push(`第 ${no} 列沒有品項名稱，已略過`); continue; }
+    if (!cat) { warns.push(`第 ${no} 列「${name}」沒有分類，已略過`); continue; }
+    lastCat = cat;
+    let sec = by[cat];
+    if (!sec) {
+      let cols = cell(r, iCol).split(/[|｜,，、\/]/).map(x => x.trim()).filter(Boolean);
+      if (cols.length > 6) { warns.push(`分類「${cat}」的價格欄超過 6 個，只取前 6 個`); cols = cols.slice(0, 6); }
+      if (!cols.length) cols = ['價格'];
+      sec = by[cat] = { title: cat, columns: cols, note: '', items: [] }; secs.push(sec);
+    } else if (cell(r, iCol) && cell(r, iCol).split(/[|｜,，、\/]/).map(x => x.trim()).filter(Boolean).join() !== sec.columns.join()) warns.push(`第 ${no} 列的價格欄跟「${cat}」第一次出現時不同，以第一次的為準`);
+    if (sec.items.some(i => i.name === name)) { warns.push(`第 ${no} 列「${name}」在「${cat}」重複，已略過`); continue; }
+    const prices = sec.columns.map((_, c) => {
+      const raw = iP[c] != null ? cell(r, iP[c]) : ''; if (raw === '') return null;
+      const v = parseFloat(raw.replace(/[$,元\s]/g, '')); if (isNaN(v) || v < 0) { warns.push(`第 ${no} 列「${name}」的價格「${raw}」看不懂，已留空`); return null; }
+      return Math.round(v);
+    });
+    if (iP.length < sec.columns.length) warns.push(`「${cat}」有 ${sec.columns.length} 個價格欄，但檔案只有 ${iP.length} 個價格欄位`);
+    const tags = []; cell(r, iT).split(/[、,，;；\s\/]+/).filter(Boolean).forEach(t => { const c = names[t] || TAG_ALIAS[t] || (TAGDEFS.some(d => d.c === t) ? t : ''); if (c) { if (!tags.includes(c)) tags.push(c); } else warns.push(`第 ${no} 列「${name}」的標示「${t}」不認識，已略過`); });
+    sec.items.push({ name, prices, star: yes(cell(r, iS)), tags, side: cell(r, iSide).slice(0, 30), hidden: yes(cell(r, iH)) });
+  }
+  if (!secs.length) return { error: '檔案裡沒有任何品項。請從標題列下面開始填寫（# 開頭的是說明與範例，不會匯入）。' };
+  return { draft: { sections: secs, warnings: warns } };
+}
+if (CUSTOM_SECTIONS && ACCT_URL) {
+  $('impBtn').style.display = '';
+  $('impBtn').onclick = () => { $('impMsg').textContent = ''; $('impWarn').innerHTML = ''; $('impFile').value = ''; $('impModal').classList.add('open'); };
+  $('impClose').onclick = () => $('impModal').classList.remove('open');
+  $('impTpl').onclick = () => { downloadCsv('菜單範本.csv', impTemplateRows()); $('impMsg').textContent = '已下載「菜單範本.csv」。'; };
+  $('impExp').onclick = () => { downloadCsv('目前菜單_' + new Date().toISOString().slice(0, 10) + '.csv', impExportRows()); $('impMsg').textContent = '已下載目前的菜單，修改後可以再上傳。'; };
+  $('impFile').onchange = async function () {
+    const f = this.files[0]; if (!f) return; $('impMsg').textContent = '讀取中…'; $('impWarn').innerHTML = '';
+    try {
+      if (f.size > 2 * 1048576) throw new Error('檔案太大（上限 2MB），請確認是 CSV 檔');
+      const buf = await f.arrayBuffer(); let text;
+      try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { text = new TextDecoder('big5').decode(buf); }
+      const r = csvToDraft(parseCsv(text));
+      if (r.error) { $('impMsg').textContent = r.error; return; }
+      $('impModal').classList.remove('open'); openReview(r.draft, 'import');
+    } catch (e) { $('impMsg').textContent = '讀不了這個檔案：' + errText(e); }
+  };
+}
+
+/* 檢視初稿的共用事件（AI 與範本匯入都用） */
+if (CUSTOM_SECTIONS && ACCT_URL) {
+  $('aiBack').onclick = () => {
+    if (reviewMode === 'import') { $('aiModal').classList.remove('open'); return; }
+    $('ai2').style.display = 'none'; $('ai1').style.display = ''; $('aiMsg').textContent = ''; aiDraft = { sections: [], warnings: [] };
+  };
+  $('aiList').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    aiRead(); const si = +b.closest('[data-s]').dataset.s;
+    if (b.dataset.act === 'delsec') aiDraft.sections.splice(si, 1);
+    else if (b.dataset.act === 'addit') { const s = aiDraft.sections[si]; s.items.push({ name: '', star: false, prices: s.columns.map(() => null) }); }
+    else if (b.dataset.act === 'delit') aiDraft.sections[si].items.splice(+b.closest('[data-i]').dataset.i, 1);
+    aiDraw();
+  });
+  $('aiList').addEventListener('change', e => { if (e.target.classList.contains('a-c')) { aiRead(); aiDraw(); } });
+  $('aiAddSec').onclick = () => { aiRead(); aiDraft.sections.push({ title: '', columns: ['價格'], note: '', items: [{ name: '', star: false, prices: [null] }] }); aiDraw(); };
+  $('aiApply').onclick = async () => {
+    aiRead(); aiDraft.sections.forEach(s => { s.items = s.items.filter(i => i.name); }); aiDraft.sections = aiDraft.sections.filter(s => s.title && s.items.length);
+    if (!aiDraft.sections.length) { $('aiMsg').textContent = '沒有可以儲存的品項'; return; }
+    $('aiApply').disabled = true; $('aiMsg').textContent = '儲存中…';
+    try {
+      const r = await call(reviewMode === 'import' ? 'menuImportApply' : 'aiMenuApply', aiDraft, STAFF_KEY);
+      const brs = reviewMode === 'import' ? [...$('aiBrList').querySelectorAll('[data-br]')].filter(x => x.checked).map(x => x.dataset.br) : [];
+      for (let i = 0; i < brs.length; i++) { $('aiMsg').textContent = `總店已儲存，正在套用到分店 ${i + 1}／${brs.length}…`; await call('brandApplyDraft', STAFF_KEY, aiDraft, brs[i]); } $('aiMsg').textContent = `已建立 ${r.added} 個、更新 ${r.updated || 0} 個品項，重新載入…`; location.reload(); }
+    catch (e) { $('aiMsg').textContent = '沒有儲存：' + errText(e); $('aiApply').disabled = false; }
+  };
+}
+
+
+/* ---------------- start ---------------- */
+buildList(); bindChips(); paintAll(); applySearch();
+if (BOOT_DATA && BOOT_DATA.demo) $('emptyDemo').style.display = '';
+if (BOOT_DATA && !BOOT_DATA.error) applyData(BOOT_DATA);            // 打開網頁時伺服器就附上價格，不用再等
+else {
+  if (BOOT_DATA) applyData(BOOT_DATA);                                 // 先顯示伺服器回報的原因
+  if (HAS_GS) call('getData', STAFF_KEY).then(applyData).catch(e => applyData({ error: 'server', detail: e && e.message }));
+  else if (!BOOT_DATA) { $('stat').innerHTML = '<div class="errbox">請從「菜單工具」網址打開。</div>'; setSync('local', '未連線'); }
+}
+setTimeout(() => {
+  if (loaded) return;
+  $('stat').innerHTML = '<div class="errbox">讀取太久了。請按下面重新整理；還是不行，請店長在電腦打開試算表，按「🍳 弘林菜單 → 建立／整理價格表」一次。<br><button class="btn" style="margin-top:8px" onclick="location.reload()">重新整理</button></div>';
+  setSync('local', '讀取失敗');
+}, 15000);
+</script>
+<script>/* HL-ICONS:BEGIN */
+/* 弘林圖示庫 hl-icons.js v1.0
+   圖形來源：Lucide v0.460.0（ISC 授權，可商用；Copyright (c) Lucide Contributors，部分源自 Feather，MIT）。
+   無外部依賴、不含連續兩個斜線，可直接貼進 Apps Script 的 HTML。
+   用法：
+     1. HTML 寫 <i data-icon="coffee">（空的 i 標籤），可加 data-size="20" data-stroke="2" data-label="咖啡"
+     2. 頁面載入後呼叫 hlIcon.render()（也可傳入某個容器只換那一塊）
+     3. 在程式裡要字串：hlIcon('coffee', { size: 20 })；要元素：hlIcon.el('coffee')
+     4. 顏色跟著文字顏色（currentColor），用 CSS color 改色 */
+(function (root) {
+  var ICONS = {
+    'egg-fried': '<circle cx="11.5" cy="12.5" r="3.5"/><path d="M3 8c0-3.5 2.5-6 6.5-6 5 0 4.83 3 7.5 5s5 2 5 6c0 4.5-2.5 6.5-7 6.5-2.5 0-2.5 2.5-6 2.5s-7-2-7-5.5c0-3 1.5-3 1.5-5C3.5 10 3 9 3 8Z"/>',
+    'egg': '<path d="M12 22c6.23-.05 7.87-5.57 7.5-10-.36-4.34-3.95-9.96-7.5-10-3.55.04-7.14 5.66-7.5 10-.37 4.43 1.27 9.95 7.5 10z"/>',
+    'sandwich': '<path d="m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777"/><path d="M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25"/><path d="M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9"/><path d="m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2"/><rect width="20" height="4" x="2" y="11" rx="1"/>',
+    'croissant': '<path d="m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z"/><path d="m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83"/><path d="M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4"/><path d="m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2"/><path d="M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5"/>',
+    'salad': '<path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1"/><path d="m13 12 4-4"/><path d="M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2"/>',
+    'soup': '<path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 21h10"/><path d="M19.5 12 22 6"/><path d="M16.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.73 1.62"/><path d="M11.25 3c.27.1.8.53.74 1.36-.05.83-.93 1.2-.98 2.02-.06.78.33 1.24.72 1.62"/><path d="M6.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.74 1.62"/>',
+    'cooking-pot': '<path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/>',
+    'beef': '<circle cx="12.5" cy="8.5" r="2.5"/><path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/><path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/>',
+    'drumstick': '<path d="M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23"/><path d="m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59"/>',
+    'ham': '<path d="M13.144 21.144A7.274 10.445 45 1 0 2.856 10.856"/><path d="M13.144 21.144A7.274 4.365 45 0 0 2.856 10.856a7.274 4.365 45 0 0 10.288 10.288"/><path d="M16.565 10.435 18.6 8.4a2.501 2.501 0 1 0 1.65-4.65 2.5 2.5 0 1 0-4.66 1.66l-2.024 2.025"/><path d="m8.5 16.5-1-1"/>',
+    'fish': '<path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/>',
+    'pizza': '<path d="m12 14-1 1"/><path d="m13.75 18.25-1.25 1.42"/><path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12"/><path d="M18.8 9.3a1 1 0 0 0 2.1 7.7"/><path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z"/>',
+    'cake-slice': '<circle cx="9" cy="7" r="2"/><path d="M7.2 7.9 3 11v9c0 .6.4 1 1 1h16c.6 0 1-.4 1-1v-9c0-2-3-6-7-8l-3.6 2.6"/><path d="M16 13H3"/><path d="M16 17H3"/>',
+    'cookie': '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/>',
+    'donut': '<path d="M20.5 10a2.5 2.5 0 0 1-2.4-3H18a2.95 2.95 0 0 1-2.6-4.4 10 10 0 1 0 6.3 7.1c-.3.2-.8.3-1.2.3"/><circle cx="12" cy="12" r="3"/>',
+    'ice-cream-cone': '<path d="m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11"/><path d="M17 7A5 5 0 0 0 7 7"/><path d="M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4"/>',
+    'popcorn': '<path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4"/><path d="M10 22 9 8"/><path d="m14 22 1-14"/><path d="M20 8c.5 0 .9.4.8 1l-2.6 12c-.1.5-.7 1-1.2 1H7c-.6 0-1.1-.4-1.2-1L3.2 9c-.1-.6.3-1 .8-1Z"/>',
+    'coffee': '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+    'cup-soda': '<path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/><path d="m12 8 1-6h2"/>',
+    'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
+    'citrus': '<path d="M21.66 17.67a1.08 1.08 0 0 1-.04 1.6A12 12 0 0 1 4.73 2.38a1.1 1.1 0 0 1 1.61-.04z"/><path d="M19.65 15.66A8 8 0 0 1 8.35 4.34"/><path d="m14 10-5.5 5.5"/><path d="M14 17.85V10H6.15"/>',
+    'glass-water': '<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>',
+    'wine': '<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/>',
+    'beer': '<path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/>',
+    'apple': '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
+    'cherry': '<path d="M2 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M12 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M7 14c3.22-2.91 4.29-8.75 5-12 1.66 2.38 4.94 9 5 12"/><path d="M22 9c-4.29 0-7.14-2.33-10-7 5.71 0 10 4.67 10 7Z"/>',
+    'chef-hat': '<path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/>',
+    'utensils': '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+    'utensils-crossed': '<path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/>',
+    'leaf': '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+    'vegan': '<path d="M16 8q6 0 6-6-6 0-6 6"/><path d="M17.41 3.59a10 10 0 1 0 3 3"/><path d="M2 2a26.6 26.6 0 0 1 10 20c.9-6.82 1.5-9.5 4-14"/>',
+    'wheat': '<path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>',
+    'wheat-off': '<path d="m2 22 10-10"/><path d="m16 8-1.17 1.17"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="m8 8-.53.53a3.5 3.5 0 0 0 0 4.94L9 15l1.53-1.53c.55-.55.88-1.25.98-1.97"/><path d="M10.91 5.26c.15-.26.34-.51.56-.73L13 3l1.53 1.53a3.5 3.5 0 0 1 .28 4.62"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="m16 16-.53.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.49 3.49 0 0 1 1.97-.98"/><path d="M18.74 13.09c.26-.15.51-.34.73-.56L21 11l-1.53-1.53a3.5 3.5 0 0 0-4.62-.28"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'milk-off': '<path d="M8 2h8"/><path d="M9 2v1.343M15 2v2.789a4 4 0 0 0 .672 2.219l.656.984a4 4 0 0 1 .672 2.22v1.131M7.8 7.8l-.128.192A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.472 6.472 0 0 0 3.435.435"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'egg-off': '<path d="M6.399 6.399C5.362 8.157 4.65 10.189 4.5 12c-.37 4.43 1.27 9.95 7.5 10 3.256-.026 5.259-1.547 6.375-3.625"/><path d="M19.532 13.875A14.07 14.07 0 0 0 19.5 12c-.36-4.34-3.95-9.96-7.5-10-1.04.012-2.082.502-3.046 1.297"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'nut': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592A7.003 7.003 0 0 0 19 14v-4"/><path d="M12 4C8 4 4.5 6 4 8c-.243.97-.919 1.952-2 3 1.31-.082 1.972-.29 3-1 .54.92.982 1.356 2 2 1.452-.647 1.954-1.098 2.5-2 .595.995 1.151 1.427 2.5 2 1.31-.621 1.862-1.058 2.5-2 .629.977 1.162 1.423 2.5 2 1.209-.548 1.68-.967 2-2 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4Z"/>',
+    'nut-off': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592a7.01 7.01 0 0 0 4.125-2.939"/><path d="M19 10v3.343"/><path d="M12 12c-1.349-.573-1.905-1.005-2.5-2-.546.902-1.048 1.353-2.5 2-1.018-.644-1.46-1.08-2-2-1.028.71-1.69.918-3 1 1.081-1.048 1.757-2.03 2-3 .194-.776.84-1.551 1.79-2.21m11.654 5.997c.887-.457 1.28-.891 1.556-1.787 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4-.74 0-1.461.068-2.15.192"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'bean': '<path d="M10.165 6.598C9.954 7.478 9.64 8.36 9 9c-.64.64-1.521.954-2.402 1.165A6 6 0 0 0 8 22c7.732 0 14-6.268 14-14a6 6 0 0 0-11.835-1.402Z"/><path d="M5.341 10.62a4 4 0 1 0 5.279-5.28"/>',
+    'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    'star': '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    'thumbs-up': '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+    'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    'award': '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+    'sparkles': '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+    'badge-percent': '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m15 9-6 6"/><path d="M9 9h.01"/><path d="M15 15h.01"/>',
+    'store': '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+    'building-2': '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+    'map-pin': '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    'calendar': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+    'calendar-check': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+    'calendar-x': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+    'calendar-days': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>',
+    'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'user-plus': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'user-check': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+    'clipboard-list': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'clipboard-check': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'notebook-pen': '<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>',
+    'receipt': '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+    'wallet': '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    'banknote': '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    'credit-card': '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+    'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+    'package': '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
+    'truck': '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+    'bike': '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
+    'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    'megaphone': '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+    'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    'printer': '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+    'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    'file-spreadsheet': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
+    'file-check-2': '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/>',
+    'file-down': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/>',
+    'newspaper': '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+    'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+    'palette': '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+    'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    'qr-code': '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>',
+    'scan-line': '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+    'wifi': '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
+    'tag': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    'ticket': '<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>',
+    'gift': '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+    'presentation': '<path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>',
+    'smartphone': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+    'check': '<path d="M20 6 9 17l-5-5"/>',
+    'check-circle-2': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    'minus': '<path d="M5 12h14"/>',
+    'pencil': '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+    'settings': '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    'history': '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    'refresh-cw': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    'undo-2': '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+    'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'upload': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+    'copy': '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+    'link': '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    'eye': '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+    'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+    'lock': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    'shield-check': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    'alert-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'log-in': '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+    'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+    'house': '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'menu': '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+    'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+    'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'play-circle': '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>',
+    'more-horizontal': '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+  var META = [["egg-fried", "荷包蛋 蛋餅 早餐", "餐點"], ["egg", "蛋", "餐點"], ["sandwich", "三明治 吐司", "餐點"], ["croissant", "可頌 麵包", "餐點"], ["salad", "沙拉", "餐點"], ["soup", "湯 羹湯 麵", "餐點"], ["cooking-pot", "鍋 燉煮 火鍋", "餐點"], ["beef", "牛肉 肉排", "餐點"], ["drumstick", "雞腿 炸雞", "餐點"], ["ham", "火腿 豬肉", "餐點"], ["fish", "魚 海鮮", "餐點"], ["pizza", "披薩", "餐點"], ["cake-slice", "蛋糕 甜點", "餐點"], ["cookie", "餅乾 點心", "餐點"], ["donut", "甜甜圈", "餐點"], ["ice-cream-cone", "冰淇淋 冰品", "餐點"], ["popcorn", "爆米花 點心", "餐點"], ["coffee", "咖啡 熱飲", "飲品"], ["cup-soda", "飲料 手搖 冷飲", "飲品"], ["milk", "牛奶 鮮奶", "飲品"], ["citrus", "檸檬 果汁", "飲品"], ["glass-water", "水 冰水", "飲品"], ["wine", "紅酒 酒", "飲品"], ["beer", "啤酒", "飲品"], ["apple", "蘋果 水果", "飲品"], ["cherry", "櫻桃 水果", "飲品"], ["chef-hat", "廚師 主廚", "餐點"], ["utensils", "餐具 內用", "餐點"], ["utensils-crossed", "餐廳 刀叉", "餐點"], ["leaf", "葉 蔬食 素", "標示"], ["vegan", "全素 蔬食", "標示"], ["wheat", "小麥 麩質", "標示"], ["wheat-off", "無麩質", "標示"], ["milk-off", "無乳製品", "標示"], ["egg-off", "不含蛋", "標示"], ["nut", "堅果 花生", "標示"], ["nut-off", "無堅果", "標示"], ["bean", "豆 黃豆 大豆", "標示"], ["flame", "辣 熱門", "標示"], ["star", "推薦 星號", "標示"], ["thumbs-up", "好評 讚", "標示"], ["heart", "喜愛 收藏", "標示"], ["award", "得獎 招牌", "標示"], ["sparkles", "新品 亮點", "標示"], ["badge-percent", "折扣 優惠", "標示"], ["store", "店家 門市", "店務"], ["building-2", "總店 品牌 多門市", "店務"], ["map-pin", "地址 位置", "店務"], ["clock", "營業時間 時間", "店務"], ["calendar", "日曆 行事曆", "店務"], ["calendar-check", "交接 已排定", "店務"], ["calendar-x", "店休 公休", "店務"], ["calendar-days", "營業日", "店務"], ["users", "夥伴 團隊", "店務"], ["user-plus", "邀請夥伴", "店務"], ["user-check", "已綁定", "店務"], ["clipboard-list", "清單 叫貨單", "店務"], ["clipboard-check", "檢查表 完成", "店務"], ["notebook-pen", "交接本 筆記", "店務"], ["receipt", "收據 帳單", "店務"], ["wallet", "零用金 錢包", "店務"], ["banknote", "現金", "店務"], ["credit-card", "信用卡 付款", "店務"], ["calculator", "計算 調價", "店務"], ["trending-up", "漲價 成長", "店務"], ["flag", "目標 里程碑", "店務"], ["package", "包裹 外帶", "店務"], ["truck", "叫貨 送貨", "店務"], ["bike", "外送", "店務"], ["phone", "電話", "店務"], ["message-circle", "訊息 敲敲老闆", "店務"], ["megaphone", "公告 宣傳", "店務"], ["bell", "通知 提醒", "店務"], ["mail", "Email 信件", "店務"], ["printer", "列印 印製", "文宣"], ["file-text", "文件 PDF", "文宣"], ["file-spreadsheet", "試算表 CSV 匯入", "文宣"], ["file-check-2", "已確認文件", "文宣"], ["file-down", "下載檔案", "文宣"], ["newspaper", "海報 公告", "文宣"], ["image", "圖片 照片", "文宣"], ["palette", "配色 Logo", "文宣"], ["layout-grid", "版面 四欄", "文宣"], ["book-open", "菜單", "文宣"], ["qr-code", "QR 桌號", "文宣"], ["scan-line", "掃描", "文宣"], ["wifi", "Wi-Fi 無線網路", "文宣"], ["tag", "標籤 價格", "文宣"], ["ticket", "票券 集點", "文宣"], ["gift", "贈品 活動", "文宣"], ["presentation", "簡報", "文宣"], ["smartphone", "手機", "介面"], ["check", "勾選 完成", "介面"], ["check-circle-2", "已完成", "介面"], ["x", "關閉 取消", "介面"], ["plus", "新增", "介面"], ["minus", "減少", "介面"], ["pencil", "編輯 修改", "介面"], ["trash-2", "刪除", "介面"], ["search", "搜尋", "介面"], ["filter", "篩選", "介面"], ["settings", "設定", "介面"], ["history", "紀錄 歷史", "介面"], ["refresh-cw", "同步 重新整理", "介面"], ["undo-2", "復原", "介面"], ["download", "下載", "介面"], ["upload", "上傳", "介面"], ["copy", "複製", "介面"], ["share-2", "分享", "介面"], ["link", "連結", "介面"], ["external-link", "外部連結", "介面"], ["eye", "顯示 預覽", "介面"], ["eye-off", "隱藏", "介面"], ["lock", "鎖定 唯讀", "介面"], ["shield-check", "安全 授權", "介面"], ["alert-circle", "注意", "介面"], ["alert-triangle", "警告", "介面"], ["info", "說明", "介面"], ["log-in", "登入", "介面"], ["log-out", "登出", "介面"], ["house", "首頁", "介面"], ["menu", "選單", "介面"], ["chevron-down", "展開", "介面"], ["chevron-right", "下一個", "介面"], ["arrow-left", "上一頁", "介面"], ["arrow-right", "下一頁", "介面"], ["play-circle", "播放 示範", "介面"], ["more-horizontal", "更多", "介面"]];
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function hlIcon(name, o) {
+    o = o || {};
+    var body = ICONS[name];
+    if (!body) { body = ICONS['alert-circle']; }
+    var size = o.size || 24, sw = o.stroke || 2;
+    var a = '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="' + (o.color || 'currentColor') +
+      '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" class="hl-icon' + (o.cls ? ' ' + esc(o.cls) : '') + '" data-name="' + esc(name) + '"';
+    a += o.label ? ' role="img" aria-label="' + esc(o.label) + '">' : ' aria-hidden="true" focusable="false">';
+    if (o.label) { a += '<title>' + esc(o.label) + '<' + '/title>'; }
+    return a + body + '<' + '/svg>';
+  }
+
+  hlIcon.el = function (name, o) {
+    var t = document.createElement('span');
+    t.innerHTML = hlIcon(name, o);
+    return t.firstChild;
+  };
+
+  hlIcon.render = function (scope) {
+    var list = (scope || document).querySelectorAll('[data-icon]');
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i], cls = n.getAttribute('class') || '';
+      var svg = hlIcon.el(n.getAttribute('data-icon'), {
+        size: n.getAttribute('data-size'), stroke: n.getAttribute('data-stroke'),
+        label: n.getAttribute('data-label'), cls: cls
+      });
+      n.parentNode.replaceChild(svg, n);
+    }
+  };
+
+  hlIcon.has = function (name) { return !!ICONS[name]; };
+  hlIcon.names = function () { return Object.keys(ICONS); };
+  hlIcon.meta = META;
+  hlIcon.version = '1.0';
+
+  root.hlIcon = hlIcon;
+})(this);
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'), function (el) {
+    if (el.querySelector('svg.hl-icon')) return;
+    el.insertAdjacentHTML('afterbegin', hlIcon(el.getAttribute('data-ic'), { size: 18, stroke: 2, cls: 'ico' }));
+  });
+  hlIcon.render();
+})();
+/* App 外殼（GitHub Pages 的 PWA）：頁面被嵌在外殼裡時，target=_top 的連結改由外殼開，不會跳出外殼 */
+(function shellNav() {
+  var ao = location.ancestorOrigins, tp = ao && ao.length ? ao[ao.length - 1] : '';
+  if (!tp || tp.indexOf('script.google.com') >= 0 || tp.indexOf('googleusercontent.com') >= 0) return;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[target="_top"]') : null;
+    if (!a || !a.href) return;
+    e.preventDefault();
+    try { window.top.postMessage({ hlGo: a.href }, '*'); } catch (x) {}
+  }, true);
+  window.hlShellToken = function (t) { try { window.top.postMessage({ hlToken: t }, '*'); } catch (x) {} };
+})();
+/* HL-ICONS:END */
+window.__hlEnd = true; /* hl-end：檔案到這裡結束 */</script>
+</body>
+</html>

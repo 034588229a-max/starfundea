@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>預期排班</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@600;800&display=swap">
+<style>
+:root{--bg:#F2EEE6;--card:#fff;--ink:#16233A;--mute:#6B7486;--line:#E7E1D6;--pri:#1B4F8A;--acc:#E8762A;--onpri:#fff;--ok:#1E7D45;--bad:#C0392B;--field:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC','Outfit',system-ui,sans-serif;font-size:16px;line-height:1.55;padding-inline:16px;padding-block:0 40px;max-width:520px;margin-inline:auto}
+.hero{margin-top:16px;border-radius:18px;background:var(--pri);color:var(--onpri);padding:20px}
+.hero small{letter-spacing:.2em;font-weight:700;opacity:.85}
+.hero h1{margin:6px 0 4px;font-size:24px;line-height:1.25}
+.hero p{margin:0;opacity:.92;font-size:14.5px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 1px 0 var(--line)}
+h2{margin:0 0 6px;font-size:17px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.cal b{text-align:center;font-size:13px;color:var(--mute)}
+.cal button,.cal i{min-height:54px;border-radius:12px;font:inherit;font-weight:900;font-size:18px}
+.cal i{background:transparent}
+.cal button{border:2px solid var(--line);background:var(--field);color:var(--ink);cursor:pointer}
+.cal button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.cal button small{display:block;font-size:11px;font-weight:400;opacity:.8;line-height:1}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.quick button{min-height:44px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:700;padding:0 16px;cursor:pointer}
+label{display:block;font-weight:700;font-size:13px;margin:14px 0 4px}
+textarea{width:100%;height:76px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font:inherit;font-size:16px;padding:10px 12px;resize:vertical}
+.btn{display:block;width:100%;height:54px;border:0;border-radius:14px;background:var(--acc);color:#fff;font:inherit;font-weight:900;font-size:18px;margin-top:16px;cursor:pointer}
+.btn[disabled]{opacity:.55}
+.msg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:14px;display:none}
+.msg.bad{display:block;background:rgba(192,57,43,.13);color:var(--bad)}
+.msg.ok{display:block;background:rgba(30,125,69,.14);color:var(--ok)}
+.hint{font-size:12.5px;color:var(--mute);margin-top:8px}
+.sum{font-weight:900;margin-top:10px}
+.done{text-align:center;padding:26px 8px}.done .big{font-size:44px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="hero"><small>AVAILABILITY</small><h1 id="ttl">預期排班</h1><p id="sub"></p></div>
+
+<div class="card done hidden" id="bad"><div class="big">🔗</div><h2>這個連結不能用</h2><p id="badMsg"></p></div>
+
+<div class="card hidden" id="form">
+  <h2>選你方便上班的日子</h2>
+  <div class="hint" style="margin-top:0">點一下選取，再點一次取消。只有你和店長看得到你選的，看不到其他夥伴的選擇。</div>
+  <div class="cal" id="cal"></div>
+  <div class="quick"><button type="button" id="qAll">全部都可以</button><button type="button" id="qWk">只選平日</button><button type="button" id="qClr">清除</button></div>
+  <div class="sum" id="sum"></div>
+  <label for="note">備註（選填，例如 18 號要考試）</label>
+  <textarea id="note" maxlength="100"></textarea>
+  <button class="btn" id="go">送出</button>
+  <div class="msg" id="msg"></div>
+  <div class="hint">店長會依大家的預期排好班表，確定後再寄給你。期間開始前都可以回來修改。</div>
+</div>
+
+<div class="card done hidden" id="okc"><div class="big">✅</div><h2>已收到，謝謝！</h2><p id="okp"></p><div class="hint">想修改的話，期間開始前再打開同一個連結就可以。</div></div>
+
+<script>
+const BOOT = <?!= boot ?>;
+const $ = id => document.getElementById(id);
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+let INFO = null, SEL = {};
+function run(fn, ...args) { return new Promise((ok, bad) => google.script.run.withSuccessHandler(ok).withFailureHandler(e => bad(new Error((e && e.message) || String(e))))[fn](...args)); }
+const add = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 86400000).toISOString().slice(0, 10);
+const dow = d => new Date(d + 'T00:00:00Z').getUTCDay();
+function days() { const o = []; for (let d = INFO.period.from; d <= INFO.period.to; d = add(d, 1)) o.push(d); return o; }
+function draw() {
+  const ds = days(), lead = (dow(ds[0]) + 6) % 7;
+  let h = '一二三四五六日'.split('').map(x => `<b>${x}</b>`).join('') + '<i></i>'.repeat(lead);
+  ds.forEach(d => { const n = Number(d.slice(8)), first = n === 1 || d === ds[0]; h += `<button type="button" data-d="${d}" class="${SEL[d] ? 'on' : ''}" aria-pressed="${SEL[d] ? 'true' : 'false'}">${first ? '<small>' + Number(d.slice(5, 7)) + '月</small>' : ''}${n}</button>`; });
+  $('cal').innerHTML = h;
+  const c = Object.keys(SEL).length;
+  $('sum').textContent = c ? '已選 ' + c + ' 天' : '還沒選（都不能上班也可以直接送出，並在備註說明）';
+}
+(function init() {
+  const b = BOOT.brand || {};
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.primary || '')) { document.documentElement.style.setProperty('--pri', b.primary); const l = parseInt(b.primary.slice(1), 16); document.documentElement.style.setProperty('--onpri', (0.299 * (l >> 16) + 0.587 * ((l >> 8) & 255) + 0.114 * (l & 255)) > 150 ? '#16233A' : '#FFFFFF'); }
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.accent || '')) document.documentElement.style.setProperty('--acc', b.accent);
+  document.title = (b.name || '') + '｜預期排班';
+  if (!BOOT.tok) { $('badMsg').textContent = '請用店長寄給你的信裡的連結打開。'; $('bad').classList.remove('hidden'); return; }
+  run('stAvailInfo', BOOT.tok).then(i => {
+    INFO = i; $('ttl').textContent = i.period.label + ' 預期排班'; $('sub').textContent = i.name + ' 你好，請選 ' + i.period.from + ' ～ ' + i.period.to + ' 方便上班的日子。';
+    (i.days || []).forEach(d => { SEL[d] = 1; }); $('note').value = i.note || '';
+    if (!i.open) { $('badMsg').textContent = '這個期間已經開始了，要調整請直接跟店長說。'; $('bad').classList.remove('hidden'); return; }
+    $('form').classList.remove('hidden'); draw();
+    if (i.replied) { $('msg').className = 'msg ok'; $('msg').textContent = '你已經填過了，可以在這裡修改後再送出。'; }
+  }).catch(e => { $('badMsg').textContent = e.message; $('bad').classList.remove('hidden'); });
+})();
+$('cal').onclick = e => { const b = e.target.closest('[data-d]'); if (!b) return; const d = b.dataset.d; if (SEL[d]) delete SEL[d]; else SEL[d] = 1; draw(); };
+$('qAll').onclick = () => { SEL = {}; days().forEach(d => { SEL[d] = 1; }); draw(); };
+$('qWk').onclick = () => { SEL = {}; days().forEach(d => { const w = dow(d); if (w >= 1 && w <= 5) SEL[d] = 1; }); draw(); };
+$('qClr').onclick = () => { SEL = {}; draw(); };
+$('go').onclick = () => {
+  $('go').disabled = true; $('msg').className = 'msg';
+  run('stAvailSubmit', BOOT.tok, Object.keys(SEL).sort(), $('note').value).then(r => {
+    $('form').classList.add('hidden'); $('okc').classList.remove('hidden'); $('okp').textContent = INFO.period.label + '：你選了 ' + r.count + ' 天。'; window.scrollTo(0, 0);
+  }).catch(e => { $('go').disabled = false; $('msg').className = 'msg bad'; $('msg').textContent = e.message; });
+};
+window.__hlEnd = true;
+</script>
+</body>
+</html>

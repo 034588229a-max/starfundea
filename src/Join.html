@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>員工資料</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@600;800&display=swap">
+<style>
+:root{--bg:#F2EEE6;--card:#fff;--ink:#16233A;--mute:#6B7486;--line:#E7E1D6;--pri:#1B4F8A;--acc:#E8762A;--onpri:#fff;--ok:#1E7D45;--bad:#C0392B;--field:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC','Outfit',system-ui,sans-serif;font-size:15px;line-height:1.55;padding-inline:16px;padding-block:0 40px;max-width:520px;margin-inline:auto}
+.hero{margin-top:16px;border-radius:18px;background:var(--pri);color:var(--onpri);padding:20px}
+.hero small{letter-spacing:.2em;font-weight:700;opacity:.85}
+.hero h1{margin:6px 0 4px;font-size:23px;line-height:1.25}
+.hero p{margin:0;opacity:.92;font-size:14px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 1px 0 var(--line)}
+h2{margin:0 0 4px;font-size:16px}
+.sec{font-size:12.5px;font-weight:900;color:var(--mute);letter-spacing:.08em;margin-top:18px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}
+label i{color:var(--bad);font-style:normal}
+input{width:100%;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font:inherit;font-size:16px;padding:0 12px}
+input:focus{outline:2px solid var(--acc);outline-offset:1px}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.btn{display:block;width:100%;height:50px;border:0;border-radius:14px;background:var(--acc);color:#fff;font:inherit;font-weight:900;font-size:17px;margin-top:16px;cursor:pointer}
+.btn[disabled]{opacity:.55}
+.btn.pri{background:var(--pri);color:var(--onpri);text-decoration:none;display:flex;align-items:center;justify-content:center}
+.msg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:14px;display:none}
+.msg.bad{display:block;background:rgba(192,57,43,.13);color:var(--bad)}
+.hint{font-size:12.5px;color:var(--mute);margin-top:8px}
+.upl{background:var(--bg);border-radius:12px;padding:4px 12px 12px;margin-top:10px}.upl input{height:auto;padding:10px;background:var(--field)}.fn{font-size:12.5px;color:var(--ok);margin-top:4px;min-height:1em}
+.how{text-align:left;background:var(--bg);border-radius:12px;padding:12px;margin-top:12px;font-size:13.5px;line-height:1.7}
+.done{text-align:center;padding:26px 8px}
+.done .big{font-size:44px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="hero"><small>WELCOME</small><h1 id="shop"></h1><p>請填寫你的員工資料，並設定打卡用的 PIN。</p></div>
+
+<div class="card done hidden" id="bad"><div class="big">🔗</div><h2>這個連結不能用</h2><p id="badMsg"></p></div>
+
+<div class="card hidden" id="form">
+  <div class="sec" style="margin-top:0">基本資料</div>
+  <label for="name">姓名 <i>*</i></label><input id="name" maxlength="20" autocomplete="name">
+  <label for="title">職稱或負責的工作（選填）</label><input id="title" maxlength="20" placeholder="例如 外場、內場、洗碗">
+  <label for="phone">手機 <i>*</i></label><input id="phone" type="tel" inputmode="tel" maxlength="20" autocomplete="tel">
+  <label for="email">電子郵件（選填，用來寄班表）</label><input id="email" type="email" maxlength="60" autocomplete="email">
+  <label for="addr">戶籍地址（選填）</label><input id="addr" maxlength="80" autocomplete="street-address">
+  <div class="sec">證件與存摺（選填，也可以之後再補）</div>
+  <div class="hint" style="margin-top:0">直接拍照或選照片就好，會自動縮小。檔案只存進店主自己的雲端資料夾，只有店主看得到。</div>
+  <div class="upl"><label for="fIdF">身分證　正面</label><input id="fIdF" type="file" accept="image/*,application/pdf"><div class="fn" id="nIdF"></div></div>
+  <div class="upl"><label for="fIdB">身分證　反面</label><input id="fIdB" type="file" accept="image/*,application/pdf"><div class="fn" id="nIdB"></div></div>
+  <div class="upl"><label for="fBank">存摺封面（薪資轉帳用）</label><input id="fBank" type="file" accept="image/*,application/pdf"><div class="fn" id="nBank"></div></div>
+  <div class="sec">緊急聯絡人（選填）</div>
+  <div class="row"><div><label for="emName">姓名</label><input id="emName" maxlength="20"></div><div><label for="emPhone">電話</label><input id="emPhone" type="tel" inputmode="tel" maxlength="20"></div></div>
+  <div class="sec">打卡 PIN</div>
+  <div class="row"><div><label for="pin">PIN（4～6 位數字）<i>*</i></label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password"></div><div><label for="pin2">再輸入一次 <i>*</i></label><input id="pin2" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password"></div></div>
+  <div class="hint">PIN 是你打卡、看班表時用的，請自己記住，不要告訴別人。忘記的話請店長幫你重設。</div>
+  <button class="btn" id="go">送出</button>
+  <div class="msg" id="msg"></div>
+  <div class="hint">你填的資料只給店家排班與緊急聯絡使用。</div>
+</div>
+
+<div class="card done hidden" id="ok1"><div class="big">✅</div><h2>登陸完成，歡迎加入！</h2><p>這是你專屬的員工入口，打開就是你自己的畫面（打卡、班表、請假與特休、工作守則、教育訓練、常用文件、交接）。系統也寄了一封「登陸完成」信到你的信箱。</p><a class="btn pri" id="toClock" target="_top">開啟我的員工入口</a>
+  <div class="how"><b>建議現在就加到手機主畫面：</b><br>・iPhone：用 Safari 打開入口 → 下方「分享」→「加入主畫面」<br>・Android：用 Chrome 打開入口 → 右上角「⋮」→「加到主畫面」<br>之後用手機一點就開，不用再找連結。請不要把入口連結轉給別人。</div></div>
+<div class="card done hidden" id="ok2"><div class="big">📨</div><h2>資料已送出</h2><p>等店長確認後，會寄一封信給你，附上你專屬的員工入口。</p></div>
+
+<script>
+const BOOT = <?!= boot ?>;
+const $ = id => document.getElementById(id);
+(function init() {
+  const b = BOOT.brand || {};
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.primary || '')) { document.documentElement.style.setProperty('--pri', b.primary); const l = parseInt(b.primary.slice(1), 16); document.documentElement.style.setProperty('--onpri', (0.299 * (l >> 16) + 0.587 * ((l >> 8) & 255) + 0.114 * (l & 255)) > 150 ? '#16233A' : '#FFFFFF'); }
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.accent || '')) document.documentElement.style.setProperty('--acc', b.accent);
+  $('shop').textContent = (b.name || '') + ' 員工資料'; document.title = (b.name || '') + '｜員工資料';
+  if (!BOOT.ok) { $('badMsg').textContent = BOOT.msg || '連結無效'; $('bad').classList.remove('hidden'); return; }
+  $('form').classList.remove('hidden'); $('name').value = BOOT.name || ''; $('email').value = BOOT.email || '';
+})();
+/* 照片自動縮小成 JPEG（長邊 1600px 以內）；PDF 原樣送出；每份上限 4MB（伺服器也會檢查） */
+function toB64(file) {
+  return new Promise((ok, bad) => {
+    if (!file) return ok(null);
+    if (file.type === 'application/pdf') { const r = new FileReader(); r.onload = () => ok({ name: file.name, b64: String(r.result).split(',')[1] }); r.onerror = () => bad(new Error('檔案讀不出來')); return r.readAsDataURL(file); }
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => { const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u); ok({ name: (file.name.replace(/\.\w+$/, '') || 'photo') + '.jpg', b64: c.toDataURL('image/jpeg', 0.82).split(',')[1] }); };
+    img.onerror = () => bad(new Error('這張照片讀不出來，請換一張'));
+    img.src = u;
+  });
+}
+[['fIdF', 'nIdF'], ['fIdB', 'nIdB'], ['fBank', 'nBank']].forEach(([i, n]) => { $(i).onchange = () => { const f = $(i).files[0]; $(n).textContent = f ? '已選：' + f.name : ''; }; });
+$('go').onclick = async () => {
+  const bad = t => { $('msg').className = 'msg bad'; $('msg').textContent = t; };
+  const f = { name: $('name').value.trim(), title: $('title').value.trim(), phone: $('phone').value.trim(), email: $('email').value.trim(), addr: $('addr').value.trim(), emName: $('emName').value.trim(), emPhone: $('emPhone').value.trim(), pin: $('pin').value.trim() };
+  if (!f.name) return bad('請填姓名');
+  if (!f.phone) return bad('請填手機');
+  if (!/^\d{4,6}$/.test(f.pin)) return bad('PIN 要是 4～6 位數字');
+  if (f.pin !== $('pin2').value.trim()) return bad('兩次輸入的 PIN 不一樣');
+  $('go').disabled = true; $('msg').className = 'msg';
+  try {
+    f.files = {};
+    for (const [k, i] of [['idF', 'fIdF'], ['idB', 'fIdB'], ['bank', 'fBank']]) { const x = await toB64($(i).files[0]); if (x) f.files[k] = x; }
+  } catch (e) { $('go').disabled = false; return bad(e.message); }
+  google.script.run.withSuccessHandler(r => {
+    $('form').classList.add('hidden'); window.scrollTo(0, 0);
+    if (r.mode === 'personal') { $('ok1').classList.remove('hidden'); const u = r.portalUrl || r.clockUrl; if (u) $('toClock').href = u; else $('toClock').classList.add('hidden'); } else $('ok2').classList.remove('hidden');
+  }).withFailureHandler(e => { $('go').disabled = false; bad((e && e.message) || String(e)); }).stJoinSubmit(BOOT.sid, BOOT.code, f);
+};
+window.__hlEnd = true;
+</script>
+</body>
+</html>

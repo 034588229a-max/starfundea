@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>面試登記</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@600;800&display=swap">
+<style>
+:root{--bg:#F2EEE6;--card:#fff;--ink:#16233A;--mute:#6B7486;--line:#E7E1D6;--pri:#1B4F8A;--acc:#E8762A;--onpri:#fff;--ok:#1E7D45;--bad:#C0392B;--field:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14181F;--card:#1D232D;--ink:#EEF1F6;--mute:#9AA4B5;--line:#2B3340;--field:#161B23;--ok:#4CC37C;--bad:#FF7B6B;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans TC','Outfit',system-ui,sans-serif;font-size:15px;line-height:1.55;padding-inline:16px;padding-block:0 40px;max-width:520px;margin-inline:auto}
+.hero{margin-top:16px;border-radius:18px;background:var(--pri);color:var(--onpri);padding:20px}
+.hero small{letter-spacing:.2em;font-weight:700;opacity:.85}
+.hero h1{margin:6px 0 4px;font-size:24px;line-height:1.25}
+.hero p{margin:0;opacity:.92;font-size:14px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-top:12px;box-shadow:0 1px 0 var(--line)}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}
+label i{color:var(--bad);font-style:normal}
+input,select,textarea{width:100%;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--field);color:var(--ink);font:inherit;font-size:16px;padding:0 12px}
+textarea{height:84px;padding:10px 12px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+.btn{display:block;width:100%;height:50px;border:0;border-radius:14px;background:var(--acc);color:#fff;font:inherit;font-weight:900;font-size:17px;margin-top:16px;cursor:pointer}
+.btn[disabled]{opacity:.55}
+.msg{margin-top:12px;padding:10px 12px;border-radius:12px;font-size:14px;display:none}
+.msg.bad{display:block;background:rgba(192,57,43,.13);color:var(--bad)}
+.hint{font-size:12.5px;color:var(--mute);margin-top:10px}
+.done{text-align:center;padding:26px 8px}
+.done .big{font-size:44px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="hero"><small>JOIN US</small><h1 id="shop"></h1><p id="sub">留下聯絡方式，我們會主動聯絡你安排面試。</p></div>
+
+<div class="card" id="form">
+  <label for="name">姓名 <i>*</i></label><input id="name" maxlength="20" autocomplete="name">
+  <label for="phone">手機或電話</label><input id="phone" type="tel" maxlength="20" inputmode="tel" autocomplete="tel">
+  <label for="email">電子郵件</label><input id="email" type="email" maxlength="60" autocomplete="email">
+  <div class="hint">電話和電子郵件至少留一種，我們才聯絡得到你。</div>
+  <label for="pos">想應徵的職位</label><select id="pos"></select>
+  <label for="when">方便面試的時段（選填）</label><input id="when" maxlength="60" placeholder="例如 平日下午、週六上午">
+  <label for="intro">簡單介紹一下自己（選填）</label><textarea id="intro" maxlength="200" placeholder="例如 有早餐店外場經驗一年，可以做早班"></textarea>
+  <input class="hp" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <button class="btn" id="go">送出登記</button>
+  <div class="msg" id="msg"></div>
+  <div class="hint">你填的資料只會給本店面試聯絡使用，不會對外公開。</div>
+</div>
+
+<div class="card done hidden" id="ok"><div class="big">✅</div><h2>收到了，謝謝你！</h2><p>我們會盡快用你留的方式聯絡你。</p></div>
+<div class="card done hidden" id="closed"><div class="big">🙏</div><h2>目前沒有招募</h2><p>謝謝你的關心，之後有職缺會再公告。</p></div>
+
+<script>
+const BOOT = <?!= boot ?>;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+(function init() {
+  const b = BOOT.brand || {};
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.primary || '')) { document.documentElement.style.setProperty('--pri', b.primary); const l = parseInt(b.primary.slice(1), 16); document.documentElement.style.setProperty('--onpri', (0.299 * (l >> 16) + 0.587 * ((l >> 8) & 255) + 0.114 * (l & 255)) > 150 ? '#16233A' : '#FFFFFF'); }
+  if (/^#[0-9A-Fa-f]{6}$/.test(b.accent || '')) document.documentElement.style.setProperty('--acc', b.accent);
+  $('shop').textContent = (b.name || '') + ' 徵人囉'; document.title = (b.name || '') + '｜面試登記';
+  $('pos').innerHTML = (BOOT.positions || []).map(p => `<option>${esc(p)}</option>`).join('') + '<option>不限／其他</option>';
+  if (!BOOT.open) { $('form').classList.add('hidden'); $('closed').classList.remove('hidden'); }
+})();
+$('go').onclick = () => {
+  const f = { name: $('name').value.trim(), phone: $('phone').value.trim(), email: $('email').value.trim(), pos: $('pos').value, when: $('when').value.trim(), intro: $('intro').value.trim(), hp: $('hp').value };
+  const bad = t => { $('msg').className = 'msg bad'; $('msg').textContent = t; };
+  if (!f.name) return bad('請填姓名');
+  if (!f.phone && !f.email) return bad('電話和電子郵件至少留一種');
+  $('go').disabled = true; $('msg').className = 'msg';
+  google.script.run.withSuccessHandler(() => { $('form').classList.add('hidden'); $('ok').classList.remove('hidden'); window.scrollTo(0, 0); })
+    .withFailureHandler(e => { $('go').disabled = false; bad((e && e.message) || String(e)); }).stApplySubmit(BOOT.sid, f);
+};
+window.__hlEnd = true;
+</script>
+</body>
+</html>

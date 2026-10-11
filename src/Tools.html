@@ -1,0 +1,2674 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* HL-POS */ .tabs{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px;overflow:visible!important}.tabs button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:78px;border-radius:20px!important;font-size:15px;font-weight:900;padding:10px 6px;white-space:normal;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.09)}.tabs button svg.hl-icon{width:28px;height:28px;margin:0}.btn{min-height:50px;border-radius:14px}
+
+.ico{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.4em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+:root{--bg:#F2EEE6;--pri:#1B4F8A;--acc:#E8762A;--ink:#16233A;--mute:#6B7486;--line:#E2DBCF;--ok:#2E7D4F;--warn:#B7791F;--bad:#C0392B;--card:#FFFFFF}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans TC','Outfit',system-ui,sans-serif;font-size:15px;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 80px}
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+header.top h1{font-size:20px;margin:0;color:var(--pri)}
+header.top .sub{font-size:13px;color:var(--mute)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:5}
+.tabs button{flex:0 0 auto;border:0;border-radius:999px;padding:9px 16px;background:#fff;color:var(--ink);font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+.tabs button.on{background:var(--pri);color:#fff}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(22,35,58,.06)}
+.card h2{font-size:17px;margin:0 0 10px;color:var(--pri)}
+.card h3{font-size:15px;margin:14px 0 6px}
+.hint{font-size:13px;color:var(--mute)}
+label.f{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input[type=text],input[type=url],input[type=email],input[type=date],select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:15px;font-family:inherit;color:var(--ink);background:#fff}
+textarea{min-height:70px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 160px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--pri);color:#fff}
+.btn.acc{background:var(--acc)}
+.btn.ghost{background:#fff;color:var(--pri);border:1px solid var(--pri)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.rule{background:#F8F5EF;border-radius:12px;padding:10px 12px;font-size:13px}
+.rule b{color:var(--pri)}
+.rule ul{margin:4px 0 0;padding-left:18px}
+.checks{list-style:none;padding:0;margin:10px 0 0}
+.checks li{padding:6px 10px;border-radius:8px;margin-bottom:4px;font-size:14px}
+.checks li.ok{background:#E9F5EE;color:var(--ok)}
+.checks li.warn{background:#FDF4E3;color:var(--warn)}
+.checks li.bad{background:#FBEAE8;color:var(--bad)}
+.logoview{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.swatch{display:inline-block;width:22px;height:22px;border-radius:6px;border:1px solid var(--line);vertical-align:middle}
+.ltile{display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto}
+.ltile img{max-width:100%;max-height:100%;display:block}
+.ltile .ph{font-weight:900;color:#fff}
+table.tb{width:100%;border-collapse:collapse;font-size:14px}
+table.tb td{padding:4px 3px;vertical-align:top}
+table.tb input,table.tb select{padding:7px 8px;font-size:14px}
+table.tb .st{font-size:12px;white-space:nowrap;padding-top:10px}
+.st.ok{color:var(--ok)}.st.bad{color:var(--bad)}.st.warn{color:var(--warn)}
+.x{border:0;background:none;color:var(--mute);font-size:18px;cursor:pointer}
+.preview{overflow:hidden;margin-top:12px}
+.pv-page{margin:0 auto 12px;box-shadow:0 2px 8px rgba(0,0,0,.12);background:#fff;overflow:hidden}
+.pv-inner{transform-origin:0 0}
+#stage{position:fixed;left:-20000px;top:0;pointer-events:none}
+.result{margin-top:10px;padding:10px 12px;border-radius:10px;background:#E9F5EE;font-size:14px;word-break:break-all}
+.result a{color:var(--pri);font-weight:700}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:99;display:none;max-width:90%;white-space:pre-line}
+.nlist{list-style:none;padding:0;margin:0}
+.nlist li{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap}
+.nlist li .t{flex:1 1 160px;font-weight:700}
+.pill{display:inline-block;border-radius:999px;padding:1px 8px;font-size:12px;background:#E9F5EE;color:var(--ok)}
+.pill.off{background:#EEE;color:var(--mute)}
+.fest{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;margin:0 6px 6px 0;font-family:inherit}
+.fest small{color:var(--mute);font-weight:400}
+.cat{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;color:#fff;font-weight:700}
+details summary{cursor:pointer;color:var(--pri);font-weight:700;font-size:14px;margin-top:10px}
+.menulink{margin-left:auto;font-size:13px;font-weight:700;color:var(--pri);background:#fff;border-radius:999px;padding:6px 12px;text-decoration:none;white-space:nowrap}
+.chipset{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+.chipb{border:0;background:#F3EFE7;border-radius:999px;padding:7px 12px;font-size:13.5px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.chipb.on{background:var(--pri);color:#fff;font-weight:700}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px}
+.sum .k{background:#F8F5EF;border-radius:12px;padding:10px 12px}
+.sum .k b{display:block;font-size:22px;font-family:'Outfit','Noto Sans TC',sans-serif;color:var(--pri)}
+.sum .k span{font-size:12.5px;color:var(--mute)}
+.sum .k.hot b{color:var(--bad)}
+.daybar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.daybar span{border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700}
+.d-open{background:#E9F5EE;color:var(--ok)} .d-closed{background:#FBEAE8;color:var(--bad)}
+.prelist{margin:8px 0 0;padding:0;list-style:none;font-size:13.5px}
+.prelist li{padding:6px 0;border-top:1px solid var(--line)}
+.hlist{list-style:none;padding:0;margin:8px 0 0}
+.hlist li{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px}
+.hlist li.todo{border-color:var(--bad);background:#FFF8F7}
+.hlist .meta{font-size:12.5px;color:var(--mute);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hlist .txt{white-space:pre-wrap;margin:6px 0;font-size:14.5px;line-height:1.55}
+.hlist .tp{display:inline-block;background:#EEF3FA;color:var(--pri);border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700}
+.hlist .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--mute)}
+.st-todo{background:#FBEAE8;color:var(--bad)} .st-done{background:#E9F5EE;color:var(--ok)} .st-log{background:#EEE;color:var(--mute)}
+.calnav{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
+.calnav b{font-size:16px}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calgrid .wh{text-align:center;font-size:12px;color:var(--mute);font-weight:700;padding:2px 0}
+.calgrid .cd{border:0;border-radius:10px;min-height:52px;padding:4px;text-align:left;font-family:inherit;cursor:pointer;background:#fff;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:2px}
+.calgrid .cd b{font-size:14px;font-family:'Outfit','Noto Sans TC',sans-serif}
+.calgrid .cd small{font-size:10.5px;line-height:1.2;overflow:hidden;max-height:26px}
+.calgrid .cd.week{background:#EDEAE4;color:var(--mute)}
+.calgrid .cd.closed{background:#FBEAE8;color:var(--bad)}
+.calgrid .cd.special{background:#E9F5EE;color:var(--ok)}
+.calgrid .cd.today{box-shadow:inset 0 0 0 2px var(--pri)}
+.calgrid .cd.pick{outline:3px solid var(--acc)}
+.calgrid .cd.blank{visibility:hidden}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:4px}
+.lg-open{background:#fff;box-shadow:inset 0 0 0 1px var(--line)} .lg-week{background:#EDEAE4} .lg-closed{background:#FBEAE8;box-shadow:inset 0 0 0 1px var(--bad)} .lg-special{background:#E9F5EE;box-shadow:inset 0 0 0 1px var(--ok)}
+.warnbox{margin-top:10px;padding:10px 12px;border-radius:10px;background:#FDF4E3;color:var(--warn);font-size:13.5px}
+.mc{position:absolute;left:0;top:0;width:794px;height:1123px;padding:40px 46px 32px;display:flex;flex-direction:column}
+.mc .hd{display:flex;align-items:center;gap:16px}
+.mc .nm{font-weight:900;font-size:22px}
+.mc .tg{font-size:13px;color:#6B7280;margin-top:2px}
+.mc h1{margin:22px 0 4px;font-size:44px;font-weight:900;letter-spacing:.02em}
+.mc .sub{font-size:16px;color:#6B7280}
+.mc .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:20px}
+.mc .wh{text-align:center;font-weight:900;font-size:16px;padding:6px 0;border-radius:10px;color:#fff}
+.mc .c{background:#fff;border-radius:14px;height:108px;padding:10px 10px 8px;display:flex;flex-direction:column}
+.mc .c b{font-family:'Outfit','Noto Sans TC',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.mc .c span{margin-top:auto;font-size:14px;font-weight:900;line-height:1.25}
+.mc .c.week{background:#E7E3DB;color:#8B93A3}
+.mc .c.closed{color:#fff}
+.mc .c.special span{color:#1E7D45}
+.mc .c.empty{background:transparent}
+.mc .ft{margin-top:auto;display:flex;gap:16px;align-items:flex-end}
+.mc .ft .tx{flex:1;font-size:15px;line-height:1.7}
+.mc .ft .tx b{font-size:18px}
+.mc .ft .q{background:#fff;border-radius:14px;padding:8px;text-align:center;font-size:12px;font-weight:700}
+#err{display:none;background:#FBEAE8;color:var(--bad);padding:10px;border-radius:10px;margin-bottom:10px;white-space:pre-wrap;font-size:13px}
+
+/* ===== 海報（實際尺寸，1px = 1/96 吋）===== */
+.pg{position:relative;background:#F2EEE6;font-family:'Noto Sans TC','Outfit',sans-serif;color:#16233A;overflow:hidden}
+.pg *{box-sizing:border-box}
+.cut-v{position:absolute;top:0;bottom:0;border-left:1px dashed #C9C0B0}
+.cut-h{position:absolute;left:0;right:0;border-top:1px dashed #C9C0B0}
+.tc{position:absolute;padding:1.5em 1.55em 1.3em;display:flex;flex-direction:column}
+.tc .hd{display:flex;align-items:center;gap:.6em}
+.tc .nm{font-weight:900;font-size:1.25em;line-height:1.15}
+.tc .tg{font-size:.62em;color:#6B7486;margin-top:.15em}
+.tc .badge{margin-left:auto;color:#fff;font-weight:900;font-size:1.3em;padding:.3em .8em;border-radius:.6em;white-space:nowrap}
+.tc .hl{font-weight:900;font-size:1.9em;line-height:1.3;margin:.8em 0 .7em;letter-spacing:.02em}
+.tc .qbox{background:#fff;border-radius:1em;padding:1em 1em .7em;text-align:center;box-shadow:0 .1em .4em rgba(22,35,58,.06)}
+.tc .qbox img{display:block;margin:0 auto}
+.tc .qcap{font-size:.7em;color:#6B7486;font-weight:700;margin-top:.3em}
+.tc .steps{display:flex;gap:.55em;margin-top:.8em}
+.tc .step{flex:1;background:#fff;border-radius:.8em;padding:.7em .7em .8em;min-height:5.4em}
+.tc .step b{display:block;font-size:1.3em;font-family:'Outfit','Noto Sans TC',sans-serif}
+.tc .step span{display:block;font-size:.72em;font-weight:700;line-height:1.35;margin-top:.2em}
+.tc .ft{display:flex;align-items:center;gap:.4em;margin-top:auto;padding-top:.6em}
+.tc .chip{background:#fff;border-radius:999px;padding:.3em .8em;font-size:.62em;font-weight:700;white-space:nowrap}
+.tc .code{margin-left:auto;font-size:.5em;color:#8B93A3;white-space:nowrap}
+.wc .info2{background:#fff;border-radius:.8em;margin-top:.8em;padding:.2em 1em}
+.wc .info2 div{display:flex;justify-content:space-between;gap:1em;padding:.55em 0;border-top:1px solid #EEE7DA}
+.wc .info2 div:first-child{border-top:0}
+.wc .info2 span{font-size:.72em;color:#6B7486;white-space:nowrap}
+.wc .info2 b{font-size:1.05em;font-family:'Outfit','Noto Sans TC',sans-serif;word-break:break-all;text-align:right}
+.wc .note{font-size:.62em;color:#6B7486;text-align:center;margin-top:auto;padding-top:.6em}
+.cardpv{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:14px}
+.cardpv .cpf{text-align:center;font-size:12px;color:var(--mute)}
+.cardpv .cpb{position:relative;box-shadow:0 2px 14px rgba(22,35,58,.22);border-radius:2px;overflow:hidden;background:#fff;margin:0 auto 4px}
+.cardpv .cpb .gd{position:absolute;pointer-events:none;border:1px dashed rgba(230,50,50,.85)}
+.chipb:has(.tpd){border-radius:12px;text-align:left;line-height:1.3}
+.chipset .pal{display:inline-flex;align-items:center;gap:6px}
+.chipset .sw{display:inline-block;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.chipset .tpd{display:block;font-size:11px;font-weight:400;opacity:.75}
+h3.sec{margin:0 0 4px;font-size:15px}
+textarea{width:100%;font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--field,#fff);color:inherit}
+.cf{position:relative;width:32em;height:20em;overflow:hidden;font-family:'Noto Sans TC','Outfit',sans-serif;line-height:1.3;color:#16233A}
+.cf *{box-sizing:border-box}
+.cf .ci{position:absolute;left:1em;top:1em;width:30em;height:18em}
+.cf svg.ic{width:1.15em;height:1.15em;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cf .ct{display:flex;align-items:center;gap:.65em;font-size:.72em;line-height:1.25;min-width:0}
+.cf .ct span{min-width:0;overflow-wrap:anywhere}
+.cf .qb{background:#fff;border-radius:.5em;padding:.4em;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.cf .qb img{display:block;width:100%;height:auto}
+.cf .nb{display:flex;align-items:center;gap:.7em;font-size:.82em;font-weight:700;line-height:1.3}
+.cf .nb i{flex:0 0 auto;width:1.7em;height:1.7em;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:900;font-size:.8em;font-family:'Outfit','Noto Sans TC',sans-serif}
+.nt{position:absolute;left:0;top:0;width:100%;height:100%;padding:38px 46px 30px;display:flex;flex-direction:column;gap:14px}
+.nt .hd{display:flex;align-items:center;justify-content:space-between}
+.nt .shop{font-weight:900;font-size:1.35em}
+.nt .tagp{color:#fff;font-weight:900;font-size:1.05em;padding:.35em 1em;border-radius:999px}
+.nt .box{border-radius:22px;padding:22px 26px}
+.nt .hero{display:flex;gap:22px;align-items:center;color:#fff}
+.nt .hero h1{margin:0;font-size:2.05em;line-height:1.3;font-weight:900}
+.nt .hero p{margin:.5em 0 0;font-size:.95em;line-height:1.6;opacity:.95}
+.nt .hi{color:#fff;text-align:center}
+.nt .hi .lb{font-weight:900;font-size:1.1em;letter-spacing:.12em;opacity:.95}
+.nt .hi .big{white-space:nowrap;overflow:hidden;font-weight:900;font-size:3.1em;line-height:1.2;font-family:'Outfit','Noto Sans TC',sans-serif}
+.nt .hi .sb{font-weight:900;font-size:1.6em}
+.nt .hi .nb{font-weight:700;font-size:.95em;margin-top:.3em}
+.nt .info{background:#fff;display:flex}
+.nt .info .c{flex:1;padding:0 16px;border-left:1px solid #E2DBCF}
+.nt .info .c:first-child{border-left:0;padding-left:0}
+.nt .info .k{font-size:.8em;color:#6B7486}
+.nt .info .v{font-weight:900;font-size:1.25em;margin-top:.15em;white-space:nowrap;overflow:hidden}
+.nt .det{background:#fff}
+.nt .det h3{margin:0 0 .4em;font-size:1.1em}
+.nt .det ul{margin:0;padding-left:1.2em;font-size:.95em;line-height:1.75}
+.nt .qrs{display:flex;gap:14px}
+.nt .q1{flex:1;display:flex;gap:18px;align-items:center;color:#fff}
+.nt .q1 .qi{background:#fff;border-radius:14px;padding:8px;flex:0 0 auto}
+.nt .q1>div:last-child{min-width:0;flex:1}
+.nt .q1 h3{margin:0;font-size:1.3em}
+.nt .q1 p{margin:.3em 0 0;font-size:.85em;line-height:1.6}
+.nt .q2{background:#fff;text-align:center;flex:0 0 30%;padding:16px}
+.nt .q2 .lb{font-weight:900;font-size:.9em;margin-top:6px;line-height:1.4}
+.nt .foot{text-align:center;font-size:.78em;color:#6B7486;margin-top:auto}
+.nt .end{text-align:center;font-weight:900;font-size:1.1em}
+.prio-hi{background:#C0392B!important;color:#fff!important}.prio-lo{background:#DDE3EC!important;color:#16233A!important}.prio-mid{background:#E8762A!important;color:#fff!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="err"></div>
+  <header class="top">
+    <div id="hdLogo"></div>
+    <div><h1>店家工具</h1><div class="sub" id="hdName"></div></div>
+    <a class="menulink" id="menuLink" data-ic="book-open" target="_top" style="display:none">菜單工具</a>
+    <a class="menulink" id="staffLink" data-ic="users" target="_top" style="display:none;margin-left:6px">人員班表</a>
+  </header>
+  <nav class="tabs">
+    <button data-tab="hand" data-ic="notebook-pen" class="on">交接</button>
+    <button data-tab="cal" data-ic="calendar">店休日曆</button>
+    <button data-tab="notice" data-ic="megaphone">公告海報</button>
+    <button data-tab="table" data-ic="qr-code">桌號 QR</button>
+    <button data-tab="wifi" data-ic="wifi">Wi-Fi 卡</button>
+    <button data-tab="card" data-ic="credit-card">名片</button>
+    <button data-tab="rich" data-ic="layout-grid">LINE 選單</button>
+    <button data-tab="logo" data-ic="store">Logo 與店家</button>
+  </nav>
+  <section id="tab-hand">
+    <div class="card" id="sumCard"><div class="hint">讀取中…</div></div>
+    <div class="card">
+      <h2>寫交接</h2>
+      <div class="row">
+        <div><label class="f">日期</label><input type="date" id="h_day"></div>
+        <div><label class="f">班別</label><select id="h_shift"><option>早班</option><option>午班</option><option>打烊</option><option>其他</option></select></div>
+        <div><label class="f">你的名字</label><input type="text" id="h_who" maxlength="20" placeholder="例如：小美"></div>
+      </div>
+      <div class="row"><div><label class="f">緊急程度</label><div class="chipset" id="h_prio"><button class="chipb" data-p="急">急</button><button class="chipb on" data-p="一般">一般</button><button class="chipb" data-p="緩">緩</button></div></div><div><label class="f">指定交給（選填）</label><input type="text" id="h_to" maxlength="20" placeholder="例如：小明"></div></div>
+      <label class="f">類型（可複選）</label>
+      <div class="chipset" id="h_types"></div>
+      <label class="f">交接內容</label>
+      <textarea id="h_text" maxlength="1000" placeholder="例如：零用金剩 2,350 元；吐司明天要叫 3 條；煎台右邊溫度偏低"></textarea>
+      <label class="f"><input type="checkbox" id="h_todo"> 需要下一班處理（會列在待處理，處理完按「完成」）</label>
+      <div class="btns"><button class="btn" id="h_send">送出交接</button></div>
+    </div>
+    <div class="card">
+      <h2>交接紀錄</h2>
+      <div class="chipset" id="h_filter"><button class="chipb on" data-f="all">全部</button><button class="chipb" data-f="todo">待處理</button><button class="chipb" data-f="unseen">我還沒看過</button></div>
+      <ul class="hlist" id="h_list"></ul>
+    </div>
+  </section>
+
+  <section id="tab-cal" style="display:none">
+    <div class="card">
+      <h2>店休行事曆</h2>
+      <div class="hint" id="calWeekly"></div>
+      <div class="calnav"><button class="btn sm ghost" id="calPrev">‹</button><b id="calTitle"></b><button class="btn sm ghost" id="calNext">›</button></div>
+      <div class="calgrid" id="calGrid"></div>
+      <div class="legend"><span><i class="lg-open"></i>營業</span><span><i class="lg-week"></i>每週公休</span><span><i class="lg-closed"></i>店休</span><span><i class="lg-special"></i>特別營業</span></div>
+      <div class="hint">點日期可以直接帶入下面的開始日／結束日。</div>
+    </div>
+    <div class="card">
+      <h2 id="c_title">新增店休</h2>
+      <div class="chipset" id="c_type"><button class="chipb on" data-t="closed">店休（不營業）</button><button class="chipb" data-t="open">特別營業（公休日照常開）</button></div>
+      <div class="row">
+        <div><label class="f">開始日</label><input type="date" id="c_s"></div>
+        <div><label class="f">結束日（一天就留空）</label><input type="date" id="c_e"></div>
+      </div>
+      <label class="f">原因（顧客頁會顯示）</label><input type="text" id="c_reason" maxlength="40" placeholder="例如：老闆休假、設備維修、春節">
+      <label class="f"><input type="checkbox" id="c_show" checked> 顯示在顧客首頁（預訂一樣會擋這幾天）</label>
+      <div class="btns"><button class="btn" id="c_save">儲存</button><button class="btn ghost" id="c_clear">清除</button></div>
+      <div id="c_warn"></div>
+    </div>
+    <div class="card">
+      <h2>已設定的日期</h2>
+      <ul class="nlist" id="c_list"></ul>
+    </div>
+    <div class="card">
+      <h2>營業日曆海報</h2>
+      <div class="hint">印出整個月的營業日、公休日，貼在門口或櫃檯。</div>
+      <div class="row" style="align-items:end">
+        <div><label class="f">月份</label><select id="mp_month"></select></div>
+        <div style="flex:0 0 auto"><button class="btn acc" id="mp_pdf">產生 PDF</button></div>
+      </div>
+      <div id="mpOut"></div>
+      <div class="preview" id="mpPv"></div>
+    </div>
+  </section>
+
+  <section id="tab-logo" style="display:none">
+    <div class="card">
+      <h2>Logo 上傳</h2>
+      <div class="rule">
+        <b>Logo 最低標準</b>（不符合就無法上傳）
+        <ul>
+          <li>格式：PNG、JPG、WebP（建議 <b>PNG 去背</b>）；檔案 5MB 以內</li>
+          <li>長邊至少 <b id="rLong"></b>px、短邊至少 <b id="rShort"></b>px</li>
+          <li>長寬比不超過 <b id="rRatio"></b>:1（太細長放進版面會變很小）</li>
+          <li>長邊建議 <b id="rRec"></b>px 以上，印刷才夠清楚</li>
+        </ul>
+        <div class="hint" style="margin-top:6px">Logo 有底色時，海報上放 Logo 的色塊會自動換成同一個底色，看起來才不會像貼上去的。</div>
+      </div>
+      <label class="f">選擇 Logo 檔案</label>
+      <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp">
+      <ul class="checks" id="logoChecks"></ul>
+      <div class="logoview" id="logoView"></div>
+      <div id="bgCtl" style="display:none">
+        <label class="f">Logo 色塊底色</label>
+        <div class="row" style="align-items:center">
+          <select id="bgMode">
+            <option value="auto">自動（跟 Logo 底色）</option>
+            <option value="manual">手動指定</option>
+          </select>
+          <input type="color" id="bgPick" value="#FFFFFF" style="height:40px;flex:0 0 70px">
+        </div>
+      </div>
+      <div class="btns">
+        <button class="btn" id="logoSave" disabled>上傳這個 Logo</button>
+        <button class="btn ghost" id="bgSave" style="display:none">只儲存底色設定</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>店家資料</h2>
+      <div class="row">
+        <div><label class="f">店名</label><input type="text" id="sName" maxlength="30"></div>
+        <div><label class="f">標語（店名下方小字）</label><input type="text" id="sTag" maxlength="40"></div>
+      </div>
+      <label class="f">營業時間（營業日曆海報用）</label><input type="text" id="sHours" maxlength="40">
+      <label class="f">配色範本（點一下套用主色與強調色，之後還能微調）</label>
+      <div class="chipset" id="sPals"></div>
+      <div class="row">
+        <div><label class="f">主色</label><input type="color" id="sPri" style="height:40px;width:100%"></div>
+        <div><label class="f">強調色</label><input type="color" id="sAcc" style="height:40px;width:100%"></div>
+      </div>
+      <label class="f">海報底部標籤（用「；」分隔，最多 3 個）</label>
+      <input type="text" id="sChips" maxlength="80">
+      <label class="f">「敲敲老闆」網址（公告海報 QR 預設用）</label>
+      <input type="url" id="sKnock">
+      <label class="f">LINE 加好友網址</label>
+      <input type="url" id="sLine">
+      <div class="btns"><button class="btn" id="shopSave">儲存店家資料</button></div>
+    </div>
+  </section>
+  <section id="tab-table" style="display:none">
+    <div class="card">
+      <h2>桌號 QR 海報</h2>
+      <div class="hint">每一桌貼上點餐系統給的「個別網址」，系統會用網址重新產生清晰的 QR Code，一次輸出全部桌號的 PDF。</div>
+      <details>
+        <summary>一次貼上多行</summary>
+        <div class="hint" style="margin-top:6px">一行一筆，格式：<b>名稱, 網址</b>（只貼網址會自動編成第 1 桌、第 2 桌…）。名稱含「候位」或「外帶」會自動換成對應版型。</div>
+        <textarea id="bulk" placeholder="候位點餐, https://…&#10;第 1 桌, https://…&#10;https://…"></textarea>
+        <div class="btns"><button class="btn sm" id="bulkAdd">加到清單</button><button class="btn sm ghost" id="bulkReplace">取代整份清單</button></div>
+      </details>
+      <table class="tb" id="tbl"><tbody></tbody></table>
+      <div class="btns">
+        <button class="btn sm ghost" id="addRow">＋ 新增一桌</button>
+        <button class="btn sm ghost" id="clearRows">清空</button>
+      </div>
+      <h3>版面</h3>
+      <div class="row">
+        <div><label class="f">紙張</label>
+          <select id="layout">
+            <option value="a5x2">A5 雙拼（A4 橫印，對切成兩張）</option>
+            <option value="a4">A4 一張一桌</option>
+            <option value="a6x4">A6 四拼（A4 直印，裁成四張）</option>
+          </select></div>
+      </div>
+      <details>
+        <summary>修改海報文字</summary>
+        <label class="f">桌號點餐：標題（可換行）</label><textarea id="hl_table"></textarea>
+        <label class="f">桌號點餐：第 3 步</label><input type="text" id="st_table">
+        <label class="f">候位點餐：標題</label><textarea id="hl_wait"></textarea>
+        <label class="f">候位點餐：第 3 步</label><input type="text" id="st_wait">
+        <label class="f">外帶自取：標題</label><textarea id="hl_take"></textarea>
+        <label class="f">外帶自取：第 3 步</label><input type="text" id="st_take">
+      </details>
+      <div class="btns">
+        <button class="btn ghost" id="tPrev">預覽</button>
+        <button class="btn acc" id="tPdf">儲存並產生 PDF</button>
+      </div>
+      <div id="tOut"></div>
+      <div class="preview" id="tPv"></div>
+    </div>
+  </section>
+  <section id="tab-notice" style="display:none">
+    <div class="card">
+      <h2>公告海報</h2>
+      <div id="upcoming"></div>
+      <div class="row">
+        <div><label class="f">公告類別（新公告選了會自動帶入範本）</label>
+          <select id="n_cat"></select></div>
+        <div id="subWrap" style="display:none"><label class="f" id="subLbl">範本</label>
+          <select id="n_sub"></select></div>
+      </div>
+      <div class="row">
+        <div><label class="f">右上標籤</label><input type="text" id="n_tag" maxlength="12"></div>
+        <div><label class="f">輸出比例</label><select id="n_ratio"><option value="a4">A4 直式（列印張貼）</option><option value="sq">1:1 方形（FB、LINE 貼文）</option><option value="story">9:16 直式（限時動態、手機）</option></select></div>
+      </div>
+      <label class="f">主標題（可換行；用 **字** 標出強調色）</label><textarea id="n_title"></textarea>
+      <label class="f">說明文字</label><textarea id="n_lead"></textarea>
+      <h3>重點區（大字，留空就不顯示）</h3>
+      <div class="row">
+        <div><label class="f">小標</label><input type="text" id="n_hiLabel"></div>
+        <div><label class="f">大字</label><input type="text" id="n_hiBig"></div>
+      </div>
+      <div class="row">
+        <div><label class="f">副標</label><input type="text" id="n_hiSub"></div>
+        <div><label class="f">補充</label><input type="text" id="n_hiNote"></div>
+      </div>
+      <label class="f">資訊格（一行一格，最多 3 格；格式：標題｜內容）</label><textarea id="n_info"></textarea>
+      <div class="row">
+        <div><label class="f">條列區標題</label><input type="text" id="n_detTitle"></div>
+      </div>
+      <label class="f">條列內容（一行一點，留空不顯示）</label><textarea id="n_det"></textarea>
+      <h3>QR Code（一律用網址產生）</h3>
+      <div class="row">
+        <div><label class="f">大 QR 標題</label><input type="text" id="n_q1Title"></div>
+        <div><label class="f">大 QR 網址（留空不顯示）</label><input type="url" id="n_q1Url"></div>
+      </div>
+      <label class="f">大 QR 說明</label><textarea id="n_q1Text" style="min-height:50px"></textarea>
+      <div class="row">
+        <div><label class="f">小 QR 文字</label><input type="text" id="n_q2Label"></div>
+        <div><label class="f">小 QR 網址（留空不顯示）</label><input type="url" id="n_q2Url"></div>
+      </div>
+      <label class="f">底部小字</label><input type="text" id="n_foot">
+      <label class="f">結語</label><input type="text" id="n_end">
+      <h3>顧客頁顯示</h3>
+      <div class="row" style="align-items:end">
+        <div><label class="f"><input type="checkbox" id="n_show"> 同步顯示在顧客首頁</label></div>
+        <div><label class="f">開始日</label><input type="date" id="n_start"></div>
+        <div><label class="f">結束日</label><input type="date" id="n_end2"></div>
+      </div>
+      <div class="btns">
+        <button class="btn ghost" id="nPrev">預覽</button>
+        <button class="btn" id="nSave">儲存公告</button>
+        <button class="btn acc" id="nPdf">儲存並產生 PDF</button>
+        <button class="btn ghost" id="nPng">下載圖片（PNG）</button>
+        <button class="btn ghost" id="nNew">開新公告</button>
+      </div>
+      <div id="nOut"></div>
+      <div class="preview" id="nPv"></div>
+    </div>
+    <div class="card">
+      <h2>已儲存的公告</h2>
+      <select id="nFilter" style="margin-bottom:8px"></select>
+      <ul class="nlist" id="nList"></ul>
+    </div>
+  </section>
+  <section id="tab-wifi" style="display:none">
+    <div class="card">
+      <h2>Wi-Fi 卡</h2>
+      <div class="hint">客人用手機相機掃描就會跳出「加入網路」，不用手打密碼。卡片上也會印網路名稱和密碼，給掃不到的手機用。</div>
+      <div class="row">
+        <div><label class="f">Wi-Fi 名稱（SSID，大小寫要一樣）</label><input type="text" id="w_ssid" maxlength="32"></div>
+        <div><label class="f">密碼</label><input type="text" id="w_pass" maxlength="63" autocomplete="off"></div>
+      </div>
+      <div class="row">
+        <div><label class="f">加密方式</label>
+          <select id="w_enc">
+            <option value="WPA">WPA／WPA2／WPA3（一般都選這個）</option>
+            <option value="WEP">WEP（舊型路由器）</option>
+            <option value="nopass">沒有密碼</option>
+          </select></div>
+        <div><label class="f">紙張</label>
+          <select id="w_layout">
+            <option value="a6x4">A6 四拼（A4 直印，裁成四張）</option>
+            <option value="a5x2">A5 雙拼（A4 橫印，對切）</option>
+            <option value="a4">A4 一張</option>
+          </select></div>
+      </div>
+      <div class="row">
+        <div><label class="f">卡片標題</label><input type="text" id="w_title" maxlength="20"></div>
+        <div><label class="f">頁數</label><input type="text" id="w_pages" value="1" inputmode="numeric"></div>
+      </div>
+      <label class="f">底部說明</label><input type="text" id="w_note" maxlength="60">
+      <label class="f"><input type="checkbox" id="w_showPass" checked> 卡片上印出密碼</label>
+      <label class="f"><input type="checkbox" id="w_hidden"> 這是隱藏網路（不會出現在 Wi-Fi 清單）</label>
+      <div class="btns">
+        <button class="btn ghost" id="wPrev">預覽</button>
+        <button class="btn acc" id="wPdf">儲存並產生 PDF</button>
+      </div>
+      <div id="wOut"></div>
+      <div class="preview" id="wPv"></div>
+    </div>
+  </section>
+  <section id="tab-rich" style="display:none">
+    <div class="card">
+      <h2>LINE 圖文選單</h2>
+      <div class="hint">名片的 QR 會帶客人加你的 LINE，加好友後，客人從選單就能看菜單、營業時間、收款方式。這裡幫你畫好圖檔（2、4、6 格），再照下面的步驟上傳到 LINE 官方帳號後台。收款方式只是「顯示」，系統不代收款。</div>
+      <label class="f">格數</label>
+      <div class="chipset" id="rm_n"><button class="chipb" data-n="2">2 格</button><button class="chipb" data-n="4">4 格</button><button class="chipb on" data-n="6">6 格</button></div>
+      <label class="f">圖檔大小</label>
+      <div class="chipset" id="rm_sz"><button class="chipb on" data-big="1">大（2500×1686，建議）</button><button class="chipb" data-big="0">小（2500×843）</button></div>
+      <div id="rm_cells"></div>
+      <div class="btns"><button class="btn ghost" id="rmPrev">預覽</button><button class="btn acc" id="rmPng">下載圖檔（PNG）</button></div>
+      <div class="hint" id="rmInfo"></div>
+      <div class="preview" id="rmPv"></div>
+    </div>
+    <div class="card">
+      <h3 class="sec">設定步驟與各格連結</h3>
+      <div class="hint">1. 到 LINE 官方帳號管理後台 → 圖文選單 → 建立新的圖文選單。<br>2. 選「自訂」版型，選和這裡一樣的格數與大小，上傳剛下載的圖檔。<br>3. 依下面的清單，每一格設定動作：「連結」並貼上網址（撥電話選「連結」填 tel: 開頭的號碼）。<br>4. 設定顯示期間與預設開啟，按「儲存」。帳號權限一直在你自己手上。</div>
+      <pre id="rmLinks" style="white-space:pre-wrap;font-size:13px;background:#fff;border-radius:10px;padding:10px;margin:8px 0 0"></pre>
+      <div class="btns"><button class="btn sm ghost" id="rmCopy">複製連結清單</button></div>
+    </div>
+  </section>
+  <section id="tab-card" style="display:none">
+    <div class="card">
+      <h2>名片</h2>
+      <div class="hint">標準名片 90×54 mm：正面放聯絡資訊、LINE QR Code、付款方式與營業時間，背面是置中的 Logo。顏色預設跟「Logo 與店家」的配色一致，也可以換成下面的配色範本。改任何欄位，預覽都會立刻更新。</div>
+      <label class="f">版型</label>
+      <div class="chipset" id="c_tpls"></div>
+      <label class="f">配色</label>
+      <div class="chipset" id="c_pals"></div>
+      <div class="row">
+        <div><label class="f">主色</label><input type="color" id="c_cp"></div>
+        <div><label class="f">強調色</label><input type="color" id="c_ca"></div>
+      </div>
+      <div class="cardpv" id="cPv"></div>
+      <div class="hint" id="cPvHint"></div>
+    </div>
+    <div class="card">
+      <h3 class="sec">正面資訊</h3>
+      <div class="row">
+        <div><label class="f">店名</label><input type="text" id="c_name" maxlength="30"></div>
+        <div><label class="f">標語</label><input type="text" id="c_tag" maxlength="40"></div>
+      </div>
+      <div class="row">
+        <div><label class="f">姓名（選填）</label><input type="text" id="c_person" maxlength="20"></div>
+        <div><label class="f">職稱（選填）</label><input type="text" id="c_jobtitle" maxlength="30" placeholder="例如 店長、負責人"></div>
+      </div>
+      <div class="row">
+        <div><label class="f">電話</label><input type="text" id="c_phone" maxlength="40"></div>
+        <div><label class="f">LINE ID（選填）</label><input type="text" id="c_line" maxlength="30"></div>
+      </div>
+      <label class="f">地址</label><input type="text" id="c_addr" maxlength="60">
+      <label class="f">營業時間</label><input type="text" id="c_hours" maxlength="50">
+      <label class="f">付款方式（會印在名片上）</label><input type="text" id="c_pay" maxlength="40" placeholder="例如 現金、LINE Pay、轉帳；大單可預付訂金">
+      <div class="row">
+        <div><label class="f">Email（選填）</label><input type="text" id="c_email" maxlength="60"></div>
+        <div><label class="f">網站（選填）</label><input type="text" id="c_web" maxlength="60"></div>
+      </div>
+      <label class="f"><input type="checkbox" id="c_qrf"> 正面放 QR Code（預設連到 LINE 官方帳號，客人掃了就能加好友）</label>
+    </div>
+    <div class="card">
+      <h3 class="sec">QR Code 與背面</h3>
+      <div class="hint">背面固定是置中的 Logo（沒有其他字，印起來最乾淨）。正面的 QR Code 預設連到 LINE，也可以改連別的地方。</div>
+      <div class="row">
+        <div><label class="f">QR Code 連到</label>
+          <select id="c_qr">
+            <option value="line">LINE 官方帳號（建議）</option>
+            <option value="menu">電子菜單（看菜單）</option>
+            <option value="knock">敲敲老闆（留言）</option>
+            <option value="map">Google 地圖</option>
+            <option value="custom">自訂網址</option>
+          </select></div>
+        <div><label class="f">QR 下方的說明</label><input type="text" id="c_cap" maxlength="16" placeholder="例如 加 LINE 好友"></div>
+      </div>
+      <div id="c_urlRow" style="display:none"><label class="f">自訂網址（http 或 https 開頭）</label><input type="url" id="c_url"></div>
+    </div>
+    <div class="card">
+      <h3 class="sec">輸出</h3>
+      <div class="hint"><b>印刷廠用</b>：每面一頁、成品 90×54 mm 外加四邊 3 mm 出血（頁面 96×60 mm），預設雙面（正面＋背面 Logo 共兩頁），選「只印正面」就只有一頁。<br><b>自己印</b>：A4 一張 10 小張，附裁切記號，正面＋背面兩頁（雙面列印選「長邊翻頁」）。請用「實際大小」列印。</div>
+      <div class="row"><div><label class="f">自己印：A4 份數</label><input type="text" id="c_sheets" value="1" inputmode="numeric"></div><div><label class="f">單面或雙面</label><select id="c_sides"><option value="double">雙面（正面＋背面 Logo）</option><option value="front">只印正面</option></select></div></div>
+      <div class="btns">
+        <button class="btn acc" id="cPdfPrint">產生印刷廠用 PDF</button>
+        <button class="btn ghost" id="cPdfSheet">產生 A4 十張</button>
+      </div>
+      <div id="cOut"></div>
+    </div>
+  </section>
+</div>
+<div id="stage"></div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===== QR 產生器（內建，不用外部檔案）=====
+   makeQR(網址, 選項) → { ok, url, canvas, dataUrl, version, size, err }
+   一律從「網址」產生 QR，避免顧客提供的 QR 圖片解析度不足或來源不明。
+   容錯等級預設 Q（約 25% 汙損仍可掃），適合貼在桌上的印刷品。 */
+var QR = (function () {
+  var ECW = [
+    [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+    [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
+    [-1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+    [-1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+  ];
+  var NB = [
+    [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
+    [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
+    [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
+    [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]
+  ];
+  var LV = { L: [0, 1], M: [1, 0], Q: [2, 3], H: [3, 2] };
+
+  function bit(x, i) { return ((x >>> i) & 1) !== 0; }
+  function gmul(x, y) {
+    var z = 0;
+    for (var i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; }
+    return z & 0xFF;
+  }
+  function rawModules(v) {
+    var r = (16 * v + 128) * v + 64;
+    if (v >= 2) { var n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; }
+    return r;
+  }
+  function dataCw(v, t) { return Math.floor(rawModules(v) / 8) - ECW[t][v] * NB[t][v]; }
+  function rsDivisor(d) {
+    var r = [], i, j, root = 1;
+    for (i = 0; i < d - 1; i++) r.push(0);
+    r.push(1);
+    for (i = 0; i < d; i++) {
+      for (j = 0; j < r.length; j++) { r[j] = gmul(r[j], root); if (j + 1 < r.length) r[j] ^= r[j + 1]; }
+      root = gmul(root, 0x02);
+    }
+    return r;
+  }
+  function rsRem(data, div) {
+    var r = div.map(function () { return 0; });
+    data.forEach(function (b) {
+      var f = b ^ r.shift(); r.push(0);
+      div.forEach(function (c, i) { r[i] ^= gmul(c, f); });
+    });
+    return r;
+  }
+  function utf8(s) {
+    var out = [], b = unescape(encodeURIComponent(s));
+    for (var i = 0; i < b.length; i++) out.push(b.charCodeAt(i));
+    return out;
+  }
+  function alignPos(v) {
+    if (v === 1) return [];
+    var n = Math.floor(v / 7) + 2, size = v * 4 + 17;
+    var step = (v === 32) ? 26 : Math.ceil((v * 4 + 4) / (n * 2 - 2)) * 2;
+    var res = [6];
+    for (var p = size - 7; res.length < n; p -= step) res.splice(1, 0, p);
+    return res;
+  }
+
+  function encode(text, ecl) {
+    var bytes = utf8(text), lvName = LV[ecl] ? ecl : 'Q', t = LV[lvName][0], v, cap;
+    for (v = 1; v <= 40; v++) {
+      cap = dataCw(v, t) * 8;
+      if (4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= cap) break;
+    }
+    if (v > 40) throw new Error('網址太長，無法產生 QR');
+    ['M', 'Q', 'H'].forEach(function (n) {
+      var tt = LV[n][0];
+      if (tt > t && 4 + (v < 10 ? 8 : 16) + bytes.length * 8 <= dataCw(v, tt) * 8) { t = tt; lvName = n; }
+    });
+    cap = dataCw(v, t) * 8;
+    var bits = [];
+    function push(val, len) { for (var i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1); }
+    push(4, 4); push(bytes.length, v < 10 ? 8 : 16);
+    bytes.forEach(function (b) { push(b, 8); });
+    push(0, Math.min(4, cap - bits.length));
+    push(0, (8 - bits.length % 8) % 8);
+    for (var pad = 0xEC; bits.length < cap; pad ^= 0xEC ^ 0x11) push(pad, 8);
+    var data = [];
+    for (var i = 0; i < bits.length; i += 8) {
+      var by = 0; for (var k = 0; k < 8; k++) by = (by << 1) | bits[i + k]; data.push(by);
+    }
+    var nb = NB[t][v], ec = ECW[t][v], raw = Math.floor(rawModules(v) / 8);
+    var nShort = nb - raw % nb, shortLen = Math.floor(raw / nb), div = rsDivisor(ec), blocks = [], pos = 0;
+    for (i = 0; i < nb; i++) {
+      var dat = data.slice(pos, pos + shortLen - ec + (i < nShort ? 0 : 1));
+      pos += dat.length;
+      var e = rsRem(dat, div);
+      if (i < nShort) dat.push(0);
+      blocks.push(dat.concat(e));
+    }
+    var cw = [];
+    for (i = 0; i < blocks[0].length; i++) {
+      for (var j = 0; j < blocks.length; j++) {
+        if (i !== shortLen - ec || j >= nShort) cw.push(blocks[j][i]);
+      }
+    }
+    return build(v, LV[lvName][1], cw, lvName);
+  }
+
+  function build(v, fbits, cw, lvName) {
+    var size = v * 4 + 17, m = [], fn = [], x, y, i;
+    for (y = 0; y < size; y++) { m.push([]); fn.push([]); for (x = 0; x < size; x++) { m[y].push(false); fn[y].push(false); } }
+    function setF(xx, yy, d) { m[yy][xx] = d; fn[yy][xx] = true; }
+    for (i = 0; i < size; i++) { setF(6, i, i % 2 === 0); setF(i, 6, i % 2 === 0); }
+    function finder(cx, cy) {
+      for (var dy = -4; dy <= 4; dy++) for (var dx = -4; dx <= 4; dx++) {
+        var dist = Math.max(Math.abs(dx), Math.abs(dy)), xx = cx + dx, yy = cy + dy;
+        if (xx >= 0 && xx < size && yy >= 0 && yy < size) setF(xx, yy, dist !== 2 && dist !== 4);
+      }
+    }
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    var ap = alignPos(v), na = ap.length;
+    for (i = 0; i < na; i++) for (var j = 0; j < na; j++) {
+      if ((i === 0 && j === 0) || (i === 0 && j === na - 1) || (i === na - 1 && j === 0)) continue;
+      for (var dy2 = -2; dy2 <= 2; dy2++) for (var dx2 = -2; dx2 <= 2; dx2++) {
+        setF(ap[i] + dx2, ap[j] + dy2, Math.max(Math.abs(dx2), Math.abs(dy2)) !== 1);
+      }
+    }
+    function format(mask) {
+      var d = fbits << 3 | mask, r = d;
+      for (var k = 0; k < 10; k++) r = (r << 1) ^ ((r >>> 9) * 0x537);
+      var b = (d << 10 | r) ^ 0x5412;
+      for (k = 0; k <= 5; k++) setF(8, k, bit(b, k));
+      setF(8, 7, bit(b, 6)); setF(8, 8, bit(b, 7)); setF(7, 8, bit(b, 8));
+      for (k = 9; k < 15; k++) setF(14 - k, 8, bit(b, k));
+      for (k = 0; k < 8; k++) setF(size - 1 - k, 8, bit(b, k));
+      for (k = 8; k < 15; k++) setF(8, size - 15 + k, bit(b, k));
+      setF(8, size - 8, true);
+    }
+    format(0);
+    if (v >= 7) {
+      var r = v;
+      for (i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25);
+      var vb = v << 12 | r;
+      for (i = 0; i < 18; i++) {
+        var a = size - 11 + i % 3, b2 = Math.floor(i / 3), bb = bit(vb, i);
+        setF(a, b2, bb); setF(b2, a, bb);
+      }
+    }
+    var idx = 0;
+    for (var right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (var vert = 0; vert < size; vert++) for (var jj = 0; jj < 2; jj++) {
+        x = right - jj;
+        var up = ((right + 1) & 2) === 0;
+        y = up ? size - 1 - vert : vert;
+        if (!fn[y][x] && idx < cw.length * 8) { m[y][x] = bit(cw[idx >>> 3], 7 - (idx & 7)); idx++; }
+      }
+    }
+    function maskFn(k, xx, yy) {
+      switch (k) {
+        case 0: return (xx + yy) % 2 === 0;
+        case 1: return yy % 2 === 0;
+        case 2: return xx % 3 === 0;
+        case 3: return (xx + yy) % 3 === 0;
+        case 4: return (Math.floor(xx / 3) + Math.floor(yy / 2)) % 2 === 0;
+        case 5: return xx * yy % 2 + xx * yy % 3 === 0;
+        case 6: return (xx * yy % 2 + xx * yy % 3) % 2 === 0;
+        default: return ((xx + yy) % 2 + xx * yy % 3) % 2 === 0;
+      }
+    }
+    function applyMask(k) {
+      for (var yy = 0; yy < size; yy++) for (var xx = 0; xx < size; xx++) {
+        if (!fn[yy][xx] && maskFn(k, xx, yy)) m[yy][xx] = !m[yy][xx];
+      }
+    }
+    function penalty() {
+      var p = 0, xx, yy, run, dark = 0;
+      for (var pass = 0; pass < 2; pass++) {
+        for (yy = 0; yy < size; yy++) {
+          run = 1;
+          var line = [];
+          for (xx = 0; xx < size; xx++) line.push(pass ? m[xx][yy] : m[yy][xx]);
+          for (xx = 1; xx < size; xx++) {
+            if (line[xx] === line[xx - 1]) { run++; if (run === 5) p += 3; else if (run > 5) p++; }
+            else run = 1;
+          }
+          var s = line.map(function (q) { return q ? '1' : '0'; }).join('');
+          var pat1 = '00001011101', pat2 = '10111010000', at = -1;
+          while ((at = s.indexOf(pat1, at + 1)) >= 0) p += 40;
+          at = -1;
+          while ((at = s.indexOf(pat2, at + 1)) >= 0) p += 40;
+        }
+      }
+      for (yy = 0; yy < size - 1; yy++) for (xx = 0; xx < size - 1; xx++) {
+        var c = m[yy][xx];
+        if (c === m[yy][xx + 1] && c === m[yy + 1][xx] && c === m[yy + 1][xx + 1]) p += 3;
+      }
+      for (yy = 0; yy < size; yy++) for (xx = 0; xx < size; xx++) if (m[yy][xx]) dark++;
+      var total = size * size;
+      p += (Math.ceil(Math.abs(dark * 20 - total * 10) / total) - 1) * 10;
+      return p;
+    }
+    var best = 0, bestP = Infinity;
+    for (var k = 0; k < 8; k++) {
+      applyMask(k); format(k);
+      var pp = penalty();
+      if (pp < bestP) { bestP = pp; best = k; }
+      applyMask(k);
+    }
+    applyMask(best); format(best);
+    return { version: v, size: size, level: lvName, mask: best, modules: m };
+  }
+
+  return { encode: encode };
+})();
+
+/* 檢查網址：只接受 http(s) 開頭、沒有空白、長度合理 */
+function checkUrl(u) {
+  u = String(u || '').trim();
+  if (!u) return { ok: false, err: '請填網址' };
+  if (/\s/.test(u)) return { ok: false, err: '網址裡有空白' };
+  var low = u.toLowerCase();
+  var sep = ':' + '/' + '/';
+  if (low.indexOf('http' + sep) !== 0 && low.indexOf('https' + sep) !== 0) return { ok: false, err: '網址要以 https:' + '/' + '/ 開頭' };
+  if (u.length <= 12 || u.indexOf('.') < 0) return { ok: false, err: '網址看起來不完整' };
+  if (u.length > 500) return { ok: false, err: '網址太長（超過 500 字）' };
+  return { ok: true, url: u };
+}
+
+/* 主函數：網址 → QR 圖（高解析 canvas）
+   opt.px：輸出邊長（預設 1200）；opt.level：L/M/Q/H（預設 Q）
+   opt.dark／opt.light：顏色；opt.margin：外圍留白格數（標準 4） */
+function makeQR(url, opt) {
+  var c = checkUrl(url);
+  if (!c.ok) return { ok: false, err: c.err };
+  return drawQR(c.url, opt);
+}
+
+/* Wi-Fi 是唯一不用網址的 QR（店長同意的例外）：手機相機掃到會直接跳出「加入網路」
+   格式 WIFI:T:WPA;S:名稱;P:密碼;H:false;;　特殊字元 \ ; , : " 前面要加反斜線 */
+function wifiEsc(s) { return String(s).replace(/([\\;,:"])/g, '\\$1'); }
+function checkWifi(w) {
+  var ssid = String(w.ssid || '').trim(), pass = String(w.pass || ''), enc = w.enc || 'WPA';
+  if (!ssid) return '請填 Wi-Fi 名稱';
+  if (unescape(encodeURIComponent(ssid)).length > 32) return 'Wi-Fi 名稱太長（最多 32 位元組）';
+  if (enc === 'WPA' && (pass.length < 8 || pass.length > 63)) return 'WPA 密碼要 8～63 個字';
+  if (enc === 'WEP' && [5, 10, 13, 26].indexOf(pass.length) < 0) return 'WEP 密碼長度要是 5、10、13 或 26';
+  return '';
+}
+function wifiText(w) {
+  var enc = w.enc || 'WPA', ssid = String(w.ssid || '').trim();
+  var t = 'WIFI:T:' + enc + ';S:' + wifiEsc(ssid) + ';';
+  if (enc !== 'nopass') t += 'P:' + wifiEsc(w.pass || '') + ';';
+  t += 'H:' + (w.hidden ? 'true' : 'false') + ';;';
+  return t;
+}
+function makeWifiQR(w, opt) {
+  var e = checkWifi(w);
+  if (e) return { ok: false, err: e };
+  return drawQR(wifiText(w), opt);
+}
+
+function drawQR(text, opt) {
+  opt = opt || {};
+  var q;
+  try { q = QR.encode(text, opt.level || 'Q'); } catch (e) { return { ok: false, err: e.message }; }
+  var margin = opt.margin == null ? 4 : opt.margin;
+  var cells = q.size + margin * 2;
+  var unit = Math.max(1, Math.floor((opt.px || 1200) / cells));
+  var px = unit * cells;
+  var cv = document.createElement('canvas');
+  cv.width = px; cv.height = px;
+  var g = cv.getContext('2d');
+  g.fillStyle = opt.light || '#FFFFFF'; g.fillRect(0, 0, px, px);
+  g.fillStyle = opt.dark || '#16233A';
+  for (var y = 0; y < q.size; y++) for (var x = 0; x < q.size; x++) {
+    if (q.modules[y][x]) g.fillRect((x + margin) * unit, (y + margin) * unit, unit, unit);
+  }
+  return { ok: true, url: text, text: text, canvas: cv, dataUrl: cv.toDataURL('image/png'), version: q.version, size: q.size, level: q.level };
+}
+
+/* ===== 店家工具：主程式 ===== */
+var BOOT = <?!= boot ?>;
+var KEY = <?!= key ?>;
+var SL = 'https:' + '/' + '/';
+var S = {
+  shop: BOOT.shop || {},
+  rule: BOOT.rule,
+  logo: null,
+  logoMeta: BOOT.logo || null,
+  logoAna: null,
+  pending: null,
+  tables: (BOOT.tables || []).slice(),
+  tableOpt: BOOT.tableOpt || {},
+  notices: BOOT.notices || [],
+  closures: BOOT.closures || [],
+  openDays: BOOT.openDays || [0, 1, 2, 3, 4, 5, 6],
+  handover: BOOT.handover || [],
+  summary: BOOT.summary || null,
+  menuUrl: BOOT.menuUrl || '',
+  cats: BOOT.cats || [],
+  noticeId: '',
+  lastPdf: {}
+};
+
+window.onerror = function (msg, src, line) { showErr('畫面發生錯誤：' + msg + '（第 ' + line + ' 行）'); };
+function showErr(t) { var e = $('err'); e.textContent = t; e.style.display = 'block'; }
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function toast(t, ms) {
+  var el = $('toast'); el.textContent = t; el.style.display = 'block';
+  clearTimeout(toast.h); toast.h = setTimeout(function () { el.style.display = 'none'; }, ms || 2600);
+}
+function run(fn) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  return new Promise(function (ok, bad) {
+    var r = google.script.run.withSuccessHandler(ok).withFailureHandler(function (e) { bad(e && e.message ? e : new Error(String(e))); });
+    r[fn].apply(r, args);
+  });
+}
+function busy(btn, on, txt) {
+  if (!btn) return;
+  if (on) { if (!btn.disabled) btn.dataset.t = btn.textContent; btn.textContent = txt || '處理中…'; btn.disabled = true; }
+  else { btn.textContent = btn.dataset.t || btn.textContent; btn.disabled = false; }
+}
+
+/* ---------- 外部函式庫（PDF 用）：動態載入，網址拆開寫 ---------- */
+var LIBS = null;
+function loadScript(src) {
+  return new Promise(function (ok, bad) {
+    var s = document.createElement('script'); s.src = src; s.onload = ok;
+    s.onerror = function () { bad(new Error('載入失敗：' + src)); };
+    document.head.appendChild(s);
+  });
+}
+function libs() {
+  if (!LIBS) {
+    var cdn = SL + 'cdnjs.cloudflare.com/ajax/libs/';
+    LIBS = Promise.all([
+      window.html2canvas ? 1 : loadScript(cdn + 'html2canvas/1.4.1/html2canvas.min.js'),
+      window.jspdf ? 1 : loadScript(cdn + 'jspdf/2.5.1/jspdf.umd.min.js')
+    ]);
+    LIBS.catch(function () { LIBS = null; });
+  }
+  return LIBS;
+}
+(function fonts() {
+  var l = document.createElement('link'); l.rel = 'stylesheet';
+  l.href = SL + 'fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&family=Outfit:wght@600;800&display=swap';
+  document.head.appendChild(l);
+})();
+
+/* ---------- 顏色工具 ---------- */
+function hex2(n) { return ('0' + Math.round(n).toString(16)).slice(-2); }
+function toHex(r, g, b) { return ('#' + hex2(r) + hex2(g) + hex2(b)).toUpperCase(); }
+function rgbOf(h) { h = String(h || '#FFFFFF').replace('#', ''); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+function lum(h) {
+  var c = rgbOf(h).map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function textOn(bg) { return lum(bg) > 0.4 ? '#16233A' : '#FFFFFF'; }
+
+/* ---------- ① Logo：標準檢查與底色偵測 ---------- */
+function checkLogoSize(w, h) {
+  var R = S.rule, msgs = [], level = 'ok', L = Math.max(w, h), Sh = Math.min(w, h);
+  if (L < R.minLong) { level = 'reject'; msgs.push('長邊只有 ' + L + 'px，最低需要 ' + R.minLong + 'px'); }
+  if (Sh < R.minShort) { level = 'reject'; msgs.push('短邊只有 ' + Sh + 'px，最低需要 ' + R.minShort + 'px'); }
+  if (Sh > 0 && L / Sh > R.maxRatio) { level = 'reject'; msgs.push('長寬比 ' + (L / Sh).toFixed(1) + ':1 太細長（上限 ' + R.maxRatio + ':1）'); }
+  if (level !== 'reject' && L < R.recLong) { level = 'warn'; msgs.push('長邊 ' + L + 'px 可以使用，建議 ' + R.recLong + 'px 以上印刷更清楚'); }
+  return { ok: level !== 'reject', level: level, msgs: msgs };
+}
+
+/* 看 Logo 外圈一圈像素：大多透明＝去背；同一個顏色占 85% 以上＝單色底；其餘＝雜色底（照片類） */
+function analyzeLogo(img) {
+  var w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, 400 / Math.max(w, h));
+  var cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
+  var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  var g = cv.getContext('2d'); g.drawImage(img, 0, 0, cw, ch);
+  var d = g.getImageData(0, 0, cw, ch).data, t = Math.max(2, Math.round(Math.min(cw, ch) * 0.03));
+  var px = [], tr = 0, n = 0, x, y, i;
+  for (y = 0; y < ch; y++) for (x = 0; x < cw; x++) {
+    if (x >= t && y >= t && x < cw - t && y < ch - t) continue;
+    n++; i = (y * cw + x) * 4;
+    if (d[i + 3] < 40) { tr++; continue; }
+    px.push([d[i], d[i + 1], d[i + 2]]);
+  }
+  var trShare = n ? tr / n : 1;
+  if (trShare >= 0.6 || !px.length) return { mode: 'transparent', bg: null, share: trShare };
+  var bk = {}, top = null;
+  px.forEach(function (p) {
+    var key = (p[0] >> 4) + ',' + (p[1] >> 4) + ',' + (p[2] >> 4);
+    var b = bk[key] || (bk[key] = { n: 0, r: 0, g: 0, b: 0 });
+    b.n++; b.r += p[0]; b.g += p[1]; b.b += p[2];
+    if (!top || b.n > top.n) top = b;
+  });
+  var ar = top.r / top.n, ag = top.g / top.n, ab = top.b / top.n, cnt = 0, sr = 0, sg = 0, sb = 0;
+  px.forEach(function (p) {
+    var dd = Math.abs(p[0] - ar) + Math.abs(p[1] - ag) + Math.abs(p[2] - ab);
+    if (dd <= 48) { cnt++; sr += p[0]; sg += p[1]; sb += p[2]; }
+  });
+  var share = cnt / px.length;
+  var bg = toHex(sr / cnt, sg / cnt, sb / cnt);
+  return { mode: share >= 0.85 && trShare < 0.1 ? 'solid' : 'mixed', bg: bg, share: share };
+}
+
+/* Logo 色塊要用的底色：手動 > 偵測到的底色 > 白色（去背） */
+function logoBg() {
+  var m = S.logoMeta, a = S.logoAna;
+  if (S.pending) a = S.pending.ana;
+  if ($('bgMode') && $('bgMode').value === 'manual') return $('bgPick').value.toUpperCase();
+  if (!S.pending && m && m.bgManual) return m.bgManual;
+  if (a && a.mode !== 'transparent' && a.bg) return a.bg;
+  return '#FFFFFF';
+}
+function logoSrc() { return S.pending ? S.pending.dataUrl : (S.logo ? S.logo.dataUrl : ''); }
+
+/* Logo 色塊：底色跟著 Logo 走 */
+function logoTile(sizePx, radius) {
+  var bg = logoBg(), src = logoSrc(), pad = Math.round(sizePx * 0.1);
+  var st = 'width:' + sizePx + 'px;height:' + sizePx + 'px;border-radius:' + (radius || Math.round(sizePx * 0.22)) + 'px;background:' + bg + ';padding:' + pad + 'px;';
+  if (lum(bg) > 0.9) st += 'border:1px solid #E2DBCF;';
+  if (!src) {
+    return '<div class="ltile" style="' + st + 'background:' + S.shop.primary + '"><span class="ph" style="font-size:' + Math.round(sizePx * 0.45) + 'px">' + esc((S.shop.name || '店').slice(0, 1)) + '</span></div>';
+  }
+  return '<div class="ltile" style="' + st + '"><img src="' + src + '"></div>';
+}
+
+function onLogoFile(file) {
+  var R = S.rule, list = [], add = function (lvl, t) { list.push({ lvl: lvl, t: t }); };
+  S.pending = null; $('logoSave').disabled = true;
+  if (!file) return;
+  if (R.types.indexOf(file.type) < 0) { add('bad', '格式不支援（' + (file.type || '未知') + '），請用 PNG、JPG 或 WebP'); return renderChecks(list); }
+  if (file.size > R.maxBytes) { add('bad', '檔案 ' + (file.size / 1048576).toFixed(1) + 'MB，超過 5MB 上限'); return renderChecks(list); }
+  add('ok', '格式 ' + file.type.replace('image/', '').toUpperCase() + '，' + Math.round(file.size / 1024) + 'KB');
+  var rd = new FileReader();
+  rd.onload = function () {
+    var img = new Image();
+    img.onload = function () {
+      var w = img.naturalWidth, h = img.naturalHeight, chk = checkLogoSize(w, h);
+      if (chk.level === 'ok') add('ok', '解析度 ' + w + ' × ' + h + 'px，符合標準');
+      else chk.msgs.forEach(function (m) { add(chk.level === 'reject' ? 'bad' : 'warn', m); });
+      if (!chk.ok) {
+        add('bad', '這個 Logo 無法上傳：請向設計師要原始檔，或重新輸出長邊 ' + R.recLong + 'px 以上的 PNG');
+        renderChecks(list); renderLogoView(); return;
+      }
+      var ana = analyzeLogo(img);
+      if (ana.mode === 'transparent') add('ok', '去背 Logo：色塊用白色');
+      else if (ana.mode === 'solid') add('ok', 'Logo 有底色 ' + ana.bg + '：放 Logo 的色塊會自動換成同一個顏色');
+      else add('warn', 'Logo 外圍不是單一顏色（可能是照片或漸層），色塊先用最接近的 ' + ana.bg + '；建議改用去背或單色底版本，或在下方手動指定底色');
+      if (file.type === 'image/jpeg' && ana.mode !== 'transparent') add('ok', 'JPG 無法去背，已用底色連動處理');
+      S.pending = { img: img, ana: ana, w: w, h: h, type: file.type, bytes: file.size, name: file.name, dataUrl: rd.result };
+      $('bgMode').value = 'auto';
+      $('logoSave').disabled = false;
+      renderChecks(list); renderLogoView();
+    };
+    img.onerror = function () { add('bad', '圖片打不開，檔案可能損壞'); renderChecks(list); };
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function renderChecks(list) {
+  $('logoChecks').innerHTML = list.map(function (x) {
+    return '<li class="' + x.lvl + '">' + (x.lvl === 'ok' ? '✓ ' : x.lvl === 'warn' ? '⚠ ' : '✗ ') + esc(x.t) + '</li>';
+  }).join('');
+}
+function renderLogoView() {
+  var has = !!logoSrc(), bg = logoBg();
+  $('bgCtl').style.display = has ? 'block' : 'none';
+  $('bgSave').style.display = has && !S.pending && S.logoMeta ? 'inline-flex' : 'none';
+  if (!$('bgMode').value || $('bgMode').value === 'auto') $('bgPick').value = bg;
+  $('logoView').innerHTML = has ? (
+    '<div style="text-align:center">' + logoTile(110) + '<div class="hint">色塊效果</div></div>' +
+    '<div style="background:' + S.shop.primary + ';padding:14px;border-radius:14px;display:flex;gap:10px;align-items:center">' + logoTile(70) +
+    '<div style="color:#fff;font-weight:900">' + esc(S.shop.name) + '</div></div>' +
+    '<div class="hint">底色 <span class="swatch" style="background:' + bg + '"></span> ' + bg + (S.pending ? '（尚未上傳）' : (S.logo && S.logo.fallback ? '（目前用的是原本的吉祥物圖）' : '')) + '</div>'
+  ) : '<div class="hint">尚未設定 Logo</div>';
+  $('hdLogo').innerHTML = logoTile(44);
+}
+
+/* 網頁用小圖：長邊 480 以內、70KB 以內（菜單工具、顧客頁直接嵌入）。透明 PNG 太大就改用 Logo 底色的 JPG */
+function webLogo(p) {
+  var k = Math.min(1, 480 / Math.max(p.w, p.h)), cw = Math.round(p.w * k), ch = Math.round(p.h * k);
+  var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  var g = cv.getContext('2d'); g.imageSmoothingQuality = 'high';
+  var solid = p.ana.mode === 'solid';
+  if (solid) { g.fillStyle = p.ana.bg; g.fillRect(0, 0, cw, ch); }
+  g.drawImage(p.img, 0, 0, cw, ch);
+  var u;
+  if (!solid) { u = cv.toDataURL('image/png').split(',')[1]; if (u.length * 0.75 <= 70000) return u; }
+  var c2 = document.createElement('canvas'); c2.width = cw; c2.height = ch;
+  var g2 = c2.getContext('2d'); g2.fillStyle = logoBg(); g2.fillRect(0, 0, cw, ch); g2.drawImage(cv, 0, 0);
+  for (var q = 0.9; q >= 0.4; q -= 0.1) { u = c2.toDataURL('image/jpeg', q).split(',')[1]; if (u.length * 0.75 <= 70000) return u; }
+  return '';
+}
+function saveLogo() {
+  var p = S.pending, btn = $('logoSave');
+  if (!p) return;
+  var R = S.rule, k = Math.min(1, R.saveLong / Math.max(p.w, p.h));
+  var cw = Math.round(p.w * k), ch = Math.round(p.h * k);
+  var cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  var g = cv.getContext('2d');
+  var keepAlpha = p.ana.mode !== 'solid';
+  if (!keepAlpha) { g.fillStyle = p.ana.bg; g.fillRect(0, 0, cw, ch); }
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(p.img, 0, 0, cw, ch);
+  var url = keepAlpha ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.93);
+  var web = webLogo(p);
+  var manual = $('bgMode').value === 'manual' ? $('bgPick').value : '';
+  busy(btn, true, '上傳中…');
+  run('tSaveLogo', { b64: url.split(',')[1], origW: p.w, origH: p.h, origType: p.type, origBytes: p.bytes, name: p.name, webB64: web, bgMode: p.ana.mode, bg: p.ana.bg, bgManual: manual }, KEY)
+    .then(function (r) {
+      S.logo = { dataUrl: url, meta: r.meta, fallback: false };
+      S.logoMeta = r.meta; S.logoAna = p.ana; S.pending = null;
+      $('logoFile').value = '';
+      toast('Logo 已更新' + (r.check.level === 'warn' ? '（建議之後換更高解析版本）' : ''));
+      renderLogoView();
+    })
+    .catch(function (e) { toast(e.message, 5000); })
+    .then(function () { busy(btn, false); });
+}
+function saveBg() {
+  var manual = $('bgMode').value === 'manual' ? $('bgPick').value : '';
+  run('tSetLogoBg', manual, KEY).then(function (m) { S.logoMeta = m; toast('底色設定已儲存'); renderLogoView(); }).catch(function (e) { toast(e.message, 5000); });
+}
+function loadLogo() {
+  return run('tGetLogo', KEY).then(function (r) {
+    if (!r) { renderLogoView(); return; }
+    S.logo = r; if (r.meta) S.logoMeta = r.meta;
+    return new Promise(function (ok) {
+      var img = new Image();
+      img.onload = function () {
+        try { S.logoAna = analyzeLogo(img); } catch (e) { S.logoAna = null; }
+        if (S.logoMeta && S.logoMeta.bgManual) { $('bgMode').value = 'manual'; $('bgPick').value = S.logoMeta.bgManual; }
+        renderLogoView(); ok();
+      };
+      img.onerror = function () { renderLogoView(); ok(); };
+      img.src = r.dataUrl;
+    });
+  }).catch(function (e) { renderLogoView(); });
+}
+
+/* ---------- 店家資料 ---------- */
+var SHOP_PALS = [['經典藍橘', '#1B4F8A', '#E8762A'], ['森林綠', '#2E6B4F', '#E8A33D'], ['酒紅金', '#8C2F39', '#D9A441'], ['墨黑金', '#22272E', '#C9A24B'], ['咖啡橘', '#6B4226', '#E8762A'], ['海洋青', '#13708A', '#F26B5B'],
+  ['莓果紫', '#5B3A8C', '#F28C28'], ['晴空', '#2F6FB5', '#2BA89B'], ['陽光早餐', '#F4B63F', '#2F6FB5'], ['奶茶暖棕', '#8A5A3C', '#E3A87A'], ['抹茶日式', '#4F6F52', '#C8553D'], ['復古紅', '#B23A2E', '#2C5D74'],
+  ['夜市熱鬧', '#C0392B', '#F1C40F'], ['清爽薄荷', '#1E8E7E', '#F2A65A'], ['文青灰藍', '#3E5C76', '#D98E73'], ['蜜桃粉', '#D9627F', '#3C8D93'], ['鐵灰橘', '#3B4252', '#F08A24'], ['葡萄冰沙', '#6C4AB6', '#2EC4B6'],
+  ['焦糖咖啡', '#4B2E1E', '#D9904A'], ['海鹽藍白', '#E8F1F8', '#1F6FB2']];
+function renderShopPals() {
+  var cp = $('sPri').value.toUpperCase(), ca = $('sAcc').value.toUpperCase();
+  $('sPals').innerHTML = SHOP_PALS.map(function (x, i) {
+    var on = x[1] === cp && x[2] === ca;
+    return '<button type="button" class="chipb pal' + (on ? ' on' : '') + '" data-sp="' + i + '"><span class="sw" style="background:linear-gradient(135deg,' + x[1] + ' 50%,' + x[2] + ' 50%)"></span>' + x[0] + '</button>';
+  }).join('');
+}
+function fillShop() {
+  var s = S.shop;
+  $('sName').value = s.name || ''; $('sTag').value = s.tagline || '';
+  $('sPri').value = s.primary || '#1B4F8A'; $('sAcc').value = s.accent || '#E8762A';
+  $('sChips').value = s.chips || ''; $('sKnock').value = s.knockUrl || ''; $('sLine').value = s.lineUrl || '';
+  $('sHours').value = s.hours || '';
+  renderShopPals();
+  $('hdName').textContent = s.name || '';
+}
+function saveShop() {
+  var btn = $('shopSave');
+  ['sKnock', 'sLine'].forEach(function (id) {
+    var v = $(id).value.trim(); if (v && !checkUrl(v).ok) throw new Error(checkUrl(v).err);
+  });
+  busy(btn, true);
+  run('tSaveShop', { name: $('sName').value, tagline: $('sTag').value, hours: $('sHours').value, primary: $('sPri').value, accent: $('sAcc').value, chips: $('sChips').value, knockUrl: $('sKnock').value.trim(), lineUrl: $('sLine').value.trim() }, KEY)
+    .then(function (s) { S.shop = s; fillShop(); renderLogoView(); toast('店家資料已儲存'); })
+    .catch(function (e) { toast(e.message, 5000); })
+    .then(function () { busy(btn, false); });
+}
+
+/* ---------- ③ 桌號 QR ---------- */
+var TYPE_TXT = { table: '桌號點餐', wait: '候位點餐', take: '外帶自取' };
+var HL_DEF = {
+  table: ['掃碼點餐\n不用排隊劃單', '送出訂單，餐點做好就來'],
+  wait: ['候位時先點好\n入座不用再等', '送出後，入座就能取餐'],
+  take: ['先點先做\n到店直接取餐', '送出後，到店報手機取餐']
+};
+function hl(type) {
+  var h = (S.tableOpt.headline || {})[type] || [];
+  return [h[0] || HL_DEF[type][0], h[1] || HL_DEF[type][1]];
+}
+function guessType(name) { return /候位/.test(name) ? 'wait' : (/外帶|自取/.test(name) ? 'take' : 'table'); }
+function nextTableName() {
+  var n = 0;
+  S.tables.forEach(function (r) { var m = /第\s*(\d+)\s*桌/.exec(r.name); if (m) n = Math.max(n, Number(m[1])); });
+  return '第 ' + (n + 1) + ' 桌';
+}
+function urlCode(u) {
+  var s = String(u).split('?')[0].replace(/\/+$/, '');
+  var last = s.slice(s.lastIndexOf('/') + 1);
+  return last.length > 8 ? last.slice(-6) : last;
+}
+function readRows() {
+  var out = [];
+  Array.prototype.forEach.call(document.querySelectorAll('#tbl tbody tr[data-i]'), function (tr) {
+    out.push({ type: tr.querySelector('.ty').value, name: tr.querySelector('.nm').value.trim(), url: tr.querySelector('.ur').value.trim() });
+  });
+  return out;
+}
+function validateRows(rows) {
+  var seenU = {}, seenN = {}, errs = 0, res = rows.map(function (r) {
+    var c = checkUrl(r.url);
+    if (!c.ok) { errs++; return { lvl: 'bad', t: c.err }; }
+    if (!r.name) { errs++; return { lvl: 'bad', t: '請填名稱' }; }
+    return { lvl: 'ok', t: '✓ ' + urlCode(r.url) };
+  });
+  rows.forEach(function (r, i) {
+    if (res[i].lvl !== 'ok') return;
+    if (seenU[r.url] != null) { errs++; res[i] = { lvl: 'bad', t: '網址和「' + rows[seenU[r.url]].name + '」重複' }; }
+    else if (seenN[r.name] != null) res[i] = { lvl: 'warn', t: '名稱重複' };
+    seenU[r.url] = i; seenN[r.name] = i;
+  });
+  return { res: res, errs: errs };
+}
+function renderRows() {
+  var tb = $('tbl').querySelector('tbody');
+  if (!S.tables.length) { tb.innerHTML = '<tr><td class="hint">還沒有桌號，按「新增一桌」或「一次貼上多行」。</td></tr>'; return; }
+  tb.innerHTML = S.tables.map(function (r, i) {
+    var opts = Object.keys(TYPE_TXT).map(function (k) { return '<option value="' + k + '"' + (r.type === k ? ' selected' : '') + '>' + TYPE_TXT[k] + '</option>'; }).join('');
+    return '<tr data-i="' + i + '"><td style="width:92px"><select class="ty">' + opts + '</select></td>' +
+      '<td style="width:24%"><input type="text" class="nm" maxlength="20" value="' + esc(r.name) + '"></td>' +
+      '<td><input type="url" class="ur" placeholder="' + SL + '…" value="' + esc(r.url) + '"></td>' +
+      '<td class="st"></td><td><button class="x" title="刪除">×</button></td></tr>';
+  }).join('');
+  refreshStatus();
+}
+function refreshStatus() {
+  var rows = readRows(), v = validateRows(rows);
+  Array.prototype.forEach.call(document.querySelectorAll('#tbl tbody tr[data-i]'), function (tr, i) {
+    var st = tr.querySelector('.st'); if (!st) return;
+    st.className = 'st ' + v.res[i].lvl; st.textContent = v.res[i].lvl === 'ok' ? v.res[i].t : v.res[i].t;
+  });
+  return v;
+}
+function parseBulk(text) {
+  var out = [], n = 0;
+  String(text || '').split(/\r?\n/).forEach(function (line) {
+    line = line.trim(); if (!line) return;
+    var at = line.search(/https?:/i);
+    var url = at >= 0 ? line.slice(at).split(/\s/)[0] : '';
+    var name = (at >= 0 ? line.slice(0, at) : line).replace(/[,，、\t|｜:：\s]+$/, '').trim();
+    out.push({ name: name, url: url });
+  });
+  return out;
+}
+function bulkApply(replace) {
+  S.tables = replace ? [] : readRows();
+  parseBulk($('bulk').value).forEach(function (r) {
+    if (!r.name) r.name = nextTableName();
+    r.type = guessType(r.name);
+    S.tables.push(r);
+  });
+  $('bulk').value = '';
+  renderRows();
+  toast('已加入，請檢查右側狀態');
+}
+function readTableOpt() {
+  var h = {};
+  ['table', 'wait', 'take'].forEach(function (k) { h[k] = [$('hl_' + k).value.trim(), $('st_' + k).value.trim()]; });
+  return { layout: $('layout').value, headline: h };
+}
+function fillTableOpt() {
+  $('layout').value = S.tableOpt.layout || 'a5x2';
+  ['table', 'wait', 'take'].forEach(function (k) { var v = hl(k); $('hl_' + k).value = v[0]; $('st_' + k).value = v[1]; });
+}
+
+var LAYOUTS = {
+  a5x2: { pw: 1123, ph: 794, cw: 561, ch: 794, per: 2, pos: [[0, 0], [562, 0]], cuts: [['v', 561]], orient: 'landscape' },
+  a4: { pw: 794, ph: 1123, cw: 794, ch: 1123, per: 1, pos: [[0, 0]], cuts: [], orient: 'portrait' },
+  a6x4: { pw: 794, ph: 1123, cw: 397, ch: 561, per: 4, pos: [[0, 0], [397, 0], [0, 562], [397, 562]], cuts: [['v', 397], ['h', 561]], orient: 'portrait' }
+};
+
+function tableCard(r, L, x, y) {
+  var u = L.cw / 561, fs = 16 * u, shop = S.shop, type = r.type || 'table', h = hl(type);
+  var qrPx = Math.round(L.cw * 0.6);
+  var q = makeQR(r.url, { px: 1200, level: 'Q' });
+  var badgeBg = type === 'table' ? shop.primary : shop.accent;
+  var chips = String(shop.chips || '').split(/[；;]/).map(function (s) { return s.trim(); }).filter(String).slice(0, 3);
+  var steps = ['掃描 QR Code', '選餐點、備註', h[1]];
+  return '<div class="tc" style="left:' + x + 'px;top:' + y + 'px;width:' + L.cw + 'px;height:' + L.ch + 'px;font-size:' + fs + 'px">' +
+    '<div class="hd">' + logoTile(Math.round(fs * 2.7)) +
+      '<div><div class="nm" style="color:' + shop.primary + '">' + esc(shop.name) + '</div><div class="tg">' + esc(shop.tagline || '') + '</div></div>' +
+      '<div class="badge" style="background:' + badgeBg + '">' + esc(r.name) + '</div></div>' +
+    '<div class="hl">' + esc(h[0]).replace(/\n/g, '<br>') + '</div>' +
+    '<div class="qbox">' + (q.ok ? '<img src="' + q.dataUrl + '" style="width:' + qrPx + 'px;height:' + qrPx + 'px">' : '<div style="color:#C0392B;padding:2em 0">' + esc(q.err) + '</div>') +
+      '<div class="qcap">手機相機對準 QR Code</div></div>' +
+    '<div class="steps">' + steps.map(function (s, i) {
+      return '<div class="step"><b style="color:' + shop.accent + '">' + (i + 1) + '</b><span>' + esc(s) + '</span></div>';
+    }).join('') + '</div>' +
+    '<div class="ft">' + chips.map(function (c) { return '<span class="chip">' + esc(c) + '</span>'; }).join('') +
+      '<span class="code">' + esc(r.name) + '·' + esc(urlCode(r.url)) + '</span></div>' +
+  '</div>';
+}
+function tablePages(rows, layoutKey) {
+  var L = LAYOUTS[layoutKey] || LAYOUTS.a5x2, pages = [];
+  for (var i = 0; i < rows.length; i += L.per) {
+    var html = '';
+    rows.slice(i, i + L.per).forEach(function (r, j) { html += tableCard(r, L, L.pos[j][0], L.pos[j][1]); });
+    L.cuts.forEach(function (c) { html += c[0] === 'v' ? '<div class="cut-v" style="left:' + c[1] + 'px"></div>' : '<div class="cut-h" style="top:' + c[1] + 'px"></div>'; });
+    pages.push(html);
+  }
+  return { L: L, pages: pages };
+}
+
+/* ---------- 預覽與 PDF（共用）---------- */
+function pageEl(L, inner) { return '<div class="pg" style="width:' + L.pw + 'px;height:' + L.ph + 'px">' + inner + '</div>'; }
+function showPreview(box, L, pages, max) {
+  var avail = Math.max(240, box.clientWidth || 600), k = Math.min(1, avail / L.pw);
+  var show = pages.slice(0, max || 6);
+  box.innerHTML = show.map(function (p) {
+    return '<div class="pv-page" style="width:' + Math.floor(L.pw * k) + 'px;height:' + Math.floor(L.ph * k) + 'px"><div class="pv-inner" style="transform:scale(' + k + ')">' + pageEl(L, p) + '</div></div>';
+  }).join('') + (pages.length > show.length ? '<div class="hint" style="text-align:center">…共 ' + pages.length + ' 頁，PDF 會包含全部</div>' : '');
+}
+function waitImages(el) {
+  var imgs = el.querySelectorAll('img');
+  return Promise.all(Array.prototype.map.call(imgs, function (im) {
+    return im.complete ? 1 : new Promise(function (ok) { im.onload = im.onerror = ok; });
+  }));
+}
+/* 試用版浮水印：把斜向重複的「試用版」畫在輸出圖上（正式授權不加） */
+function wmCanvas(cv) {
+  if (!BOOT.wm) return cv;
+  var g = cv.getContext('2d'), w = cv.width, h = cv.height, fs = Math.max(22, Math.round(Math.min(w, h) / 16));
+  g.save(); g.translate(w / 2, h / 2); g.rotate(-Math.PI / 7); g.fillStyle = 'rgba(14,22,35,0.12)'; g.font = '900 ' + fs + 'px "Noto Sans TC", "Microsoft JhengHei", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  var tw = g.measureText('試用版 StarFunDea').width, sx = tw * 1.45, sy = fs * 3.6, n = Math.ceil(Math.hypot(w, h) / Math.min(sx, sy)) + 1;
+  for (var r = -n; r <= n; r++) for (var c = -n; c <= n; c++) g.fillText('試用版 StarFunDea', c * sx + (r % 2 ? sx / 2 : 0), r * sy);
+  g.restore(); return cv;
+}
+function buildPdf(L, pages, onProg) {
+  return libs().then(function () {
+    return (document.fonts && document.fonts.ready) ? document.fonts.ready : 1;
+  }).then(function () {
+    var fmt = L.wmm ? [L.wmm, L.hmm] : 'a4';
+    var doc = new window.jspdf.jsPDF({ orientation: L.orient, unit: 'mm', format: fmt, compress: true });
+    var W = L.wmm || (L.orient === 'landscape' ? 297 : 210), H = L.hmm || (L.orient === 'landscape' ? 210 : 297);
+    var stage = $('stage'), i = 0;
+    function next() {
+      if (i >= pages.length) { stage.innerHTML = ''; return doc; }
+      stage.innerHTML = pageEl(L, pages[i]);
+      var el = stage.firstChild;
+      return waitImages(el).then(function () {
+        return window.html2canvas(el, { scale: 2.6, backgroundColor: '#F2EEE6', logging: false, useCORS: true });
+      }).then(function (cv) {
+        if (i > 0) doc.addPage(fmt, L.orient);
+        doc.addImage(wmCanvas(cv).toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, W, H, undefined, 'FAST');
+        i++; if (onProg) onProg(i, pages.length);
+        return next();
+      });
+    }
+    return next();
+  });
+}
+function savePdfFlow(doc, filename, kind, noticeId, out, btn) {
+  var b64 = doc.output('datauristring').split(',')[1];
+  busy(btn, true, '存到雲端…');
+  return run('tSavePdf', b64, filename, kind, noticeId || '', KEY).then(function (r) {
+    S.lastPdf[kind] = { r: r, doc: doc, name: filename };
+    out.innerHTML = '<div class="result">✓ 已產生：<a href="' + esc(r.dl) + '" target="_blank">下載 PDF</a>　｜　<a href="' + esc(r.url) + '" target="_blank">在雲端開啟</a>' +
+      '<div class="row" style="margin-top:8px"><input type="email" class="em" placeholder="寄到 Email（選填）"><button class="btn sm ghost sendm" style="flex:0 0 auto">寄出</button></div></div>';
+    out.querySelector('.sendm').onclick = function () {
+      var to = out.querySelector('.em').value.trim(), b = this;
+      busy(b, true, '寄送中…');
+      run('tEmailPdf', r.fileId, to, KEY).then(function () { toast('已寄出'); }).catch(function (e) { toast(e.message, 5000); }).then(function () { busy(b, false); });
+    };
+    return r;
+  });
+}
+
+function tablePreview() {
+  var rows = readRows(), v = refreshStatus();
+  S.tableOpt = readTableOpt();
+  var ok = rows.filter(function (r, i) { return v.res[i].lvl !== 'bad'; });
+  if (!ok.length) { $('tPv').innerHTML = '<div class="hint">沒有可預覽的桌號</div>'; return null; }
+  var tp = tablePages(ok, S.tableOpt.layout);
+  showPreview($('tPv'), tp.L, tp.pages, 4);
+  return { rows: rows, v: v, tp: tp };
+}
+function tablePdf() {
+  var btn = $('tPdf'), p = tablePreview();
+  if (!p) return toast('請先填入桌號與網址');
+  if (p.v.errs) return toast('有 ' + p.v.errs + ' 筆資料要修正（看紅字）', 4000);
+  busy(btn, true, '儲存清單…');
+  run('tSaveTables', p.rows, S.tableOpt, KEY).then(function (saved) {
+    S.tables = saved;
+    busy(btn, true, '產生 PDF…');
+    return buildPdf(p.tp.L, p.tp.pages, function (i, n) { btn.textContent = '產生 PDF… ' + i + '/' + n; });
+  }).then(function (doc) {
+    var d = new Date(), stamp = d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2);
+    return savePdfFlow(doc, '桌號QR海報_' + p.rows.length + '張_' + stamp + '.pdf', 'table', '', $('tOut'), btn);
+  }).then(function () { toast('PDF 完成'); })
+    .catch(function (e) { toast(e.message, 6000); })
+    .then(function () { busy(btn, false); });
+}
+
+/* ---------- ④ 公告海報 ---------- */
+var NF = ['tag', 'title', 'lead', 'hiLabel', 'hiBig', 'hiSub', 'hiNote', 'info', 'detTitle', 'det', 'q1Title', 'q1Url', 'q1Text', 'q2Label', 'q2Url', 'foot', 'end'];
+/* ---------- 日期小工具 ---------- */
+var WK = ['日', '一', '二', '三', '四', '五', '六'];
+function today0() { var d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+function addDays(d, n) { var x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+function ymd(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function md(d) { return (d.getMonth() + 1) + '/' + d.getDate(); }
+function mdw(d) { return (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日（' + WK[d.getDay()] + '）'; }
+
+/* ---------- 節慶：國曆固定日＋農曆（2026–2031 已換算成國曆）＋母親節（五月第二個星期日）---------- */
+var LUNAR = {
+  2026: { cny: '02-17', lantern: '03-03', dragon: '06-19', qixi: '08-19', midautumn: '09-25' },
+  2027: { cny: '02-06', lantern: '02-20', dragon: '06-09', qixi: '08-08', midautumn: '09-15' },
+  2028: { cny: '01-26', lantern: '02-09', dragon: '05-28', qixi: '08-26', midautumn: '10-03' },
+  2029: { cny: '02-13', lantern: '02-27', dragon: '06-16', qixi: '08-16', midautumn: '09-22' },
+  2030: { cny: '02-03', lantern: '02-17', dragon: '06-05', qixi: '08-05', midautumn: '09-12' },
+  2031: { cny: '01-23', lantern: '02-06', dragon: '06-24', qixi: '08-24', midautumn: '10-01' }
+};
+function fixed(mmdd) { return function (y) { return mmdd; }; }
+function lunar(k) { return function (y) { return LUNAR[y] ? LUNAR[y][k] : null; }; }
+function motherDay(y) { var d = new Date(y, 4, 1), first = (7 - d.getDay()) % 7 + 1; return '05-' + ('0' + (first + 7)).slice(-2); }
+var FESTS = [
+  { key: 'newyear', name: '元旦', date: fixed('01-01'), t: { title: '新的一年\n**新年快樂！**', lead: '謝謝大家這一年的陪伴，新的一年也請多多指教。', hiBig: '新年快樂' } },
+  { key: 'cny', name: '春節', date: lunar('cny'), t: { title: '恭喜發財\n**新春快樂！**', lead: '祝大家新的一年平安健康、萬事如意。', hiBig: '新春快樂', info: '春節公休｜請填日期\n開工營業｜請填日期' } },
+  { key: 'lantern', name: '元宵節', date: lunar('lantern'), t: { title: '元宵節快樂\n**團團圓圓**', lead: '祝大家闔家團圓、圓圓滿滿。', hiBig: '元宵節快樂' } },
+  { key: 'valentine', name: '情人節', date: fixed('02-14'), t: { title: '情人節快樂\n**一起吃早餐吧！**', lead: '和重要的人一起，從一頓好早餐開始。', hiBig: '情人節快樂' } },
+  { key: 'children', name: '兒童節', date: fixed('04-04'), t: { title: '兒童節快樂\n**小朋友最棒！**', lead: '祝每個小朋友健康長大、天天開心。', hiBig: '兒童節快樂' } },
+  { key: 'mother', name: '母親節', date: motherDay, t: { title: '給天下媽媽\n**辛苦了！**', lead: '謝謝每一位用心照顧家人的媽媽，祝您母親節快樂！', hiBig: '媽媽，節日快樂！', hiNote: '今天就讓我們幫媽媽準備一份早餐吧' } },
+  { key: 'dragon', name: '端午節', date: lunar('dragon'), t: { title: '端午節安康\n**粽享好運**', lead: '祝大家端午佳節平安健康。', hiBig: '端午節快樂' } },
+  { key: 'father', name: '父親節', date: fixed('08-08'), t: { title: '給天下爸爸\n**辛苦了！**', lead: '謝謝每一位為家人早起、為生活打拚的爸爸，祝您父親節快樂！', hiBig: '爸爸，節日快樂！', hiNote: '今天就讓我們幫爸爸準備一份早餐吧' } },
+  { key: 'qixi', name: '七夕', date: lunar('qixi'), t: { title: '七夕情人節\n**甜蜜加倍**', lead: '祝有情人終成眷屬，每天都甜甜的。', hiBig: '七夕快樂' } },
+  { key: 'teacher', name: '教師節', date: fixed('09-28'), t: { title: '教師節快樂\n**謝謝老師！**', lead: '謝謝每一位用心教導的老師。', hiBig: '老師，您辛苦了！' } },
+  { key: 'midautumn', name: '中秋節', date: lunar('midautumn'), t: { title: '中秋節快樂\n**月圓人團圓**', lead: '祝大家中秋佳節團圓美滿。', hiBig: '中秋節快樂' } },
+  { key: 'national', name: '國慶日', date: fixed('10-10'), t: { title: '國慶連假\n**出遊愉快！**', lead: '連假期間營業時間如下，歡迎出門前先來吃早餐。', hiBig: '連假愉快' } },
+  { key: 'halloween', name: '萬聖節', date: fixed('10-31'), t: { title: '萬聖節快樂\n**不給糖就搗蛋！**', lead: '小朋友變裝來店，有小驚喜喔！', hiBig: 'Happy Halloween' } },
+  { key: 'xmas', name: '聖誕節', date: fixed('12-25'), t: { title: '聖誕快樂\n**Merry Christmas！**', lead: '祝大家聖誕快樂、溫暖過冬。', hiBig: 'Merry Christmas' } }
+];
+/* 某個節日「下一次」的日期（今天或之後） */
+function festDate(f, from) {
+  from = from || today0();
+  for (var y = from.getFullYear(); y <= from.getFullYear() + 1; y++) {
+    var m = f.date(y);
+    if (!m) continue;
+    var d = new Date(y, Number(m.slice(0, 2)) - 1, Number(m.slice(3)));
+    if (d >= from) return d;
+  }
+  return null;
+}
+function festOf(k) { for (var i = 0; i < FESTS.length; i++) if (FESTS[i].key === k) return FESTS[i]; return FESTS[0]; }
+function festFields(k) {
+  var f = festOf(k), d = festDate(f), o = {};
+  Object.keys(f.t).forEach(function (x) { o[x] = f.t[x]; });
+  o.tag = f.name + '快樂';
+  if (f.key === 'national') o.tag = '國慶連假';
+  o.hiLabel = d ? mdw(d) + '　' + f.name : f.name;
+  o.end = (S.shop.name || '') + ' 祝您' + f.name + '快樂';
+  o._start = d ? ymd(addDays(d, -7)) : '';
+  o._end = d ? ymd(d) : '';
+  return o;
+}
+
+/* ---------- 活動範本 ---------- */
+var PROMOS = [
+  { key: 'bogo', name: '買一送一', t: { tag: '活動公告', title: '限時優惠\n**買一送一！**', lead: '感謝大家支持，活動期間點指定品項享優惠。', hiSub: '每日限量 50 份', detTitle: '活動辦法', det: '指定品項買一送一（同品項）\n不得與其他優惠併用\n數量有限，送完為止' } },
+  { key: 'half', name: '第二件半價', t: { tag: '活動公告', title: '揪朋友一起來\n**第二件半價！**', lead: '兩個人一起吃早餐更划算。', detTitle: '活動辦法', det: '指定品項第二件半價（以較低價計）\n內用、外帶皆可\n不得與其他優惠併用' } },
+  { key: 'points', name: '集點加倍', t: { tag: '會員活動', title: '會員集點\n**雙倍送！**', lead: '活動期間消費，會員點數加倍累積。', detTitle: '活動辦法', det: '結帳出示會員即可累點\n點數於活動結束後 3 天內入帳' } },
+  { key: 'gift', name: '滿額贈', t: { tag: '活動公告', title: '單筆滿額\n**好禮送給你！**', lead: '活動期間單筆消費滿額，送小禮一份。', hiSub: '單筆滿 $200', detTitle: '活動辦法', det: '單筆消費滿 $200 送中杯紅茶一杯\n每筆訂單限送一份\n贈品送完為止' } },
+  { key: 'review', name: '打卡／評論送', t: { tag: '活動公告', title: '打卡評論\n**送你小點心！**', lead: '在 Google 或 Facebook 留下評論，就送一份小點心。', detTitle: '參加方式', det: '在 Google 地圖留下評論或打卡\n結帳時出示畫面\n每人限領一次', q1Title: '掃碼留評論', q1Text: '你的一句話，是我們最大的鼓勵！' } },
+  { key: 'anniv', name: '週年慶', t: { tag: '週年慶', title: '感謝大家\n**週年慶開跑！**', lead: '一路走來謝謝大家的支持，準備了好多優惠回饋大家。', detTitle: '週年慶優惠', det: '全品項 9 折\n套餐加購飲品 $10\n集點加倍' } },
+  { key: 'lucky', name: '抽獎活動', t: { tag: '抽獎活動', title: '消費就抽\n**好禮大放送！**', lead: '活動期間消費即可參加抽獎。', detTitle: '活動辦法', det: '單筆消費滿 $150 可抽一次\n得獎名單公布於 LINE 官方帳號\n獎品以實物為準' } }
+];
+function promoOf(k) { for (var i = 0; i < PROMOS.length; i++) if (PROMOS[i].key === k) return PROMOS[i]; return PROMOS[0]; }
+function promoFields(k) {
+  var p = promoOf(k), o = {}, a = addDays(today0(), 1), b = addDays(today0(), 14);
+  Object.keys(p.t).forEach(function (x) { o[x] = p.t[x]; });
+  o.hiLabel = '活 動 期 間';
+  o.hiBig = md(a) + ' – ' + md(b);
+  o.foot = '本店保留活動修改及終止之權利。';
+  o._start = ymd(addDays(today0(), -2)); o._end = ymd(b);
+  return o;
+}
+
+function presets(k, sub) {
+  var s = S.shop, base = { q1Title: '有話想跟我們說？', q1Url: s.knockUrl || '', q1Text: '掃碼「敲敲老闆」，留言我們都會看到喔！', q2Label: '加 LINE 好友，第一時間收到通知', q2Url: s.lineUrl || '', foot: '', end: '謝謝大家的支持！', detTitle: '', det: '', info: '', lead: '', hiLabel: '', hiBig: '', hiSub: '', hiNote: '' };
+  var P = {
+    vacation: { tag: '休假公告', title: '老闆休假去\n**充個電**再回來！', lead: '感謝大家一直以來的支持，我們休息一下，回來繼續幫大家做早餐。', hiLabel: '恢 復 營 業', hiBig: '2027 年 2 月 23 日', hiSub: '星期二', hiNote: '早上 06:00 照常開門', info: '休假期間｜12/17（四）～ 2/22（一）\n休假前最後營業日｜12/15（二）', foot: '休假期間門市與線上點餐都暫停，LINE 留言回來後一一回覆。', end: '謝謝大家的支持，我們很快見！' },
+    closed: { tag: '臨時公休', title: '今天**臨時公休**\n造成不便請見諒', lead: '因店內設備維修，暫停營業一天。', hiLabel: '公 休 日 期', hiBig: '10 月 15 日', hiSub: '星期四', hiNote: '隔天照常營業', foot: '已預訂的餐點會另外聯絡您。' },
+    hours: { tag: '營業時間調整', title: '營業時間\n**調整公告**', lead: '為了讓大家吃到更新鮮的早餐，營業時間調整如下。', hiLabel: '新 營 業 時 間', hiBig: '06:00 – 13:30', hiSub: '自 11/1 起', info: '平日｜06:00 – 13:30\n假日｜06:30 – 14:00\n公休｜每週一' },
+    newitem: { tag: '新品上市', title: '新口味\n**登場！**', lead: '老闆試做了好幾個月，終於可以端上桌了。', hiLabel: '本 月 新 品', hiBig: '起司嫩蛋總匯', hiSub: '$ 85', hiNote: '數量有限，賣完為止', detTitle: '同場加映', det: '加 $25 升級套餐（脆薯＋中杯紅茶）\n會員點數雙倍' },
+    promo: { tag: '優惠活動', title: '限時優惠\n**買一送一！**', lead: '感謝大家支持，活動期間點指定品項享優惠。', hiLabel: '活 動 期 間', hiBig: '11/1 – 11/15', hiSub: '每日限量 50 份', detTitle: '活動辦法', det: '指定飲品買一送一（同品項）\n不得與其他優惠併用\n數量有限，送完為止' },
+    hiring: { tag: '徵才', title: '一起來做\n**好吃的早餐！**', lead: ((BOOT.shop && BOOT.shop.name) || '本店') + '招募夥伴，歡迎有熱忱的你加入。', hiLabel: '招 募 職 缺', hiBig: ((BOOT.hire && BOOT.hire.positions) || ['內場', '外場']).join('／'), hiSub: '早班 06:00 – 13:00', info: '時薪｜面議（依經驗）\n福利｜供餐、員工價\n面試｜掃碼預約面試時段，系統會寄確認信', q1Title: '想應徵？掃碼預約面試', q1Url: BOOT.applyUrl || s.knockUrl || '', q1Text: '選好方便的時段，老闆確認後會寄信通知你！' },
+    general: { tag: '公告', title: '公告標題', lead: '' }
+  };
+  var o = {}, src = P[k] || P.general;
+  if (k === 'festival') src = festFields(sub || nearestFest().key);
+  if (k === 'promo') src = promoFields(sub || 'bogo');
+  Object.keys(base).forEach(function (x) { o[x] = base[x]; });
+  Object.keys(src).forEach(function (x) { o[x] = src[x]; });
+  o.cat = (P[k] || k === 'festival' || k === 'promo') ? k : 'general';
+  o.sub = k === 'festival' ? (sub || nearestFest().key) : (k === 'promo' ? (sub || 'bogo') : '');
+  return o;
+}
+function readNotice() {
+  var c = {};
+  NF.forEach(function (k) { c[k] = $('n_' + k).value; });
+  c.cat = $('n_cat').value;
+  c.sub = $('subWrap').style.display === 'none' ? '' : $('n_sub').value;
+  c.ratio = $('n_ratio').value;
+  return c;
+}
+function fillNotice(c, meta) {
+  NF.forEach(function (k) { $('n_' + k).value = c[k] == null ? '' : c[k]; });
+  $('n_cat').value = catOf(c.cat || c.preset).key;
+  fillSub(c.sub);
+  setRatio(c.ratio || $('n_ratio').value);
+  meta = meta || {};
+  $('n_show').checked = !!meta.show; $('n_start').value = meta.start || ''; $('n_end2').value = meta.end || '';
+}
+function catOf(k) {
+  var list = S.cats || [];
+  for (var i = 0; i < list.length; i++) if (list[i].key === k) return list[i];
+  return list[list.length - 1] || { key: 'general', name: '一般公告', color: '#16233A' };
+}
+function fillCats() {
+  $('n_cat').innerHTML = S.cats.map(function (c) { return '<option value="' + c.key + '">' + esc(c.name) + '</option>'; }).join('');
+  $('nFilter').innerHTML = '<option value="">全部類別</option>' + S.cats.map(function (c) { return '<option value="' + c.key + '">' + esc(c.name) + '</option>'; }).join('');
+}
+function nearestFest() {
+  var best = null, bd = null;
+  FESTS.forEach(function (f) { var d = festDate(f); if (d && (!bd || d < bd)) { bd = d; best = f; } });
+  return best || FESTS[0];
+}
+function fillSub(val) {
+  var cat = $('n_cat').value, sel = $('n_sub');
+  if (cat === 'festival') {
+    $('subLbl').textContent = '節日';
+    sel.innerHTML = FESTS.map(function (f) { var d = festDate(f); return '<option value="' + f.key + '">' + f.name + (d ? '（' + md(d) + '）' : '') + '</option>'; }).join('');
+  } else if (cat === 'promo') {
+    $('subLbl').textContent = '活動類型';
+    sel.innerHTML = PROMOS.map(function (p) { return '<option value="' + p.key + '">' + p.name + '</option>'; }).join('');
+  } else { $('subWrap').style.display = 'none'; return; }
+  $('subWrap').style.display = 'block';
+  if (val) sel.value = val;
+}
+/* 套用範本：節慶／活動會順便帶入顧客頁顯示期間 */
+function applyTpl(cat, sub) {
+  var c = presets(cat, sub);
+  var meta = { show: $('n_show').checked, start: c._start || $('n_start').value, end: c._end || $('n_end2').value };
+  fillNotice(c, meta);
+  noticePreview();
+}
+function renderUpcoming() {
+  var t = today0(), list = FESTS.map(function (f) { return { f: f, d: festDate(f, t) }; })
+    .filter(function (x) { return x.d && (x.d - t) / 86400000 <= 45; })
+    .sort(function (a, b) { return a.d - b.d; });
+  $('upcoming').innerHTML = list.length ? '<div class="hint" style="margin-bottom:6px">近期節日，點一下就做好祝福海報：</div>' + list.map(function (x) {
+    var n = Math.round((x.d - t) / 86400000);
+    return '<button class="fest" data-fest="' + x.f.key + '">' + x.f.name + ' ' + md(x.d) + ' <small>' + (n === 0 ? '就是今天' : '還有 ' + n + ' 天') + '</small></button>';
+  }).join('') : '';
+}
+function rich(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<span style="color:' + S.shop.accent + '">$1</span>').replace(/\n/g, '<br>'); }
+function rich2(t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<span style="color:#FFD9B8">$1</span>').replace(/\n/g, '<br>'); }
+function noticeHtml(c, scale, gap) {
+  var s = S.shop, out = [], fs = 16 * (scale || 1);
+  out.push('<div class="hd"><div class="shop" style="color:' + s.primary + '">' + esc(s.name) + '</div>' + (c.tag ? '<div class="tagp" style="background:' + catOf(c.cat).color + '">' + esc(c.tag) + '</div>' : '') + '</div>');
+  out.push('<div class="box hero" style="background:' + s.primary + '">' + logoTile(Math.round(fs * 7.2)) +
+    '<div><h1>' + rich2(c.title) + '</h1>' + (c.lead ? '<p>' + esc(c.lead).replace(/\n/g, '<br>') + '</p>' : '') + '</div></div>');
+  if (c.hiBig) out.push('<div class="box hi" style="background:' + s.accent + '">' + (c.hiLabel ? '<div class="lb">' + esc(c.hiLabel) + '</div>' : '') +
+    '<div class="big">' + esc(c.hiBig) + '</div>' + (c.hiSub ? '<div class="sb">' + esc(c.hiSub) + '</div>' : '') + (c.hiNote ? '<div class="nb">' + esc(c.hiNote) + '</div>' : '') + '</div>');
+  var info = String(c.info || '').split(/\n/).map(function (l) { return l.split(/[｜|]/); }).filter(function (p) { return p[0].trim(); }).slice(0, 3);
+  if (info.length) out.push('<div class="box info">' + info.map(function (p) {
+    return '<div class="c"><div class="k">' + esc(p[0].trim()) + '</div><div class="v" style="color:' + (p.length > 1 ? s.primary : '#16233A') + '">' + esc((p[1] || '').trim()) + '</div></div>';
+  }).join('') + '</div>');
+  var det = String(c.det || '').split(/\n/).map(function (x) { return x.trim(); }).filter(String);
+  if (det.length) out.push('<div class="box det">' + (c.detTitle ? '<h3 style="color:' + s.primary + '">' + esc(c.detTitle) + '</h3>' : '') + '<ul>' + det.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul></div>');
+  var q1 = c.q1Url ? makeQR(c.q1Url, { px: 900 }) : null, q2 = c.q2Url ? makeQR(c.q2Url, { px: 900 }) : null;
+  if ((q1 && q1.ok) || (q2 && q2.ok)) {
+    var qs = '<div class="qrs">';
+    if (q1 && q1.ok) qs += '<div class="box q1" style="background:' + s.primary + '"><div class="qi"><img src="' + q1.dataUrl + '" style="width:' + Math.min(190, Math.round(fs * 8.4)) + 'px;height:' + Math.min(190, Math.round(fs * 8.4)) + 'px;display:block"></div>' +
+      '<div><h3>' + esc(c.q1Title || '') + '</h3><p>' + esc(c.q1Text || '').replace(/\n/g, '<br>') + '</p></div></div>';
+    if (q2 && q2.ok) qs += '<div class="box q2"><img src="' + q2.dataUrl + '" style="width:' + Math.min(170, Math.round(fs * 8.4)) + 'px;height:' + Math.min(170, Math.round(fs * 8.4)) + 'px;display:block;margin:0 auto"><div class="lb" style="color:' + s.primary + '">' + esc(c.q2Label || '').replace(/\n/g, '<br>') + '</div></div>';
+    out.push(qs + '</div>');
+  }
+  if (c.foot) out.push('<div class="foot">' + esc(c.foot) + '</div>');
+  if (c.end) out.push('<div class="end" style="color:' + s.primary + (c.foot ? '' : ';margin-top:auto') + '">' + esc(c.end) + '</div>');
+  return '<div class="nt" style="font-size:' + fs + 'px;gap:' + (gap || 14) + 'px">' + out.join('') + '</div>';
+}
+var RATIOS = {
+  a4: { pw: 794, ph: 1123, orient: 'portrait', sc: 1.7 },
+  sq: { pw: 1000, ph: 1000, orient: 'portrait', sc: 1.5, wmm: 280, hmm: 280 },
+  story: { pw: 720, ph: 1280, orient: 'portrait', sc: 1.55, wmm: 190, hmm: 338 }
+};
+var NL = RATIOS.a4;
+function setRatio(k) { NL = RATIOS[k] || RATIOS.a4; $('n_ratio').value = RATIOS[k] ? k : 'a4'; }
+/* 內容太多時自動縮小字級，確保一頁放得下 */
+function fitNotice(c) {
+  var stage = $('stage'), sc = NL.sc;
+  for (var k = 0; k < 24; k++) {
+    stage.innerHTML = pageEl(NL, noticeHtml(c, sc));
+    var nt = stage.querySelector('.nt');
+    var wide = Array.prototype.some.call(nt.querySelectorAll('.info .v, .hi .big'), function (v) { return v.scrollWidth > v.clientWidth + 1; });
+    if (nt.scrollHeight <= NL.ph + 1 && !wide) break;
+    sc -= 0.045;
+  }
+  var kids = Array.prototype.slice.call(nt.children), used = 0;
+  kids.forEach(function (el) { used += el.offsetHeight; });
+  var gap = kids.length > 1 ? Math.max(14, Math.min(40, 14 + (NL.ph - 68 - used - 14 * (kids.length - 1)) / (kids.length - 1))) : 14;
+  stage.innerHTML = '';
+  return noticeHtml(c, sc, Math.floor(gap));
+}
+function noticeErrors(c) {
+  var e = [];
+  if (!String(c.title || '').trim()) e.push('請填主標題');
+  if (c.q1Url && !checkUrl(c.q1Url).ok) e.push('大 QR 網址：' + checkUrl(c.q1Url).err);
+  if (c.q2Url && !checkUrl(c.q2Url).ok) e.push('小 QR 網址：' + checkUrl(c.q2Url).err);
+  if ($('n_show').checked && $('n_start').value && $('n_end2').value && $('n_start').value > $('n_end2').value) e.push('結束日不能早於開始日');
+  return e;
+}
+function noticePreview() {
+  var c = readNotice(), html = fitNotice(c);
+  showPreview($('nPv'), NL, [html], 1);
+  return { c: c, html: html };
+}
+function saveNotice(pdfUrl) {
+  var c = readNotice(), errs = noticeErrors(c);
+  if (errs.length) return Promise.reject(new Error(errs.join('\n')));
+  var title = String(c.title).replace(/\*\*/g, '').replace(/\n/g, ' ').trim();
+  return run('tSaveNotice', { id: S.noticeId, title: (c.tag ? c.tag + '：' : '') + title, start: $('n_start').value, end: $('n_end2').value, show: $('n_show').checked, content: c, pdf: pdfUrl || '' }, KEY)
+    .then(function (r) { S.noticeId = r.id; S.notices = r.notices; renderNotices(); return r; });
+}
+function noticeSaveOnly() {
+  var b = $('nSave'); busy(b, true);
+  saveNotice().then(function (r) { toast('公告已儲存（' + r.id + '）'); }).catch(function (e) { toast(e.message, 5000); }).then(function () { busy(b, false); });
+}
+function noticePdf() {
+  var b = $('nPdf'), p = noticePreview();
+  busy(b, true, '儲存公告…');
+  saveNotice().then(function (r) {
+    busy(b, true, '產生 PDF…');
+    return buildPdf(NL, [p.html]).then(function (doc) {
+      return savePdfFlow(doc, (p.c.tag || '公告') + '_' + r.id + '.pdf', 'notice', r.id, $('nOut'), b);
+    });
+  }).then(function () { return run('tGetState', KEY); })
+    .then(function (st) { S.notices = st.notices; renderNotices(); toast('PDF 完成'); })
+    .catch(function (e) { toast(e.message, 6000); })
+    .then(function () { busy(b, false); });
+}
+function noticePng() {
+  var b = $('nPng'), p = noticePreview();
+  busy(b, true, '產生圖片…');
+  libs().then(function () { return (document.fonts && document.fonts.ready) ? document.fonts.ready : 1; }).then(function () {
+    var stage = $('stage'); stage.innerHTML = pageEl(NL, p.html);
+    var el = stage.firstChild;
+    return waitImages(el).then(function () { return window.html2canvas(el, { scale: 2, backgroundColor: '#F2EEE6', logging: false, useCORS: true }); });
+  }).then(function (cv) {
+    $('stage').innerHTML = '';
+    var a = document.createElement('a'); a.href = wmCanvas(cv).toDataURL('image/png'); a.download = (p.c.tag || '公告') + '_' + p.c.ratio + '.png';
+    document.body.appendChild(a); a.click(); a.remove(); toast('圖片已下載');
+  }).catch(function (e) { toast(e.message, 5000); }).then(function () { busy(b, false); });
+}
+function renderNotices() {
+  var ul = $('nList');
+  var f = $('nFilter').value;
+  Array.prototype.forEach.call($('nFilter').options, function (o) {
+    var cnt = o.value ? S.notices.filter(function (n) { return n.cat === o.value; }).length : S.notices.length;
+    o.textContent = (o.value ? catOf(o.value).name : '全部類別') + '（' + cnt + '）';
+  });
+  if (!S.notices.length) { ul.innerHTML = '<li class="hint">還沒有公告</li>'; return; }
+  ul.innerHTML = S.notices.map(function (n, i) {
+    if (f && n.cat !== f) return '';
+    var range = (n.start || '') + (n.end ? ' ～ ' + n.end : ''), ct = catOf(n.cat);
+    return '<li><span class="cat" style="background:' + ct.color + '">' + esc(ct.name) + '</span><span class="t">' + esc(n.title) + '</span><span class="pill' + (n.show ? '' : ' off') + '">' + (n.show ? '顧客頁顯示' : '未顯示') + '</span>' +
+      '<span class="hint">' + esc(range || n.updated) + '</span>' +
+      (n.pdf ? '<a href="' + esc(n.pdf) + '" target="_blank" class="hint">PDF</a>' : '') +
+      '<button class="btn sm ghost" data-ed="' + i + '">編輯</button><button class="x" data-del="' + i + '" title="刪除">×</button></li>';
+  }).join('');
+}
+
+/* ---------- Wi-Fi 卡 ---------- */
+function readWifi() {
+  return { ssid: $('w_ssid').value.trim(), pass: $('w_pass').value, enc: $('w_enc').value, hidden: $('w_hidden').checked,
+    title: $('w_title').value.trim(), note: $('w_note').value.trim(), showPass: $('w_showPass').checked, layout: $('w_layout').value };
+}
+function fillWifi() {
+  var w = BOOT.wifi || {};
+  $('w_ssid').value = w.ssid || ''; $('w_pass').value = w.pass || ''; $('w_enc').value = w.enc || 'WPA';
+  $('w_hidden').checked = !!w.hidden; $('w_showPass').checked = w.showPass !== false;
+  $('w_title').value = w.title || '免費 Wi-Fi'; $('w_note').value = w.note || '請勿長時間佔用，謝謝配合';
+  $('w_layout').value = w.layout || 'a6x4';
+}
+function wifiCard(w, L, x, y) {
+  var u = L.cw / 561, fs = 16 * u, shop = S.shop, q = makeWifiQR(w, { px: 1200, level: 'M' }), qrPx = Math.round(L.cw * 0.58);
+  var rows = '<div><span>網路名稱</span><b>' + esc(w.ssid) + '</b></div>';
+  if (w.enc !== 'nopass' && w.showPass) rows += '<div><span>密碼</span><b>' + esc(w.pass) + '</b></div>';
+  if (w.enc === 'nopass') rows += '<div><span>密碼</span><b>不需要密碼</b></div>';
+  return '<div class="tc wc" style="left:' + x + 'px;top:' + y + 'px;width:' + L.cw + 'px;height:' + L.ch + 'px;font-size:' + fs + 'px">' +
+    '<div class="hd">' + logoTile(Math.round(fs * 2.7)) +
+      '<div><div class="nm" style="color:' + shop.primary + '">' + esc(shop.name) + '</div><div class="tg">' + esc(shop.tagline || '') + '</div></div>' +
+      '<div class="badge" style="background:' + shop.primary + '">Wi-Fi</div></div>' +
+    '<div class="hl">' + esc(w.title || '免費 Wi-Fi') + '</div>' +
+    '<div class="qbox">' + (q.ok ? '<img src="' + q.dataUrl + '" style="width:' + qrPx + 'px;height:' + qrPx + 'px">' : '<div style="color:#C0392B;padding:2em 0">' + esc(q.err) + '</div>') +
+      '<div class="qcap">手機相機對準 QR Code，點「加入網路」</div></div>' +
+    '<div class="info2">' + rows + '</div>' +
+    (w.note ? '<div class="note">' + esc(w.note) + '</div>' : '') +
+  '</div>';
+}
+function wifiPages(w) {
+  var L = LAYOUTS[w.layout] || LAYOUTS.a6x4, n = Math.min(20, Math.max(1, parseInt($('w_pages').value, 10) || 1)), pages = [], html = '';
+  for (var j = 0; j < L.per; j++) html += wifiCard(w, L, L.pos[j][0], L.pos[j][1]);
+  L.cuts.forEach(function (c) { html += c[0] === 'v' ? '<div class="cut-v" style="left:' + c[1] + 'px"></div>' : '<div class="cut-h" style="top:' + c[1] + 'px"></div>'; });
+  for (var i = 0; i < n; i++) pages.push(html);
+  return { L: L, pages: pages };
+}
+function wifiPreview() {
+  var w = readWifi(), e = checkWifi(w);
+  if (e) { $('wPv').innerHTML = '<div class="hint">' + esc(e) + '</div>'; return null; }
+  var wp = wifiPages(w);
+  showPreview($('wPv'), wp.L, wp.pages, 1);
+  return { w: w, wp: wp };
+}
+function wifiPdf() {
+  var btn = $('wPdf'), p = wifiPreview();
+  if (!p) return toast(checkWifi(readWifi()), 4000);
+  busy(btn, true, '儲存設定…');
+  run('tSaveWifi', p.w, KEY).then(function () {
+    busy(btn, true, '產生 PDF…');
+    return buildPdf(p.wp.L, p.wp.pages);
+  }).then(function (doc) {
+    return savePdfFlow(doc, 'WiFi卡_' + p.w.ssid + '.pdf', 'wifi', '', $('wOut'), btn);
+  }).then(function () { toast('PDF 完成'); })
+    .catch(function (e) { toast(e.message, 6000); })
+    .then(function () { busy(btn, false); });
+}
+
+/* ---------- 名片：1em = 3mm；成品 90×54mm = 30em×18em，含 3mm 出血 = 32em×20em ---------- */
+var CARD_FS = 3 * 96 / 25.4;
+var CARD_TPL = [
+  { k: 'side', n: '側欄', d: '深色側欄＋右側資訊' },
+  { k: 'top', n: '頂條', d: '上方色條＋雙欄資訊' },
+  { k: 'bar', n: '簡約', d: '白底＋左側色條' },
+  { k: 'solid', n: '滿版', d: '品牌色滿版' }
+];
+var CARD_PAL = [
+  { k: 'shop', n: '跟店家配色' },
+  { k: 'navy', n: '海軍藍橘', p: '#1B4F8A', a: '#E8762A' },
+  { k: 'graph', n: '石墨青', p: '#10161D', a: '#1AA3C0' },
+  { k: 'forest', n: '森林綠金', p: '#2F6B4F', a: '#E0A526' },
+  { k: 'wine', n: '酒紅香檳', p: '#7A1F2B', a: '#C9A25A' },
+  { k: 'berry', n: '莓果橘', p: '#B0356B', a: '#F2A541' },
+  { k: 'coffee', n: '咖啡暖棕', p: '#6B4226', a: '#D98E3F' },
+  { k: 'teal', n: '湖水綠', p: '#0F766E', a: '#F59E0B' },
+  { k: 'noir', n: '黑金', p: '#15181C', a: '#C8A24A' }
+];
+var CARD_ICO = {
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l1.9-5.3A8.5 8.5 0 1 1 21 11.5z"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  card: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'
+};
+var CARD_ST = { tpl: 'side', pal: 'shop' };
+var CARD_QRC = {};
+
+function mixHex(a, b, t) { var x = rgbOf(a), y = rgbOf(b); return toHex(x[0] + (y[0] - x[0]) * t, x[1] + (y[1] - x[1]) * t, x[2] + (y[2] - x[2]) * t); }
+function cardUrlOf(c) {
+  var info = BOOT.cardInfo || {}, shop = S.shop || {};
+  if (c.qr === 'line') return shop.lineUrl || '';
+  if (c.qr === 'knock') return shop.knockUrl || '';
+  if (c.qr === 'map') return info.mapUrl || '';
+  if (c.qr === 'custom') return c.qrUrl || '';
+  return info.menuUrl || '';
+}
+function cardCapOf(c) { return c.qrCap || cardDefaultCap(c); }
+function cardDefaultCap(c) { return { menu: '掃碼看菜單', line: '加 LINE 好友', knock: '掃碼留言給老闆', map: '掃碼導航', custom: '掃碼了解更多' }[c.qr] || '掃碼'; }
+function cardDefaultTitle(c) { return { menu: '掃一下，看完整菜單', line: '加入 LINE，掌握最新消息', knock: '有話想說？掃碼留言', map: '掃碼導航到店', custom: '掃碼了解更多' }[c.qr] || '歡迎光臨'; }
+function cardPalOf(c) {
+  var p = c.cp || S.shop.primary || '#1B4F8A', a = c.ca || S.shop.accent || '#E8762A';
+  return { p: p, a: a, dk: mixHex(p, '#0B0F14', 0.62), tint: mixHex(p, '#FFFFFF', 0.95), onP: textOn(p) };
+}
+function cardQrImg(url) {
+  if (!CARD_QRC[url]) { var q = makeQR(url, { px: 700, level: 'M' }); CARD_QRC[url] = q.ok ? q.dataUrl : ''; }
+  return CARD_QRC[url];
+}
+function cardQrBox(url, em, cap) {
+  var src = cardQrImg(url);
+  return '<div class="qb" style="width:' + em + 'em">' + (src ? '<img src="' + src + '">' : '') + '</div>' + (cap ? '<div style="width:' + em + 'em;text-align:center;margin-top:.5em"><span style="font-size:.6em;font-weight:900;white-space:nowrap">' + esc(cap) + '</span></div>' : '');
+}
+function cardIcon(k, color) { return '<svg class="ic" viewBox="0 0 24 24" style="color:' + color + '">' + CARD_ICO[k] + '</svg>'; }
+function cardLines(c, max) {
+  var L = [];
+  if (c.phone) L.push(['phone', c.phone]);
+  if (c.hours) L.push(['clock', c.hours]);
+  if (c.payments) L.push(['card', c.payments]);
+  if (c.address) L.push(['pin', c.address]);
+  if (c.lineId) L.push(['chat', 'LINE ' + c.lineId]);
+  if (c.email) L.push(['mail', c.email]);
+  if (c.web) L.push(['globe', c.web]);
+  return L.slice(0, max);
+}
+function cardContacts(L, color, ico, cols) {
+  var st = cols > 1 ? 'display:grid;grid-template-columns:1fr 1fr;gap:.75em 1.2em' : 'display:flex;flex-direction:column;gap:.6em';
+  return '<div style="' + st + ';color:' + color + '">' + L.map(function (x) {
+    return '<div class="ct">' + cardIcon(x[0], ico) + '<span>' + esc(x[1]) + '</span></div>';
+  }).join('') + '</div>';
+}
+function cardPerson(c, nameColor, titleColor, rule) {
+  if (!c.person && !c.title) return '';
+  return '<div>' + (c.person ? '<div style="font-size:1.7em;font-weight:900;letter-spacing:.08em;line-height:1.15;color:' + nameColor + '">' + esc(c.person) + '</div>' : '') +
+    (c.title ? '<div style="font-size:.78em;font-weight:900;letter-spacing:.04em;margin-top:.35em;color:' + titleColor + '">' + esc(c.title) + '</div>' : '') +
+    '<div style="width:2.4em;height:.22em;margin-top:.7em;background:' + rule + '"></div></div>';
+}
+function cardNameSize(n, big) { var l = String(n).length; return (l <= 4 ? 1.9 : l <= 6 ? 1.55 : l <= 9 ? 1.2 : .95) * (big || 1); }
+
+function cardFront(c) {
+  var P = cardPalOf(c), t = c.tpl, url = cardUrlOf(c), qf = c.qrFront && url, h, name = esc(c.name);
+  if (t === 'side') {
+    var L = cardLines(c, 5), nfs = cardNameSize(c.name);
+    h = '<div class="cf" style="background:' + P.tint + '"><div style="position:absolute;left:0;top:0;bottom:0;width:11.8em;background:' + P.dk + '"></div><div class="ci">' +
+      '<div style="position:absolute;left:1.1em;top:1.3em;width:8.6em;color:#fff">' + logoTile(Math.round(2.7 * CARD_FS)) +
+        '<div style="margin-top:1em;font-size:' + nfs + 'em;font-weight:900;letter-spacing:.08em;line-height:1.15;overflow-wrap:anywhere">' + name + '</div>' +
+        (c.tagline ? '<div style="margin-top:.7em;font-size:.62em;font-weight:700;letter-spacing:.18em;opacity:.85;line-height:1.5">' + esc(c.tagline) + '</div>' : '') + '</div>' +
+      '<div style="position:absolute;left:12.3em;top:1.3em;width:16.5em;height:15.4em;display:flex;flex-direction:column;justify-content:space-between">' +
+        '<div>' + cardPerson(c, '#16233A', P.p, P.a) + '</div>' +
+        '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1em">' + cardContacts(L, '#16233A', P.a, 1).replace('<div style="', '<div style="flex:1;min-width:0;') + (qf ? '<div style="flex:0 0 4.8em">' + cardQrBox(url, 4.8, cardCapOf(c)) + '</div>' : '') + '</div>' +
+      '</div></div></div>';
+  } else if (t === 'top') {
+    var L2 = cardLines(c, 6);
+    h = '<div class="cf" style="background:#fff"><div style="position:absolute;left:0;top:0;right:0;height:6.4em;background:' + P.p + '"></div><div class="ci">' +
+      '<div style="position:absolute;left:1.1em;top:.95em;right:1.1em;display:flex;align-items:center;gap:.9em;color:' + P.onP + '">' + logoTile(Math.round(2.9 * CARD_FS)) +
+        '<div style="min-width:0"><div style="font-size:' + Math.min(1.5, cardNameSize(c.name)) + 'em;font-weight:900;letter-spacing:.07em;line-height:1.15;overflow-wrap:anywhere">' + name + '</div>' +
+        (c.tagline ? '<div style="font-size:.62em;letter-spacing:.12em;opacity:.85;margin-top:.3em">' + esc(c.tagline) + '</div>' : '') + '</div></div>' +
+      '<div style="position:absolute;left:1.1em;top:5.9em;right:1.1em;bottom:1.1em;display:flex;flex-direction:column;justify-content:space-between">' +
+        '<div style="display:flex;justify-content:space-between;gap:1em;align-items:flex-start"><div>' + cardPerson(c, '#16233A', P.p, P.a) + '</div>' + (qf ? '<div style="flex:0 0 4.4em;margin-top:-.3em">' + cardQrBox(url, 4.4, cardCapOf(c)) + '</div>' : '') + '</div>' +
+        cardContacts(L2, '#16233A', P.a, 2) + '</div></div></div>';
+  } else if (t === 'bar') {
+    var L3 = cardLines(c, 5);
+    h = '<div class="cf" style="background:#fff"><div style="position:absolute;left:0;top:0;bottom:0;width:1.9em;background:' + P.p + '"></div><div style="position:absolute;left:1.9em;top:0;bottom:0;width:.3em;background:' + P.a + '"></div><div class="ci">' +
+      '<div style="position:absolute;left:1.9em;top:1.2em;right:1.1em;bottom:1.1em;display:flex;flex-direction:column;justify-content:space-between">' +
+        '<div style="display:flex;align-items:center;gap:.8em">' + logoTile(Math.round(2.5 * CARD_FS)) + '<div style="min-width:0"><div style="font-size:' + Math.min(1.45, cardNameSize(c.name)) + 'em;font-weight:900;letter-spacing:.07em;color:' + P.p + ';line-height:1.15">' + name + '</div>' +
+          (c.tagline ? '<div style="font-size:.62em;color:#6B7486;margin-top:.25em">' + esc(c.tagline) + '</div>' : '') + '</div></div>' +
+        '<div>' + cardPerson(c, '#16233A', P.a, P.a) + '</div>' +
+        '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1em">' + cardContacts(L3, '#16233A', P.a, 1).replace('<div style="', '<div style="flex:1;min-width:0;') + (qf ? '<div style="flex:0 0 4.6em">' + cardQrBox(url, 4.6, cardCapOf(c)) + '</div>' : '') + '</div></div></div></div>';
+  } else {
+    var L4 = cardLines(c, 5);
+    h = '<div class="cf" style="background:' + P.p + ';color:' + P.onP + '"><div style="position:absolute;left:0;right:0;bottom:0;height:.5em;background:' + P.a + '"></div><div class="ci">' +
+      '<div style="position:absolute;left:1.2em;top:1.2em;right:1.2em;bottom:1.3em;display:flex;flex-direction:column;justify-content:space-between">' +
+        '<div style="display:flex;align-items:center;gap:.8em">' + logoTile(Math.round(2.6 * CARD_FS)) + '<div style="min-width:0"><div style="font-size:' + Math.min(1.5, cardNameSize(c.name)) + 'em;font-weight:900;letter-spacing:.08em;line-height:1.15">' + name + '</div>' +
+          (c.tagline ? '<div style="font-size:.62em;opacity:.85;margin-top:.25em;letter-spacing:.1em">' + esc(c.tagline) + '</div>' : '') + '</div></div>' +
+        '<div>' + cardPerson(c, P.onP, P.a, P.a) + '</div>' +
+        '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1em">' + cardContacts(L4, P.onP, P.a, 1).replace('<div style="', '<div style="flex:1;min-width:0;') + (qf ? '<div style="flex:0 0 4.6em">' + cardQrBox(url, 4.6, cardCapOf(c)) + '</div>' : '') + '</div></div></div></div>';
+  }
+  return h;
+}
+function cardBack(c) {
+  var P = cardPalOf(c), t = c.tpl, solid = t === 'solid', bg = solid ? P.p : '#fff', fg = solid ? P.onP : '#16233A';
+  var deco = t === 'side' ? '<div style="position:absolute;left:0;top:0;bottom:0;width:1.9em;background:' + P.dk + '"></div>' :
+    t === 'top' ? '<div style="position:absolute;left:0;top:0;right:0;height:1.7em;background:' + P.p + '"></div>' :
+    t === 'bar' ? '<div style="position:absolute;left:0;top:0;bottom:0;width:1.9em;background:' + P.p + '"></div><div style="position:absolute;left:1.9em;top:0;bottom:0;width:.3em;background:' + P.a + '"></div>' :
+    '<div style="position:absolute;left:0;right:0;bottom:0;height:.5em;background:' + P.a + '"></div>';
+  var padL = (t === 'side' || t === 'bar') ? 1.9 : 0;
+  return '<div class="cf" style="background:' + bg + ';color:' + fg + '">' + deco + '<div class="ci">' +
+    '<div class="cbk" style="position:absolute;left:' + padL + 'em;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center">' +
+      logoTile(Math.round(7.2 * CARD_FS)) +
+      '<div style="margin-top:.9em;font-size:.95em;font-weight:900;letter-spacing:.16em;text-align:center">' + esc(c.name) + '</div>' +
+    '</div></div></div>';
+}
+
+function readCard() {
+  return { tpl: CARD_ST.tpl, pal: CARD_ST.pal, cp: $('c_cp').value.toUpperCase(), ca: $('c_ca').value.toUpperCase(),
+    name: $('c_name').value.trim(), tagline: $('c_tag').value.trim(), person: $('c_person').value.trim(), title: $('c_jobtitle').value.trim(),
+    phone: $('c_phone').value.trim(), address: $('c_addr').value.trim(), hours: $('c_hours').value.trim(), payments: $('c_pay').value.trim(), sides: $('c_sides').value, lineId: $('c_line').value.trim(),
+    email: $('c_email').value.trim(), web: $('c_web').value.trim(), qrFront: $('c_qrf').checked,
+    qr: $('c_qr').value, qrUrl: $('c_url').value.trim(), qrCap: $('c_cap').value.trim(),
+    sheets: Math.min(20, Math.max(1, parseInt($('c_sheets').value, 10) || 1)) };
+}
+function cardSetPal(key) {
+  CARD_ST.pal = key;
+  var p = CARD_PAL.filter(function (x) { return x.k === key; })[0];
+  if (key === 'shop') { $('c_cp').value = (S.shop.primary || '#1B4F8A').toLowerCase(); $('c_ca').value = (S.shop.accent || '#E8762A').toLowerCase(); }
+  else if (p) { $('c_cp').value = p.p.toLowerCase(); $('c_ca').value = p.a.toLowerCase(); }
+  cardChips();
+}
+function cardChips() {
+  $('c_tpls').innerHTML = CARD_TPL.map(function (x) { return '<button class="chipb' + (x.k === CARD_ST.tpl ? ' on' : '') + '" data-tpl="' + x.k + '">' + x.n + '<span class="tpd">' + x.d + '</span></button>'; }).join('');
+  $('c_pals').innerHTML = CARD_PAL.map(function (x) {
+    var p = x.k === 'shop' ? S.shop.primary : x.p, a = x.k === 'shop' ? S.shop.accent : x.a;
+    return '<button class="chipb pal' + (x.k === CARD_ST.pal ? ' on' : '') + '" data-pal="' + x.k + '"><span class="sw" style="background:linear-gradient(135deg,' + p + ' 50%,' + a + ' 50%)"></span>' + x.n + '</button>';
+  }).join('');
+}
+function cardShopSync() { if (CARD_ST.pal === 'shop') cardSetPal('shop'); }
+function fillCard() {
+  var c = BOOT.card || {}, i = BOOT.cardInfo || {}, s = S.shop || {};
+  CARD_ST.tpl = c.tpl || 'side'; CARD_ST.pal = c.pal || 'shop';
+  $('c_name').value = c.name || s.name || ''; $('c_tag').value = c.tagline != null ? c.tagline : (s.tagline || '');
+  $('c_person').value = c.person || ''; $('c_jobtitle').value = c.title || '';
+  $('c_phone').value = c.phone != null ? c.phone : (i.phone || ''); $('c_line').value = c.lineId != null ? c.lineId : (i.lineId || '');
+  $('c_addr').value = c.address != null ? c.address : (i.address || ''); $('c_hours').value = c.hours != null ? c.hours : (i.hours || s.hours || ''); $('c_pay').value = c.payments != null ? c.payments : '現金、LINE Pay、轉帳'; $('c_sides').value = c.sides === 'front' ? 'front' : 'double';
+  $('c_email').value = c.email || ''; $('c_web').value = c.web || ''; $('c_qrf').checked = c.qrFront !== false;
+  $('c_qr').value = c.qr || 'line'; $('c_url').value = c.qrUrl || ''; $('c_cap').value = c.qrCap || '';
+  $('c_sheets').value = c.sheets || 1;
+  $('c_urlRow').style.display = $('c_qr').value === 'custom' ? 'block' : 'none';
+  if (CARD_ST.pal === 'shop' || !c.cp) cardSetPal(CARD_ST.pal === 'shop' || !c.cp ? 'shop' : CARD_ST.pal);
+  else { $('c_cp').value = c.cp.toLowerCase(); $('c_ca').value = (c.ca || s.accent).toLowerCase(); }
+  cardChips();
+}
+function checkCard(c) {
+  if (!c.name) return '請填店名';
+  if (c.qr === 'custom' && !/^https?:[\/]{2}\S+$/i.test(c.qrUrl)) return '自訂網址不正確（要以 http 或 https 開頭）';
+  if (c.qrFront && !cardUrlOf(c)) return '這個 QR 目標還沒有網址（請到「Logo 與店家」或店家設定補上，或先取消「正面放 QR Code」）';
+  return '';
+}
+
+/* 預覽：正面＋背面，含出血；紅色虛線是裁切線 */
+function cardFaceBox(inner, k) {
+  var w = 32 * CARD_FS, hgt = 20 * CARD_FS;
+  return '<div class="cpb" style="width:' + Math.round(w * k) + 'px;height:' + Math.round(hgt * k) + 'px"><div style="position:absolute;left:0;top:0;width:' + w + 'px;height:' + hgt + 'px;font-size:' + CARD_FS + 'px;transform:scale(' + k + ');transform-origin:0 0">' + inner + '</div>' +
+    '<div class="gd" style="left:' + Math.round(CARD_FS * k) + 'px;top:' + Math.round(CARD_FS * k) + 'px;width:' + Math.round(30 * CARD_FS * k) + 'px;height:' + Math.round(18 * CARD_FS * k) + 'px"></div></div>';
+}
+function cardPreview() {
+  var c = readCard(), e = checkCard(c), box = $('cPv');
+  if (e) { box.innerHTML = '<div class="hint">' + esc(e) + '</div>'; return null; }
+  var avail = Math.max(260, box.clientWidth || 600), two = avail >= 640, pw = two ? (avail - 14) / 2 : avail, k = Math.min(1.6, pw / (32 * CARD_FS));
+  box.innerHTML = '<div class="cpf">' + cardFaceBox(cardFront(c), k) + '正面</div><div class="cpf">' + cardFaceBox(cardBack(c), k) + '背面</div>';
+  $('cPvHint').textContent = '預覽含 3 mm 出血；紅色虛線內是成品尺寸（90×54 mm），文字都放在安全範圍內。';
+  return c;
+}
+
+/* 輸出 */
+function cardPageHtml(inner, w, hgt) { return '<div style="position:relative;width:' + w + 'px;height:' + hgt + 'px;background:#fff;overflow:hidden;font-size:' + CARD_FS + 'px">' + inner + '</div>'; }
+function cardPrintPages(c) {
+  var pg = [cardPageHtml(cardFront(c), 32 * CARD_FS, 20 * CARD_FS)];
+  if (c.sides !== 'front') pg.push(cardPageHtml(cardBack(c), 32 * CARD_FS, 20 * CARD_FS));
+  return pg;
+}
+function cardSheetPages(c) {
+  var cw = 30 * CARD_FS, ch = 18 * CARD_FS, gx = (794 - 2 * cw) / 2, gy = (1123 - 5 * ch) / 2, i, j;
+  function sheet(face) {
+    var h = '', xs = [gx, gx + cw, gx + 2 * cw], ys = [];
+    for (j = 0; j < 10; j++) {
+      h += '<div style="position:absolute;left:' + (gx + (j % 2) * cw) + 'px;top:' + (gy + Math.floor(j / 2) * ch) + 'px;width:' + cw + 'px;height:' + ch + 'px;overflow:hidden"><div style="position:absolute;left:' + (-CARD_FS) + 'px;top:' + (-CARD_FS) + 'px;font-size:' + CARD_FS + 'px">' + face + '</div></div>';
+    }
+    for (i = 0; i <= 5; i++) ys.push(gy + i * ch);
+    xs.forEach(function (x) { h += '<div style="position:absolute;left:' + x + 'px;top:' + (gy - 14) + 'px;height:10px;border-left:1px solid #8B93A3"></div><div style="position:absolute;left:' + x + 'px;top:' + (gy + 5 * ch + 4) + 'px;height:10px;border-left:1px solid #8B93A3"></div>'; });
+    ys.forEach(function (y) { h += '<div style="position:absolute;top:' + y + 'px;left:' + (gx - 14) + 'px;width:10px;border-top:1px solid #8B93A3"></div><div style="position:absolute;top:' + y + 'px;left:' + (gx + 2 * cw + 4) + 'px;width:10px;border-top:1px solid #8B93A3"></div>'; });
+    return cardPageHtml(h, 794, 1123);
+  }
+  var f = sheet(cardFront(c)), b = sheet(cardBack(c)), pages = [];
+  for (i = 0; i < c.sheets; i++) { pages.push(f); if (c.sides !== 'front') pages.push(b); }
+  return pages;
+}
+function buildCardPdf(wmm, hmm, pages, scale, onProg) {
+  return libs().then(function () {
+    return (document.fonts && document.fonts.ready) ? document.fonts.ready : 1;
+  }).then(function () {
+    var orient = wmm > hmm ? 'landscape' : 'portrait';
+    var doc = new window.jspdf.jsPDF({ orientation: orient, unit: 'mm', format: [wmm, hmm], compress: true });
+    var stage = $('stage'), i = 0;
+    function next() {
+      if (i >= pages.length) { stage.innerHTML = ''; return doc; }
+      stage.innerHTML = pages[i];
+      var el = stage.firstChild;
+      return waitImages(el).then(function () {
+        return window.html2canvas(el, { scale: scale, backgroundColor: '#FFFFFF', logging: false, useCORS: true });
+      }).then(function (cv) {
+        if (i > 0) doc.addPage([wmm, hmm], orient);
+        doc.addImage(wmCanvas(cv).toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, wmm, hmm, undefined, 'FAST');
+        i++; if (onProg) onProg(i, pages.length);
+        return next();
+      });
+    }
+    return next();
+  });
+}
+function cardPdf(mode) {
+  var btn = $(mode === 'print' ? 'cPdfPrint' : 'cPdfSheet'), other = $(mode === 'print' ? 'cPdfSheet' : 'cPdfPrint'), c = cardPreview();
+  if (!c) return toast(checkCard(readCard()), 4000);
+  other.disabled = true;
+  busy(btn, true, '儲存設定…');
+  run('tSaveCard', c, KEY).then(function (saved) {
+    BOOT.card = saved;
+    busy(btn, true, '產生 PDF…');
+    var prog = function (i, n) { btn.textContent = '產生 PDF… ' + i + '/' + n; };
+    return mode === 'print' ? buildCardPdf(96, 60, cardPrintPages(c), 6, prog) : buildCardPdf(210, 297, cardSheetPages(c), 2.6, prog);
+  }).then(function (doc) {
+    return savePdfFlow(doc, (mode === 'print' ? '名片_印刷廠用含出血_' : '名片_A4十張_') + c.name + '.pdf', 'card', '', $('cOut'), btn);
+  }).then(function () { toast('PDF 完成'); })
+    .catch(function (e) { toast(e.message, 6000); })
+    .then(function () { busy(btn, false); other.disabled = false; });
+}
+var cardTimer = null;
+function cardLive() { clearTimeout(cardTimer); cardTimer = setTimeout(function () { if ($('tab-card').style.display !== 'none') cardPreview(); }, 150); }
+
+/* ---------- LINE 圖文選單（2、4、6 格；2500×1686 或 2500×843）---------- */
+var RM = { n: 6, big: true, cells: [] };
+var RM_ICONS = [['book-open', '菜單'], ['clock', '時間'], ['wallet', '錢包'], ['phone', '電話'], ['calendar', '日曆'], ['message-circle', '訊息'], ['gift', '優惠'], ['map-pin', '地點'], ['star', '推薦'], ['utensils', '餐具'], ['megaphone', '公告'], ['ticket', '集點']];
+var RM_LINKS = [['menu', '電子菜單'], ['shop', '顧客首頁（公告、營業時間）'], ['pre', '大單預訂'], ['knock', '敲敲老闆（留言）'], ['tel', '撥電話'], ['custom', '自訂網址']];
+var RM_DEF = [
+  { ic: 'book-open', t: '瀏覽菜單', s: '看今天吃什麼', l: 'menu' },
+  { ic: 'phone', t: '聯絡我們', s: '直接撥電話', l: 'tel' },
+  { ic: 'clock', t: '營業資訊', s: '公告與營業時間', l: 'shop' },
+  { ic: 'wallet', t: '收款方式', s: '現金・LINE Pay・全支付', l: 'shop' },
+  { ic: 'calendar', t: '大單預訂', s: '需先付訂金，掃碼洽詢', l: 'pre' },
+  { ic: 'message-circle', t: '敲敲老闆', s: '有話跟老闆說', l: 'knock' }
+];
+/* 2 格：菜單＋電話；4 格：菜單、營業資訊、收款方式、電話；6 格：再加預訂與留言 */
+var RM_ORDER = { 2: [0, 1], 4: [0, 2, 3, 1], 6: [0, 2, 3, 4, 5, 1] };
+function rmGrid() { var n = RM.n; return RM.big ? { 2: [2, 1], 4: [2, 2], 6: [3, 2] }[n] : { 2: [2, 1], 4: [4, 1], 6: [6, 1] }[n]; }
+function rmInit() { rmReset(); }
+function rmReset() { RM.cells = RM_ORDER[RM.n].map(function (i) { var d = RM_DEF[i]; return { ic: d.ic, t: d.t, s: d.s, l: d.l, u: '' }; }); rmEditor(); }
+function rmUrl(c) {
+  var i = BOOT.cardInfo || {}, s = S.shop || {};
+  if (c.l === 'menu') return i.menuUrl || '';
+  if (c.l === 'shop') return i.shopUrl || i.menuUrl || '';
+  if (c.l === 'pre') return i.preUrl || '';
+  if (c.l === 'knock') return s.knockUrl || '';
+  if (c.l === 'tel') return i.phone ? 'tel:' + String(i.phone).replace(/[^0-9+]/g, '') : '';
+  return c.u || '';
+}
+function rmEditor() {
+  $('rm_cells').innerHTML = RM.cells.map(function (c, k) {
+    return '<div class="card" style="background:#fff;margin:8px 0;padding:12px"><b>第 ' + (k + 1) + ' 格</b><div class="row">' +
+      '<div><label class="f">標題</label><input type="text" data-rk="t" data-i="' + k + '" maxlength="8" value="' + esc(c.t) + '"></div>' +
+      '<div><label class="f">小字（選填）</label><input type="text" data-rk="s" data-i="' + k + '" maxlength="14" value="' + esc(c.s) + '"></div></div><div class="row">' +
+      '<div><label class="f">圖示</label><select data-rk="ic" data-i="' + k + '">' + RM_ICONS.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === c.ic ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></div>' +
+      '<div><label class="f">點下去</label><select data-rk="l" data-i="' + k + '">' + RM_LINKS.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === c.l ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></div></div>' +
+      (c.l === 'custom' ? '<label class="f">自訂網址（http 或 https 開頭）</label><input type="url" data-rk="u" data-i="' + k + '" value="' + esc(c.u) + '">' : '') + '</div>';
+  }).join('');
+}
+function rmSvgImg(name, px) {
+  return new Promise(function (ok) {
+    var svg = hlIcon(name, { size: px, stroke: 1.5, color: '#FFFFFF' }).replace('<svg ', '<svg xmlns="http:' + '/' + '/www.w3.org/2000/svg" ');
+    var im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { ok(null); };
+    im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  });
+}
+function rmDraw(cv) {
+  var g = rmGrid(), cols = g[0], rows = g[1], W = 2500, H = RM.big ? 1686 : 843, cw = W / cols, ch = H / rows, p = S.shop.primary || '#1B4F8A';
+  cv.width = W; cv.height = H;
+  var x = cv.getContext('2d'), alt = mixHex(p, '#0B0F14', 0.18);
+  var tasks = RM.cells.map(function (c) { return rmSvgImg(c.ic, 400); });
+  return Promise.all(tasks).then(function (imgs) {
+    RM.cells.forEach(function (c, k) {
+      var cx = (k % cols) * cw, cy = Math.floor(k / cols) * ch, mid = cx + cw / 2;
+      x.fillStyle = ((k % cols) + Math.floor(k / cols)) % 2 ? alt : p; x.fillRect(cx, cy, cw, ch);
+      var isz = Math.min(ch * 0.36, cw * 0.34), ty = c.s ? ch * 0.66 : ch * 0.7, ft = Math.max(64, Math.min(ch * 0.115, 118)), fs = Math.max(48, Math.round(ft * 0.62));
+      if (imgs[k]) x.drawImage(imgs[k], mid - isz / 2, cy + ch * 0.12, isz, isz);
+      x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#FFFFFF';
+      x.font = '900 ' + ft + 'px "Noto Sans TC","Microsoft JhengHei",sans-serif'; x.fillText(c.t, mid, cy + ty, cw * 0.84);
+      if (c.s) { x.fillStyle = textOn(p) === '#FFFFFF' ? '#FFD9B8' : '#16233A'; x.fillStyle = '#FFD9B8'; x.font = '700 ' + fs + 'px "Noto Sans TC","Microsoft JhengHei",sans-serif'; x.fillText(c.s, mid, cy + ty + ft * 0.95, cw * 0.84); }
+    });
+    x.strokeStyle = '#FFFFFF'; x.lineWidth = 6;
+    for (var i = 1; i < cols; i++) { x.beginPath(); x.moveTo(i * cw, 0); x.lineTo(i * cw, H); x.stroke(); }
+    for (var j = 1; j < rows; j++) { x.beginPath(); x.moveTo(0, j * ch); x.lineTo(W, j * ch); x.stroke(); }
+  });
+}
+function rmCheck() {
+  for (var k = 0; k < RM.cells.length; k++) {
+    var c = RM.cells[k];
+    if (!String(c.t).trim()) return '第 ' + (k + 1) + ' 格沒有標題';
+    if (c.l === 'custom' && !/^https?:[\/]{2}\S+$/i.test(c.u)) return '第 ' + (k + 1) + ' 格的自訂網址不正確';
+    if (!rmUrl(c)) return '第 ' + (k + 1) + ' 格（' + c.t + '）沒有網址可連：請到「店家設定」補上電話、或改選其他連結';
+  }
+  return '';
+}
+function rmLinksText() {
+  var g = rmGrid(), cols = g[0], rows = g[1], H = RM.big ? 1686 : 843, cw = Math.round(2500 / cols), ch = Math.round(H / rows);
+  return RM.cells.map(function (c, k) { return '第 ' + (k + 1) + ' 格　' + c.t + '　（範圍 x ' + (k % cols) * cw + '～' + ((k % cols) + 1) * cw + '，y ' + Math.floor(k / cols) * ch + '～' + (Math.floor(k / cols) + 1) * ch + '）\n　' + rmUrl(c); }).join('\n');
+}
+function rmPreview() {
+  var e = rmCheck();
+  if (e) { $('rmPv').innerHTML = '<div class="hint">' + esc(e) + '</div>'; $('rmLinks').textContent = ''; return Promise.resolve(null); }
+  var cv = document.createElement('canvas');
+  return rmDraw(cv).then(function () {
+    cv.style.width = '100%'; cv.style.height = 'auto'; cv.style.borderRadius = '12px'; cv.style.boxShadow = '0 0 0 1px rgba(0,0,0,.1)';
+    $('rmPv').innerHTML = ''; $('rmPv').appendChild(cv);
+    $('rmInfo').textContent = '圖檔尺寸 ' + cv.width + '×' + cv.height + '，格線處就是點擊範圍；文字都放在安全範圍內。';
+    $('rmLinks').textContent = rmLinksText();
+    return cv;
+  });
+}
+$('rm_n').onclick = function (e) { var b = e.target.closest('[data-n]'); if (!b) return; RM.n = Number(b.dataset.n); Array.prototype.forEach.call($('rm_n').children, function (x) { x.classList.toggle('on', x === b); }); rmReset(); rmPreview(); };
+$('rm_sz').onclick = function (e) { var b = e.target.closest('[data-big]'); if (!b) return; RM.big = b.dataset.big === '1'; Array.prototype.forEach.call($('rm_sz').children, function (x) { x.classList.toggle('on', x === b); }); rmPreview(); };
+$('rm_cells').oninput = function (e) { var k = e.target.dataset.rk; if (!k) return; RM.cells[+e.target.dataset.i][k] = e.target.value; if (k !== 'u') rmLive(); };
+$('rm_cells').onchange = function (e) { var k = e.target.dataset.rk; if (!k) return; RM.cells[+e.target.dataset.i][k] = e.target.value; if (k === 'l') rmEditor(); rmPreview(); };
+var rmTimer = null;
+function rmLive() { clearTimeout(rmTimer); rmTimer = setTimeout(function () { if ($('tab-rich').style.display !== 'none') rmPreview(); }, 250); }
+$('rmPrev').onclick = function () { var e = rmCheck(); if (e) toast(e, 4000); rmPreview(); };
+$('rmPng').onclick = function () {
+  var e = rmCheck(); if (e) return toast(e, 4000);
+  var b = $('rmPng'); busy(b, true, '產生圖檔…');
+  rmPreview().then(function (cv) {
+    if (!cv) return;
+    cv.toBlob(function (bl) {
+      if (bl.size > 1024 * 1024) { toast('圖檔超過 1MB，請減少格數或改用小圖', 5000); return; }
+      var a = document.createElement('a'); a.href = URL.createObjectURL(bl); a.download = 'LINE圖文選單_' + RM.n + '格_' + (RM.big ? '大' : '小') + '.png';
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000); toast('已下載（' + Math.round(bl.size / 1024) + ' KB）');
+    }, 'image/png');
+  }).catch(function (er) { toast(er.message, 5000); }).then(function () { busy(b, false); });
+};
+$('rmCopy').onclick = function () { try { navigator.clipboard.writeText($('rmLinks').textContent); toast('已複製'); } catch (e) { toast('複製失敗，請手動選取', 3000); } };
+
+/* ---------- 共用：日期與營業判斷（跟顧客頁、伺服器同一套規則：特別營業 > 店休 > 每週公休）---------- */
+function dstr(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function dparse(v) { return new Date(Number(v.slice(0, 4)), Number(v.slice(5, 7)) - 1, Number(v.slice(8, 10))); }
+function dadd(v, n) { var d = dparse(v); d.setDate(d.getDate() + n); return dstr(d); }
+function dmw(v) { var d = dparse(v); return (d.getMonth() + 1) + '/' + d.getDate() + '（' + WK[d.getDay()] + '）'; }
+function dayInfo(v) {
+  var L = S.closures, i;
+  for (i = 0; i < L.length; i++) if (L[i].type === 'open' && L[i].s <= v && L[i].e >= v) return { open: true, kind: 'special', reason: L[i].reason || '特別營業' };
+  for (i = 0; i < L.length; i++) if (L[i].type === 'closed' && L[i].s <= v && L[i].e >= v) return { open: false, kind: 'closed', reason: L[i].reason || '店休' };
+  var w = dparse(v).getDay();
+  return S.openDays.indexOf(w) >= 0 ? { open: true, kind: 'open', reason: '' } : { open: false, kind: 'week', reason: '公休' };
+}
+function weeklyText() {
+  var off = [0, 1, 2, 3, 4, 5, 6].filter(function (w) { return S.openDays.indexOf(w) < 0; });
+  return off.length ? '週' + off.map(function (w) { return WK[w]; }).join('、週') : '無';
+}
+
+/* ---------- 交接紀錄 ---------- */
+var H_TYPES = ['現金／零用金', '叫貨補貨', '設備', '顧客／客訴', '預訂', '其他'];
+var hFilter = 'all', hTypes = [], hPrio = '一般';
+function myName() { try { return localStorage.getItem('hl-who') || ''; } catch (e) { return ''; } }
+function initHand() {
+  $('h_day').value = dstr(new Date());
+  var hr = new Date().getHours();
+  $('h_shift').value = hr < 10 ? '早班' : hr < 13 ? '午班' : '打烊';
+  $('h_who').value = myName();
+  $('h_types').innerHTML = H_TYPES.map(function (t) { return '<button class="chipb" data-t="' + esc(t) + '">' + esc(t) + '</button>'; }).join('');
+  $('h_types').onclick = function (e) {
+    var b = e.target.closest('.chipb'); if (!b) return;
+    b.classList.toggle('on');
+    hTypes = Array.prototype.map.call($('h_types').querySelectorAll('.chipb.on'), function (x) { return x.dataset.t; });
+  };
+  $('h_filter').onclick = function (e) {
+    var b = e.target.closest('.chipb'); if (!b) return;
+    hFilter = b.dataset.f;
+    Array.prototype.forEach.call($('h_filter').querySelectorAll('.chipb'), function (x) { x.classList.toggle('on', x === b); });
+    renderHand();
+  };
+  $('h_prio').onclick = function (e) { var b = e.target.closest('.chipb'); if (!b) return; hPrio = b.dataset.p; Array.prototype.forEach.call($('h_prio').querySelectorAll('.chipb'), function (x) { x.classList.toggle('on', x === b); }); };
+  $('h_send').onclick = sendHand;
+  $('h_list').onclick = handAction;
+  $('sumCard').onclick = function (e) { if (e.target.closest('#sumRefresh')) refreshHand(true); };
+  renderSummary(); renderHand();
+}
+function saveName() { var n = $('h_who').value.trim(); try { if (n) localStorage.setItem('hl-who', n); } catch (e) {} return n; }
+function sendHand() {
+  var b = $('h_send'), who = saveName(), text = $('h_text').value.trim();
+  if (!who) return toast('請填你的名字');
+  if (!text) return toast('請寫交接內容');
+  busy(b, true, '送出中…');
+  run('tAddHandover', { day: $('h_day').value, shift: $('h_shift').value, who: who, types: hTypes, text: text, todo: $('h_todo').checked, prio: hPrio, to: $('h_to').value.trim() }, KEY)
+    .then(function (r) {
+      applyHand(r);
+      $('h_text').value = ''; $('h_todo').checked = false; hTypes = []; $('h_to').value = ''; hPrio = '一般'; Array.prototype.forEach.call($('h_prio').querySelectorAll('.chipb'), function (x) { x.classList.toggle('on', x.dataset.p === '一般'); });
+      Array.prototype.forEach.call($('h_types').querySelectorAll('.chipb'), function (x) { x.classList.remove('on'); });
+      toast('交接已送出');
+    })
+    .catch(function (e) { toast(e.message, 5000); })
+    .then(function () { busy(b, false); });
+}
+function applyHand(r) { S.handover = r.handover || []; S.summary = r.summary || S.summary; renderSummary(); renderHand(); }
+function refreshHand(say) {
+  run('tGetHandover', KEY).then(function (r) { applyHand(r); if (say) toast('已更新'); }).catch(function (e) { if (say) toast(e.message, 4000); });
+}
+function handAction(e) {
+  var b = e.target.closest('[data-act]'); if (!b) return;
+  var who = saveName() || $('h_who').value.trim();
+  if (!who) { toast('請先在上面填你的名字'); $('h_who').focus(); return; }
+  var fn = b.dataset.act === 'done' ? 'tDoneHandover' : 'tAckHandover';
+  busy(b, true, '…');
+  run(fn, b.dataset.id, who, KEY).then(function (r) { applyHand(r); toast(fn === 'tDoneHandover' ? '已標記完成' : '已記錄你看過了'); })
+    .catch(function (er) { toast(er.message, 4000); busy(b, false); });
+}
+function renderHand() {
+  var me = $('h_who').value.trim() || myName();
+  var list = S.handover.filter(function (h) {
+    if (hFilter === 'todo') return h.status === '待處理';
+    if (hFilter === 'unseen') return me && h.who !== me && h.seen.indexOf(me) < 0;
+    return true;
+  });
+  var rk = { '急': 0, '一般': 1, '緩': 2 };
+  list.sort(function (a, b) { return (b.status === '待處理') - (a.status === '待處理') || rk[a.prio] - rk[b.prio]; });
+  $('h_list').innerHTML = list.length ? list.map(function (h) {
+    var st = h.status === '待處理' ? '<span class="pill st-todo">待處理</span>' : h.status === '已完成' ? '<span class="pill st-done">已完成・' + esc(h.doneBy) + '</span>' : '<span class="pill st-log">已記錄</span>';
+    var canAck = me && h.who !== me && h.seen.indexOf(me) < 0;
+    return '<li class="' + (h.status === '待處理' ? 'todo' : '') + '"><div class="meta"><b>' + esc(dmw(h.day)) + ' ' + esc(h.shift) + '</b>・' + esc(h.who) + ' ' + '<span class="pill prio-' + (h.prio === '急' ? 'hi' : h.prio === '緩' ? 'lo' : 'mid') + '">' + esc(h.prio || '一般') + '</span> ' + (h.to ? '<span class="tp">交給 ' + esc(h.to) + '</span>' : '') + st +
+      h.types.map(function (t) { return '<span class="tp">' + esc(t) + '</span>'; }).join('') + '</div>' +
+      '<div class="txt">' + esc(h.text) + '</div><div class="acts">' +
+      (h.status === '待處理' ? '<button class="btn sm" data-act="done" data-id="' + esc(h.id) + '">處理完成</button>' : '') +
+      (canAck ? '<button class="btn sm ghost" data-act="ack" data-id="' + esc(h.id) + '">我看過了</button>' : '') +
+      (h.seen.length ? '<span>已看過：' + esc(h.seen.join('、')) + '</span>' : '') + '</div></li>';
+  }).join('') : '<li class="hint" style="border:0">' + (hFilter === 'all' ? '最近 14 天沒有交接紀錄' : '沒有符合的交接') + '</li>';
+}
+function renderSummary() {
+  var m = S.summary;
+  if (!m) { $('sumCard').innerHTML = '<div class="hint">摘要讀不到</div>'; return; }
+  var ti = m.todayInfo || {}, mi = m.tomorrowInfo || {};
+  var day = function (label, v, inf) { return '<span class="' + (inf.closed ? 'd-closed' : 'd-open') + '">' + label + ' ' + esc(dmw(v)) + '：' + (inf.closed ? esc(inf.reason || '公休') : '營業' + (inf.type === 'open' ? '（' + esc(inf.reason) + '）' : '')) + '</span>'; };
+  var todo = S.handover.filter(function (h) { return h.status === '待處理'; }).length;
+  var h = '<h2 style="display:flex;justify-content:space-between;align-items:center">今日摘要 <button class="btn sm ghost" id="sumRefresh">重新整理</button></h2>' +
+    '<div class="daybar">' + day('今天', m.today, ti) + day('明天', m.tomorrow, mi) + '</div>' +
+    '<div class="sum">' +
+    '<div class="k' + (m.pre.length ? ' hot' : '') + '"><b>' + m.pre.length + '</b><span>今明兩天的預訂</span></div>' +
+    '<div class="k' + (m.preNew ? ' hot' : '') + '"><b>' + m.preNew + '</b><span>預訂待確認</span></div>' +
+    '<div class="k' + (m.helpOpen ? ' hot' : '') + '"><b>' + m.helpOpen + '</b><span>異常回報待處理</span></div>' +
+    '<div class="k' + (m.knockOpen ? ' hot' : '') + '"><b>' + m.knockOpen + '</b><span>敲敲老闆待處理</span></div>' +
+    '<div class="k' + (todo ? ' hot' : '') + '"><b>' + todo + '</b><span>交接待處理</span></div></div>';
+  if (m.pre.length) h += '<ul class="prelist">' + m.pre.map(function (p) {
+    return '<li><b>' + esc(dmw(p.day)) + ' ' + esc(p.time) + '</b>　' + esc(p.name) + '・' + p.count + ' 件・$' + p.total + '　<span class="pill' + (p.status === '待確認' ? ' off' : '') + '">' + esc(p.status) + '</span></li>';
+  }).join('') + '</ul>';
+  if (m.closures && m.closures.length) h += '<div class="hint" style="margin-top:8px">近兩週：' + m.closures.map(function (c) {
+    return (c.type === 'open' ? '特別營業 ' : '店休 ') + esc(c.s === c.e ? dmw(c.s) : dmw(c.s) + '～' + dmw(c.e)) + (c.reason ? '（' + esc(c.reason) + '）' : '');
+  }).join('；') + '</div>';
+  $('sumCard').innerHTML = h;
+}
+
+/* ---------- 店休行事曆 ---------- */
+var calMonth = null, cType = 'closed', cEditId = '';
+function initCal() {
+  var t = new Date(); calMonth = new Date(t.getFullYear(), t.getMonth(), 1);
+  $('calWeekly').innerHTML = '每週固定公休：<b>' + esc(weeklyText()) + '</b>（要改請到 Code.gs 的 OPEN_DAYS）。下面設定的是額外的店休，或公休日要特別營業。';
+  $('calPrev').onclick = function () { calMonth.setMonth(calMonth.getMonth() - 1); renderCal(); };
+  $('calNext').onclick = function () { calMonth.setMonth(calMonth.getMonth() + 1); renderCal(); };
+  $('calGrid').onclick = function (e) {
+    var b = e.target.closest('[data-d]'); if (!b) return;
+    var v = b.dataset.d;
+    if (!$('c_s').value || $('c_e').value || v < $('c_s').value) { $('c_s').value = v; $('c_e').value = ''; }
+    else if (v !== $('c_s').value) $('c_e').value = v;
+    renderCal(); checkClosureForm();
+  };
+  $('c_type').onclick = function (e) {
+    var b = e.target.closest('.chipb'); if (!b) return;
+    cType = b.dataset.t; Array.prototype.forEach.call($('c_type').querySelectorAll('.chipb'), function (x) { x.classList.toggle('on', x === b); });
+    checkClosureForm();
+  };
+  ['c_s', 'c_e'].forEach(function (id) { $(id).onchange = function () { renderCal(); checkClosureForm(); }; });
+  $('c_save').onclick = saveClosure;
+  $('c_clear').onclick = clearClosureForm;
+  $('c_list').onclick = closureAction;
+  var opts = [];
+  for (var i = 0; i < 4; i++) { var d = new Date(t.getFullYear(), t.getMonth() + i, 1); opts.push('<option value="' + dstr(d).slice(0, 7) + '">' + d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月</option>'); }
+  $('mp_month').innerHTML = opts.join('');
+  $('mp_month').onchange = monthPreview;
+  $('mp_pdf').onclick = monthPdf;
+  renderCal(); renderClosures();
+}
+function renderCal() {
+  var y = calMonth.getFullYear(), m = calMonth.getMonth(), first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate();
+  var today = dstr(new Date()), s = $('c_s').value, e = $('c_e').value || s;
+  $('calTitle').textContent = y + ' 年 ' + (m + 1) + ' 月';
+  var h = WK.map(function (w) { return '<div class="wh">' + w + '</div>'; }).join('');
+  for (var i = 0; i < first; i++) h += '<div class="cd blank"></div>';
+  for (var d = 1; d <= n; d++) {
+    var v = dstr(new Date(y, m, d)), inf = dayInfo(v);
+    var cls = inf.kind === 'week' ? 'week' : inf.kind === 'closed' ? 'closed' : inf.kind === 'special' ? 'special' : '';
+    if (v === today) cls += ' today';
+    if (s && v >= s && v <= e) cls += ' pick';
+    h += '<button class="cd ' + cls + '" data-d="' + v + '"><b>' + d + '</b><small>' + esc(inf.kind === 'open' ? '' : inf.reason) + '</small></button>';
+  }
+  $('calGrid').innerHTML = h;
+}
+function checkClosureForm() {
+  var s = $('c_s').value, e = $('c_e').value || s, warn = [];
+  if (s && e >= s) {
+    var overlap = S.closures.filter(function (c) { return c.id !== cEditId && c.s <= e && c.e >= s; });
+    if (overlap.length) warn.push('跟已設定的「' + overlap.map(function (c) { return (c.type === 'open' ? '特別營業 ' : '店休 ') + dmw(c.s) + (c.e !== c.s ? '～' + dmw(c.e) : ''); }).join('、') + '」重疊');
+    if (cType === 'open') {
+      var notWeekly = [], v = s;
+      for (var i = 0; i < 200 && v <= e; i++, v = dadd(v, 1)) if (S.openDays.indexOf(dparse(v).getDay()) >= 0) notWeekly.push(dmw(v));
+      if (notWeekly.length) warn.push(notWeekly.slice(0, 5).join('、') + (notWeekly.length > 5 ? '…' : '') + ' 本來就有營業，特別營業只對公休日有作用');
+    }
+  }
+  $('c_warn').innerHTML = warn.length ? '<div class="warnbox">⚠ ' + warn.map(esc).join('<br>⚠ ') + '</div>' : '';
+}
+function clearClosureForm() {
+  cEditId = ''; $('c_title').textContent = '新增店休';
+  $('c_s').value = ''; $('c_e').value = ''; $('c_reason').value = ''; $('c_show').checked = true; $('c_warn').innerHTML = '';
+  renderCal();
+}
+function saveClosure() {
+  var b = $('c_save'), s = $('c_s').value, e = $('c_e').value || s;
+  if (!s) return toast('請選開始日（可以直接點上面的日曆）');
+  if (e < s) return toast('結束日不能早於開始日');
+  busy(b, true, '儲存中…');
+  run('tSaveClosure', { id: cEditId, s: s, e: e, type: cType, reason: $('c_reason').value.trim(), show: $('c_show').checked }, KEY)
+    .then(function (r) { S.closures = r.closures; clearClosureForm(); renderClosures(); monthPreview(); refreshHand(); toast('已儲存，顧客頁與預訂會一起更新'); })
+    .catch(function (er) { toast(er.message, 5000); })
+    .then(function () { busy(b, false); });
+}
+function renderClosures() {
+  var today = dstr(new Date());
+  var list = S.closures.filter(function (c) { return c.e >= dadd(today, -30); });
+  $('c_list').innerHTML = list.length ? list.map(function (c, i) {
+    var past = c.e < today;
+    return '<li style="' + (past ? 'opacity:.55' : '') + '"><span class="cat" style="background:' + (c.type === 'open' ? 'var(--ok)' : 'var(--bad)') + '">' + (c.type === 'open' ? '特別營業' : '店休') + '</span>' +
+      '<span class="t">' + esc(c.s === c.e ? dmw(c.s) : dmw(c.s) + ' ～ ' + dmw(c.e)) + (c.reason ? '　' + esc(c.reason) : '') + '</span>' +
+      '<span class="pill' + (c.show ? '' : ' off') + '">' + (c.show ? '顧客頁顯示' : '不顯示') + '</span>' +
+      (c.type === 'closed' && !past ? '<button class="btn sm acc" data-mk="' + esc(c.id) + '">做成公告</button>' : '') +
+      '<button class="btn sm ghost" data-ed="' + esc(c.id) + '">編輯</button><button class="x" data-del="' + esc(c.id) + '" title="刪除">×</button></li>';
+  }).join('') : '<li class="hint">還沒有設定。每週固定公休不用設定，會自動套用。</li>';
+}
+function closureAction(e) {
+  var t = e.target, id = t.dataset.ed || t.dataset.del || t.dataset.mk;
+  if (!id) return;
+  var c = S.closures.filter(function (x) { return x.id === id; })[0];
+  if (!c) return;
+  if (t.dataset.ed) {
+    cEditId = c.id; $('c_title').textContent = '編輯 ' + c.id;
+    $('c_s').value = c.s; $('c_e').value = c.e === c.s ? '' : c.e; $('c_reason').value = c.reason; $('c_show').checked = c.show;
+    cType = c.type; Array.prototype.forEach.call($('c_type').querySelectorAll('.chipb'), function (x) { x.classList.toggle('on', x.dataset.t === c.type); });
+    calMonth = new Date(dparse(c.s).getFullYear(), dparse(c.s).getMonth(), 1);
+    renderCal(); checkClosureForm(); window.scrollTo(0, 0);
+  } else if (t.dataset.del) {
+    if (t.dataset.sure !== '1') { t.dataset.sure = '1'; t.textContent = '確定刪除？'; return; }
+    run('tDeleteClosure', id, KEY).then(function (list) { S.closures = list; renderClosures(); renderCal(); monthPreview(); refreshHand(); toast('已刪除'); }).catch(function (er) { toast(er.message, 4000); });
+  } else closureNotice(c);
+}
+/* 店休一鍵做成公告：3 天以上用「休假公告」，否則「臨時公休」；日期、恢復營業日自動算 */
+function closureNotice(c) {
+  var days = Math.round((dparse(c.e) - dparse(c.s)) / 86400000) + 1;
+  var back = c.e, last = c.s, i;
+  for (i = 0; i < 60; i++) { back = dadd(back, 1); if (dayInfo(back).open) break; }
+  for (i = 0; i < 60; i++) { last = dadd(last, -1); if (dayInfo(last).open) break; }
+  var bd = dparse(back), cat = days >= 3 ? 'vacation' : 'closed';
+  var c0 = presets(cat);
+  if (cat === 'vacation') {
+    c0.hiLabel = '恢 復 營 業'; c0.hiBig = bd.getFullYear() + ' 年 ' + (bd.getMonth() + 1) + ' 月 ' + bd.getDate() + ' 日'; c0.hiSub = '星期' + WK[bd.getDay()];
+    c0.hiNote = (S.shop.hours ? S.shop.hours.split(/[–-]/)[0].trim() + ' ' : '') + '照常開門';
+    c0.info = '休假期間｜' + dmw(c.s) + ' ～ ' + dmw(c.e) + '\n休假前最後營業日｜' + dmw(last);
+    if (c.reason) c0.lead = c.reason + '。' + c0.lead;
+  } else {
+    var sd = dparse(c.s);
+    c0.hiLabel = '公 休 日 期';
+    c0.hiBig = days === 1 ? (sd.getMonth() + 1) + ' 月 ' + sd.getDate() + ' 日' : dmw(c.s) + ' ～ ' + dmw(c.e);
+    c0.hiSub = days === 1 ? '星期' + WK[sd.getDay()] : '';
+    c0.hiNote = '下次營業：' + dmw(back);
+    c0.lead = c.reason ? '因' + c.reason.replace(/^因/, '') + '，暫停營業。' : c0.lead;
+  }
+  S.noticeId = '';
+  fillNotice(c0, { show: true, start: dadd(c.s, -7) < dstr(new Date()) ? dstr(new Date()) : dadd(c.s, -7), end: c.e });
+  $('nOut').innerHTML = '';
+  document.querySelector('.tabs button[data-tab=notice]').click();
+  toast('已依店休日期做好公告，確認文字後按「儲存並產生 PDF」', 4000);
+}
+
+/* ---------- 營業日曆海報（A4 直式）---------- */
+function monthHtml(ym) {
+  var y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)) - 1, s = S.shop;
+  var first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate();
+  var h = WK.map(function (w, i) { return '<div class="wh" style="background:' + (i === 0 || i === 6 ? s.accent : s.primary) + '">' + w + '</div>'; }).join('');
+  for (var i = 0; i < first; i++) h += '<div class="c empty"></div>';
+  var closedDays = 0;
+  for (var d = 1; d <= n; d++) {
+    var v = dstr(new Date(y, m, d)), inf = dayInfo(v);
+    if (!inf.open) closedDays++;
+    var cls = inf.kind === 'week' ? 'week' : inf.kind === 'closed' ? 'closed' : inf.kind === 'special' ? 'special' : '';
+    var st = inf.kind === 'closed' ? ' style="background:' + s.accent + '"' : '';
+    var lab = inf.kind === 'week' ? '公休' : inf.kind === 'closed' ? (inf.reason || '店休') : inf.kind === 'special' ? '照常營業' : '';
+    h += '<div class="c ' + cls + '"' + st + '><b>' + d + '</b><span>' + esc(lab) + '</span></div>';
+  }
+  var q = s.lineUrl ? makeQR(s.lineUrl, { px: 600 }) : null;
+  return '<div class="mc">' +
+    '<div class="hd">' + logoTile(64) + '<div><div class="nm" style="color:' + s.primary + '">' + esc(s.name) + '</div><div class="tg">' + esc(s.tagline || '') + '</div></div></div>' +
+    '<h1 style="color:' + s.primary + '">' + (m + 1) + ' 月營業日曆</h1><div class="sub">' + y + ' 年 ' + (m + 1) + ' 月・本月公休 ' + closedDays + ' 天</div>' +
+    '<div class="grid">' + h + '</div>' +
+    '<div class="ft"><div class="tx">' + (s.hours ? '<b>營業時間 ' + esc(s.hours) + '</b><br>' : '') +
+    '每週固定公休：' + esc(weeklyText()) + '<br><span style="color:#6B7280">如有臨時異動，以 LINE 官方帳號公告為準</span></div>' +
+    (q && q.ok ? '<div class="q"><img src="' + q.dataUrl + '" style="width:120px;height:120px;display:block"><div style="color:' + s.primary + '">加 LINE 收通知</div></div>' : '') +
+    '</div></div>';
+}
+function monthPreview() {
+  if (!$('mp_month').value) return;
+  showPreview($('mpPv'), NL, [monthHtml($('mp_month').value)], 1);
+}
+function monthPdf() {
+  var b = $('mp_pdf'), ym = $('mp_month').value;
+  monthPreview();
+  busy(b, true, '產生中…');
+  buildPdf(NL, [monthHtml(ym)]).then(function (doc) {
+    return savePdfFlow(doc, '營業日曆_' + ym + '.pdf', 'calendar', '', $('mpOut'), b);
+  }).then(function () { toast('PDF 完成'); })
+    .catch(function (e) { toast(e.message, 6000); })
+    .then(function () { busy(b, false); });
+}
+
+/* ---------- 啟動 ---------- */
+function bind() {
+  Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function (b) {
+    b.onclick = function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.tabs button'), function (x) { x.classList.toggle('on', x === b); });
+      ['hand', 'cal', 'notice', 'table', 'wifi', 'card', 'rich', 'logo'].forEach(function (t) { $('tab-' + t).style.display = t === b.dataset.tab ? 'block' : 'none'; });
+      if (b.dataset.tab === 'table' && S.tables.length) tablePreview();
+      if (b.dataset.tab === 'notice') noticePreview();
+      if (b.dataset.tab === 'wifi') wifiPreview();
+      if (b.dataset.tab === 'card') { cardShopSync(); cardPreview(); }
+      if (b.dataset.tab === 'rich') { if (!RM.cells.length) rmInit(); rmPreview(); }
+      if (b.dataset.tab === 'cal') { renderCal(); monthPreview(); }
+      if (b.dataset.tab === 'hand') refreshHand();
+    };
+  });
+  $('logoFile').onchange = function () { onLogoFile(this.files[0]); };
+  $('logoSave').onclick = saveLogo;
+  $('bgSave').onclick = saveBg;
+  $('bgMode').onchange = function () { renderLogoView(); };
+  $('sPals').onclick = function (e) {
+    var b = e.target.closest('[data-sp]'); if (!b) return;
+    var x = SHOP_PALS[Number(b.dataset.sp)]; $('sPri').value = x[1].toLowerCase(); $('sAcc').value = x[2].toLowerCase(); renderShopPals();
+  };
+  $('sPri').oninput = $('sAcc').oninput = renderShopPals;
+  $('bgPick').oninput = function () { $('bgMode').value = 'manual'; renderLogoView(); };
+  $('shopSave').onclick = function () { try { saveShop(); } catch (e) { toast(e.message, 4000); } };
+  $('addRow').onclick = function () { S.tables = readRows(); S.tables.push({ type: 'table', name: nextTableName(), url: '' }); renderRows(); };
+  $('clearRows').onclick = function () {
+    var b = this;
+    if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = '再按一次確定清空'; setTimeout(function () { b.dataset.sure = ''; b.textContent = '清空'; }, 3000); return; }
+    b.dataset.sure = ''; b.textContent = '清空'; S.tables = []; renderRows();
+  };
+  $('bulkAdd').onclick = function () { bulkApply(false); };
+  $('bulkReplace').onclick = function () { bulkApply(true); };
+  $('tbl').addEventListener('input', function (e) {
+    if (e.target.classList.contains('nm')) { var tr = e.target.closest('tr'); tr.querySelector('.ty').value = guessType(e.target.value) === 'table' ? tr.querySelector('.ty').value : guessType(e.target.value); }
+    refreshStatus();
+  });
+  $('tbl').addEventListener('click', function (e) {
+    if (e.target.classList.contains('x')) { S.tables = readRows(); S.tables.splice(Number(e.target.closest('tr').dataset.i), 1); renderRows(); }
+  });
+  $('tPrev').onclick = function () { tablePreview(); };
+  $('tPdf').onclick = tablePdf;
+  $('n_cat').onchange = function () {
+    var v = this.value;
+    if (S.noticeId) { fillSub(''); toast('已改成「' + catOf(v).name + '」，內容保留'); noticePreview(); return; }
+    applyTpl(v, '');
+  };
+  $('n_sub').onchange = function () { applyTpl($('n_cat').value, this.value); toast('已套用「' + this.options[this.selectedIndex].text + '」範本'); };
+  $('upcoming').addEventListener('click', function (e) {
+    var b = e.target.closest('.fest'); if (!b) return;
+    S.noticeId = ''; $('nOut').innerHTML = '';
+    $('n_cat').value = 'festival'; applyTpl('festival', b.dataset.fest);
+    toast('已做好「' + festOf(b.dataset.fest).name + '」祝福海報，可以再改文字');
+  });
+  $('nFilter').onchange = renderNotices;
+  $('nPrev').onclick = function () { var e = noticeErrors(readNotice()); if (e.length) toast(e.join('\n'), 4000); noticePreview(); };
+  $('nSave').onclick = noticeSaveOnly;
+  $('nPdf').onclick = noticePdf; $('nPng').onclick = noticePng; $('n_ratio').onchange = function () { setRatio($('n_ratio').value); noticePreview(); };
+  $('nNew').onclick = function () { S.noticeId = ''; applyTpl($('n_cat').value || 'general', $('n_sub').value); $('nOut').innerHTML = ''; noticePreview(); toast('已開新公告（' + catOf($('n_cat').value).name + '範本）'); };
+  $('nList').addEventListener('click', function (e) {
+    var ed = e.target.dataset.ed, del = e.target.dataset.del;
+    if (ed != null) {
+      var n = S.notices[Number(ed)]; S.noticeId = n.id; fillNotice(n.content || {}, n); $('nOut').innerHTML = ''; noticePreview();
+      window.scrollTo(0, 0); toast('編輯中：' + n.id);
+    }
+    if (del != null) {
+      var m = S.notices[Number(del)];
+      if (e.target.dataset.sure !== '1') { e.target.dataset.sure = '1'; e.target.textContent = '確定刪除？'; return; }
+      run('tDeleteNotice', m.id, KEY).then(function (list) { S.notices = list; if (S.noticeId === m.id) S.noticeId = ''; renderNotices(); toast('已刪除'); }).catch(function (er) { toast(er.message, 5000); });
+    }
+  });
+  $('wPrev').onclick = function () { var e = checkWifi(readWifi()); if (e) toast(e, 4000); wifiPreview(); };
+  $('wPdf').onclick = wifiPdf;
+  $('cPdfPrint').onclick = function () { cardPdf('print'); };
+  $('cPdfSheet').onclick = function () { cardPdf('sheet'); };
+  $('c_qr').onchange = function () { $('c_urlRow').style.display = this.value === 'custom' ? 'block' : 'none'; };
+  $('c_tpls').onclick = function (e) { var b = e.target.closest('[data-tpl]'); if (!b) return; CARD_ST.tpl = b.dataset.tpl; cardChips(); cardPreview(); };
+  $('c_pals').onclick = function (e) { var b = e.target.closest('[data-pal]'); if (!b) return; cardSetPal(b.dataset.pal); cardPreview(); };
+  $('c_cp').oninput = $('c_ca').oninput = function () { CARD_ST.pal = 'custom'; cardChips(); };
+  $('tab-card').addEventListener('input', cardLive);
+  $('tab-card').addEventListener('change', cardLive);
+  var R = S.rule;
+  $('rLong').textContent = R.minLong; $('rShort').textContent = R.minShort; $('rRatio').textContent = R.maxRatio; $('rRec').textContent = R.recLong;
+}
+
+function start() {
+  bind();
+  fillShop();
+  fillTableOpt();
+  renderRows();
+  fillCats();
+  fillNotice(presets('vacation'), {});
+  renderUpcoming();
+  fillWifi();
+  fillCard();
+  renderNotices();
+  renderLogoView();
+  loadLogo();
+  initHand();
+  initCal();
+  if (BOOT.openTab && !BOOT.openHiring) { var ot = document.querySelector('.tabs button[data-tab=' + BOOT.openTab + ']'); if (ot) ot.click(); }
+  if (BOOT.openHiring) { var nb = document.querySelector('.tabs button[data-tab=notice]'); if (nb) nb.click(); $('n_cat').value = 'hiring'; applyTpl('hiring', ''); noticePreview(); }
+  if (BOOT.staffUrl) { $('staffLink').href = BOOT.staffUrl; $('staffLink').style.display = ''; }
+  if (S.menuUrl) { $('menuLink').href = S.menuUrl; $('menuLink').style.display = ''; }
+  libs().catch(function () {});
+}
+start();
+/* HL-ICONS:BEGIN */
+/* 弘林圖示庫 hl-icons.js v1.0
+   圖形來源：Lucide v0.460.0（ISC 授權，可商用；Copyright (c) Lucide Contributors，部分源自 Feather，MIT）。
+   無外部依賴、不含連續兩個斜線，可直接貼進 Apps Script 的 HTML。
+   用法：
+     1. HTML 寫 <i data-icon="coffee">（空的 i 標籤），可加 data-size="20" data-stroke="2" data-label="咖啡"
+     2. 頁面載入後呼叫 hlIcon.render()（也可傳入某個容器只換那一塊）
+     3. 在程式裡要字串：hlIcon('coffee', { size: 20 })；要元素：hlIcon.el('coffee')
+     4. 顏色跟著文字顏色（currentColor），用 CSS color 改色 */
+(function (root) {
+  var ICONS = {
+    'egg-fried': '<circle cx="11.5" cy="12.5" r="3.5"/><path d="M3 8c0-3.5 2.5-6 6.5-6 5 0 4.83 3 7.5 5s5 2 5 6c0 4.5-2.5 6.5-7 6.5-2.5 0-2.5 2.5-6 2.5s-7-2-7-5.5c0-3 1.5-3 1.5-5C3.5 10 3 9 3 8Z"/>',
+    'egg': '<path d="M12 22c6.23-.05 7.87-5.57 7.5-10-.36-4.34-3.95-9.96-7.5-10-3.55.04-7.14 5.66-7.5 10-.37 4.43 1.27 9.95 7.5 10z"/>',
+    'sandwich': '<path d="m2.37 11.223 8.372-6.777a2 2 0 0 1 2.516 0l8.371 6.777"/><path d="M21 15a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-5.25"/><path d="M3 15a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h9"/><path d="m6.67 15 6.13 4.6a2 2 0 0 0 2.8-.4l3.15-4.2"/><rect width="20" height="4" x="2" y="11" rx="1"/>',
+    'croissant': '<path d="m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z"/><path d="m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83"/><path d="M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4"/><path d="m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2"/><path d="M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5"/>',
+    'salad': '<path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1"/><path d="m13 12 4-4"/><path d="M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2"/>',
+    'soup': '<path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 21h10"/><path d="M19.5 12 22 6"/><path d="M16.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.73 1.62"/><path d="M11.25 3c.27.1.8.53.74 1.36-.05.83-.93 1.2-.98 2.02-.06.78.33 1.24.72 1.62"/><path d="M6.25 3c.27.1.8.53.75 1.36-.06.83-.93 1.2-1 2.02-.05.78.34 1.24.74 1.62"/>',
+    'cooking-pot': '<path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/>',
+    'beef': '<circle cx="12.5" cy="8.5" r="2.5"/><path d="M12.5 2a6.5 6.5 0 0 0-6.22 4.6c-1.1 3.13-.78 3.9-3.18 6.08A3 3 0 0 0 5 18c4 0 8.4-1.8 11.4-4.3A6.5 6.5 0 0 0 12.5 2Z"/><path d="m18.5 6 2.19 4.5a6.48 6.48 0 0 1 .31 2 6.49 6.49 0 0 1-2.6 5.2C15.4 20.2 11 22 7 22a3 3 0 0 1-2.68-1.66L2.4 16.5"/>',
+    'drumstick': '<path d="M15.4 15.63a7.875 6 135 1 1 6.23-6.23 4.5 3.43 135 0 0-6.23 6.23"/><path d="m8.29 12.71-2.6 2.6a2.5 2.5 0 1 0-1.65 4.65A2.5 2.5 0 1 0 8.7 18.3l2.59-2.59"/>',
+    'ham': '<path d="M13.144 21.144A7.274 10.445 45 1 0 2.856 10.856"/><path d="M13.144 21.144A7.274 4.365 45 0 0 2.856 10.856a7.274 4.365 45 0 0 10.288 10.288"/><path d="M16.565 10.435 18.6 8.4a2.501 2.501 0 1 0 1.65-4.65 2.5 2.5 0 1 0-4.66 1.66l-2.024 2.025"/><path d="m8.5 16.5-1-1"/>',
+    'fish': '<path d="M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z"/><path d="M18 12v.5"/><path d="M16 17.93a9.77 9.77 0 0 1 0-11.86"/><path d="M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33"/><path d="M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4"/><path d="m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98"/>',
+    'pizza': '<path d="m12 14-1 1"/><path d="m13.75 18.25-1.25 1.42"/><path d="M17.775 5.654a15.68 15.68 0 0 0-12.121 12.12"/><path d="M18.8 9.3a1 1 0 0 0 2.1 7.7"/><path d="M21.964 20.732a1 1 0 0 1-1.232 1.232l-18-5a1 1 0 0 1-.695-1.232A19.68 19.68 0 0 1 15.732 2.037a1 1 0 0 1 1.232.695z"/>',
+    'cake-slice': '<circle cx="9" cy="7" r="2"/><path d="M7.2 7.9 3 11v9c0 .6.4 1 1 1h16c.6 0 1-.4 1-1v-9c0-2-3-6-7-8l-3.6 2.6"/><path d="M16 13H3"/><path d="M16 17H3"/>',
+    'cookie': '<path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/>',
+    'donut': '<path d="M20.5 10a2.5 2.5 0 0 1-2.4-3H18a2.95 2.95 0 0 1-2.6-4.4 10 10 0 1 0 6.3 7.1c-.3.2-.8.3-1.2.3"/><circle cx="12" cy="12" r="3"/>',
+    'ice-cream-cone': '<path d="m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11"/><path d="M17 7A5 5 0 0 0 7 7"/><path d="M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4"/>',
+    'popcorn': '<path d="M18 8a2 2 0 0 0 0-4 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0-4 0 2 2 0 0 0 0 4"/><path d="M10 22 9 8"/><path d="m14 22 1-14"/><path d="M20 8c.5 0 .9.4.8 1l-2.6 12c-.1.5-.7 1-1.2 1H7c-.6 0-1.1-.4-1.2-1L3.2 9c-.1-.6.3-1 .8-1Z"/>',
+    'coffee': '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+    'cup-soda': '<path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8"/><path d="M5 8h14"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/><path d="m12 8 1-6h2"/>',
+    'milk': '<path d="M8 2h8"/><path d="M9 2v2.789a4 4 0 0 1-.672 2.219l-.656.984A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.789a4 4 0 0 0-.672-2.219l-.656-.984A4 4 0 0 1 15 4.788V2"/><path d="M7 15a6.472 6.472 0 0 1 5 0 6.47 6.47 0 0 0 5 0"/>',
+    'citrus': '<path d="M21.66 17.67a1.08 1.08 0 0 1-.04 1.6A12 12 0 0 1 4.73 2.38a1.1 1.1 0 0 1 1.61-.04z"/><path d="M19.65 15.66A8 8 0 0 1 8.35 4.34"/><path d="m14 10-5.5 5.5"/><path d="M14 17.85V10H6.15"/>',
+    'glass-water': '<path d="M5.116 4.104A1 1 0 0 1 6.11 3h11.78a1 1 0 0 1 .994 1.105L17.19 20.21A2 2 0 0 1 15.2 22H8.8a2 2 0 0 1-2-1.79z"/><path d="M6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0"/>',
+    'wine': '<path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/>',
+    'beer': '<path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/>',
+    'apple': '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
+    'cherry': '<path d="M2 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M12 17a5 5 0 0 0 10 0c0-2.76-2.5-5-5-3-2.5-2-5 .24-5 3Z"/><path d="M7 14c3.22-2.91 4.29-8.75 5-12 1.66 2.38 4.94 9 5 12"/><path d="M22 9c-4.29 0-7.14-2.33-10-7 5.71 0 10 4.67 10 7Z"/>',
+    'chef-hat': '<path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/>',
+    'utensils': '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+    'utensils-crossed': '<path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/>',
+    'leaf': '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+    'vegan': '<path d="M16 8q6 0 6-6-6 0-6 6"/><path d="M17.41 3.59a10 10 0 1 0 3 3"/><path d="M2 2a26.6 26.6 0 0 1 10 20c.9-6.82 1.5-9.5 4-14"/>',
+    'wheat': '<path d="M2 22 16 8"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M7.47 8.53 9 7l1.53 1.53a3.5 3.5 0 0 1 0 4.94L9 15l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M11.47 4.53 13 3l1.53 1.53a3.5 3.5 0 0 1 0 4.94L13 11l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M15.47 13.47 17 15l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="M19.47 9.47 21 11l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L13 11l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/>',
+    'wheat-off': '<path d="m2 22 10-10"/><path d="m16 8-1.17 1.17"/><path d="M3.47 12.53 5 11l1.53 1.53a3.5 3.5 0 0 1 0 4.94L5 19l-1.53-1.53a3.5 3.5 0 0 1 0-4.94Z"/><path d="m8 8-.53.53a3.5 3.5 0 0 0 0 4.94L9 15l1.53-1.53c.55-.55.88-1.25.98-1.97"/><path d="M10.91 5.26c.15-.26.34-.51.56-.73L13 3l1.53 1.53a3.5 3.5 0 0 1 .28 4.62"/><path d="M20 2h2v2a4 4 0 0 1-4 4h-2V6a4 4 0 0 1 4-4Z"/><path d="M11.47 17.47 13 19l-1.53 1.53a3.5 3.5 0 0 1-4.94 0L5 19l1.53-1.53a3.5 3.5 0 0 1 4.94 0Z"/><path d="m16 16-.53.53a3.5 3.5 0 0 1-4.94 0L9 15l1.53-1.53a3.49 3.49 0 0 1 1.97-.98"/><path d="M18.74 13.09c.26-.15.51-.34.73-.56L21 11l-1.53-1.53a3.5 3.5 0 0 0-4.62-.28"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'milk-off': '<path d="M8 2h8"/><path d="M9 2v1.343M15 2v2.789a4 4 0 0 0 .672 2.219l.656.984a4 4 0 0 1 .672 2.22v1.131M7.8 7.8l-.128.192A4 4 0 0 0 7 10.212V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3"/><path d="M7 15a6.47 6.47 0 0 1 5 0 6.472 6.472 0 0 0 3.435.435"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'egg-off': '<path d="M6.399 6.399C5.362 8.157 4.65 10.189 4.5 12c-.37 4.43 1.27 9.95 7.5 10 3.256-.026 5.259-1.547 6.375-3.625"/><path d="M19.532 13.875A14.07 14.07 0 0 0 19.5 12c-.36-4.34-3.95-9.96-7.5-10-1.04.012-2.082.502-3.046 1.297"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'nut': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592A7.003 7.003 0 0 0 19 14v-4"/><path d="M12 4C8 4 4.5 6 4 8c-.243.97-.919 1.952-2 3 1.31-.082 1.972-.29 3-1 .54.92.982 1.356 2 2 1.452-.647 1.954-1.098 2.5-2 .595.995 1.151 1.427 2.5 2 1.31-.621 1.862-1.058 2.5-2 .629.977 1.162 1.423 2.5 2 1.209-.548 1.68-.967 2-2 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4Z"/>',
+    'nut-off': '<path d="M12 4V2"/><path d="M5 10v4a7.004 7.004 0 0 0 5.277 6.787c.412.104.802.292 1.102.592L12 22l.621-.621c.3-.3.69-.488 1.102-.592a7.01 7.01 0 0 0 4.125-2.939"/><path d="M19 10v3.343"/><path d="M12 12c-1.349-.573-1.905-1.005-2.5-2-.546.902-1.048 1.353-2.5 2-1.018-.644-1.46-1.08-2-2-1.028.71-1.69.918-3 1 1.081-1.048 1.757-2.03 2-3 .194-.776.84-1.551 1.79-2.21m11.654 5.997c.887-.457 1.28-.891 1.556-1.787 1.032.916 1.683 1.157 3 1-1.297-1.036-1.758-2.03-2-3-.5-2-4-4-8-4-.74 0-1.461.068-2.15.192"/><line x1="2" x2="22" y1="2" y2="22"/>',
+    'bean': '<path d="M10.165 6.598C9.954 7.478 9.64 8.36 9 9c-.64.64-1.521.954-2.402 1.165A6 6 0 0 0 8 22c7.732 0 14-6.268 14-14a6 6 0 0 0-11.835-1.402Z"/><path d="M5.341 10.62a4 4 0 1 0 5.279-5.28"/>',
+    'flame': '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    'star': '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+    'thumbs-up': '<path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>',
+    'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    'award': '<path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/>',
+    'sparkles': '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+    'badge-percent': '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m15 9-6 6"/><path d="M9 9h.01"/><path d="M15 15h.01"/>',
+    'store': '<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+    'building-2': '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+    'map-pin': '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+    'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    'calendar': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+    'calendar-check': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/>',
+    'calendar-x': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/>',
+    'calendar-days': '<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>',
+    'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'user-plus': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+    'user-check': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+    'clipboard-list': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+    'clipboard-check': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    'notebook-pen': '<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>',
+    'receipt': '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/>',
+    'wallet': '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    'banknote': '<rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    'credit-card': '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    'calculator': '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+    'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+    'package': '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
+    'truck': '<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+    'bike': '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>',
+    'phone': '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+    'megaphone': '<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+    'bell': '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+    'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    'printer': '<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+    'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+    'file-spreadsheet': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/>',
+    'file-check-2': '<path d="M4 22h14a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v4"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m3 15 2 2 4-4"/>',
+    'file-down': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/>',
+    'newspaper': '<path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/>',
+    'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+    'palette': '<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+    'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+    'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    'qr-code': '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>',
+    'scan-line': '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
+    'wifi': '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
+    'tag': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    'ticket': '<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>',
+    'gift': '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+    'presentation': '<path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/>',
+    'smartphone': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
+    'check': '<path d="M20 6 9 17l-5-5"/>',
+    'check-circle-2': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+    'minus': '<path d="M5 12h14"/>',
+    'pencil': '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+    'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+    'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+    'settings': '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    'history': '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    'refresh-cw': '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    'undo-2': '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+    'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+    'upload': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+    'copy': '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    'share-2': '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+    'link': '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    'external-link': '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+    'eye': '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+    'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
+    'lock': '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+    'shield-check': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    'alert-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>',
+    'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'log-in': '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/>',
+    'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+    'house': '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    'menu': '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+    'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+    'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+    'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+    'play-circle': '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>',
+    'more-horizontal': '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>'
+  };
+  var META = [["egg-fried", "荷包蛋 蛋餅 早餐", "餐點"], ["egg", "蛋", "餐點"], ["sandwich", "三明治 吐司", "餐點"], ["croissant", "可頌 麵包", "餐點"], ["salad", "沙拉", "餐點"], ["soup", "湯 羹湯 麵", "餐點"], ["cooking-pot", "鍋 燉煮 火鍋", "餐點"], ["beef", "牛肉 肉排", "餐點"], ["drumstick", "雞腿 炸雞", "餐點"], ["ham", "火腿 豬肉", "餐點"], ["fish", "魚 海鮮", "餐點"], ["pizza", "披薩", "餐點"], ["cake-slice", "蛋糕 甜點", "餐點"], ["cookie", "餅乾 點心", "餐點"], ["donut", "甜甜圈", "餐點"], ["ice-cream-cone", "冰淇淋 冰品", "餐點"], ["popcorn", "爆米花 點心", "餐點"], ["coffee", "咖啡 熱飲", "飲品"], ["cup-soda", "飲料 手搖 冷飲", "飲品"], ["milk", "牛奶 鮮奶", "飲品"], ["citrus", "檸檬 果汁", "飲品"], ["glass-water", "水 冰水", "飲品"], ["wine", "紅酒 酒", "飲品"], ["beer", "啤酒", "飲品"], ["apple", "蘋果 水果", "飲品"], ["cherry", "櫻桃 水果", "飲品"], ["chef-hat", "廚師 主廚", "餐點"], ["utensils", "餐具 內用", "餐點"], ["utensils-crossed", "餐廳 刀叉", "餐點"], ["leaf", "葉 蔬食 素", "標示"], ["vegan", "全素 蔬食", "標示"], ["wheat", "小麥 麩質", "標示"], ["wheat-off", "無麩質", "標示"], ["milk-off", "無乳製品", "標示"], ["egg-off", "不含蛋", "標示"], ["nut", "堅果 花生", "標示"], ["nut-off", "無堅果", "標示"], ["bean", "豆 黃豆 大豆", "標示"], ["flame", "辣 熱門", "標示"], ["star", "推薦 星號", "標示"], ["thumbs-up", "好評 讚", "標示"], ["heart", "喜愛 收藏", "標示"], ["award", "得獎 招牌", "標示"], ["sparkles", "新品 亮點", "標示"], ["badge-percent", "折扣 優惠", "標示"], ["store", "店家 門市", "店務"], ["building-2", "總店 品牌 多門市", "店務"], ["map-pin", "地址 位置", "店務"], ["clock", "營業時間 時間", "店務"], ["calendar", "日曆 行事曆", "店務"], ["calendar-check", "交接 已排定", "店務"], ["calendar-x", "店休 公休", "店務"], ["calendar-days", "營業日", "店務"], ["users", "夥伴 團隊", "店務"], ["user-plus", "邀請夥伴", "店務"], ["user-check", "已綁定", "店務"], ["clipboard-list", "清單 叫貨單", "店務"], ["clipboard-check", "檢查表 完成", "店務"], ["notebook-pen", "交接本 筆記", "店務"], ["receipt", "收據 帳單", "店務"], ["wallet", "零用金 錢包", "店務"], ["banknote", "現金", "店務"], ["credit-card", "信用卡 付款", "店務"], ["calculator", "計算 調價", "店務"], ["trending-up", "漲價 成長", "店務"], ["flag", "目標 里程碑", "店務"], ["package", "包裹 外帶", "店務"], ["truck", "叫貨 送貨", "店務"], ["bike", "外送", "店務"], ["phone", "電話", "店務"], ["message-circle", "訊息 敲敲老闆", "店務"], ["megaphone", "公告 宣傳", "店務"], ["bell", "通知 提醒", "店務"], ["mail", "Email 信件", "店務"], ["printer", "列印 印製", "文宣"], ["file-text", "文件 PDF", "文宣"], ["file-spreadsheet", "試算表 CSV 匯入", "文宣"], ["file-check-2", "已確認文件", "文宣"], ["file-down", "下載檔案", "文宣"], ["newspaper", "海報 公告", "文宣"], ["image", "圖片 照片", "文宣"], ["palette", "配色 Logo", "文宣"], ["layout-grid", "版面 四欄", "文宣"], ["book-open", "菜單", "文宣"], ["qr-code", "QR 桌號", "文宣"], ["scan-line", "掃描", "文宣"], ["wifi", "Wi-Fi 無線網路", "文宣"], ["tag", "標籤 價格", "文宣"], ["ticket", "票券 集點", "文宣"], ["gift", "贈品 活動", "文宣"], ["presentation", "簡報", "文宣"], ["smartphone", "手機", "介面"], ["check", "勾選 完成", "介面"], ["check-circle-2", "已完成", "介面"], ["x", "關閉 取消", "介面"], ["plus", "新增", "介面"], ["minus", "減少", "介面"], ["pencil", "編輯 修改", "介面"], ["trash-2", "刪除", "介面"], ["search", "搜尋", "介面"], ["filter", "篩選", "介面"], ["settings", "設定", "介面"], ["history", "紀錄 歷史", "介面"], ["refresh-cw", "同步 重新整理", "介面"], ["undo-2", "復原", "介面"], ["download", "下載", "介面"], ["upload", "上傳", "介面"], ["copy", "複製", "介面"], ["share-2", "分享", "介面"], ["link", "連結", "介面"], ["external-link", "外部連結", "介面"], ["eye", "顯示 預覽", "介面"], ["eye-off", "隱藏", "介面"], ["lock", "鎖定 唯讀", "介面"], ["shield-check", "安全 授權", "介面"], ["alert-circle", "注意", "介面"], ["alert-triangle", "警告", "介面"], ["info", "說明", "介面"], ["log-in", "登入", "介面"], ["log-out", "登出", "介面"], ["house", "首頁", "介面"], ["menu", "選單", "介面"], ["chevron-down", "展開", "介面"], ["chevron-right", "下一個", "介面"], ["arrow-left", "上一頁", "介面"], ["arrow-right", "下一頁", "介面"], ["play-circle", "播放 示範", "介面"], ["more-horizontal", "更多", "介面"]];
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function hlIcon(name, o) {
+    o = o || {};
+    var body = ICONS[name];
+    if (!body) { body = ICONS['alert-circle']; }
+    var size = o.size || 24, sw = o.stroke || 2;
+    var a = '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" fill="none" stroke="' + (o.color || 'currentColor') +
+      '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" class="hl-icon' + (o.cls ? ' ' + esc(o.cls) : '') + '" data-name="' + esc(name) + '"';
+    a += o.label ? ' role="img" aria-label="' + esc(o.label) + '">' : ' aria-hidden="true" focusable="false">';
+    if (o.label) { a += '<title>' + esc(o.label) + '<' + '/title>'; }
+    return a + body + '<' + '/svg>';
+  }
+
+  hlIcon.el = function (name, o) {
+    var t = document.createElement('span');
+    t.innerHTML = hlIcon(name, o);
+    return t.firstChild;
+  };
+
+  hlIcon.render = function (scope) {
+    var list = (scope || document).querySelectorAll('[data-icon]');
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i], cls = n.getAttribute('class') || '';
+      var svg = hlIcon.el(n.getAttribute('data-icon'), {
+        size: n.getAttribute('data-size'), stroke: n.getAttribute('data-stroke'),
+        label: n.getAttribute('data-label'), cls: cls
+      });
+      n.parentNode.replaceChild(svg, n);
+    }
+  };
+
+  hlIcon.has = function (name) { return !!ICONS[name]; };
+  hlIcon.names = function () { return Object.keys(ICONS); };
+  hlIcon.meta = META;
+  hlIcon.version = '1.0';
+
+  root.hlIcon = hlIcon;
+})(this);
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'), function (el) {
+    if (el.querySelector('svg.hl-icon')) return;
+    el.insertAdjacentHTML('afterbegin', hlIcon(el.getAttribute('data-ic'), { size: 18, stroke: 2, cls: 'ico' }));
+  });
+  hlIcon.render();
+})();
+/* App 外殼（GitHub Pages 的 PWA）：頁面被嵌在外殼裡時，target=_top 的連結改由外殼開，不會跳出外殼 */
+(function shellNav() {
+  var ao = location.ancestorOrigins, tp = ao && ao.length ? ao[ao.length - 1] : '';
+  if (!tp || tp.indexOf('script.google.com') >= 0 || tp.indexOf('googleusercontent.com') >= 0) return;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[target="_top"]') : null;
+    if (!a || !a.href) return;
+    e.preventDefault();
+    try { window.top.postMessage({ hlGo: a.href }, '*'); } catch (x) {}
+  }, true);
+  window.hlShellToken = function (t) { try { window.top.postMessage({ hlToken: t }, '*'); } catch (x) {} };
+})();
+/* HL-ICONS:END */
+window.__hlEnd = true;
+</script>
+</body>
+</html>
