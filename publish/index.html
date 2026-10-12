@@ -390,8 +390,6 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
 </head>
 <body>
 
-<div class="top">星樂創意 StarFunDea 出品・弘林早午餐（桃園中壢）每天都在用的系統　·　預計 2027 年 2 月正式開賣，現在可先試用</div>
-
 <header class="nav">
   <div class="wrap in">
     <a class="logo" href="#top" aria-label="星樂創意 StarFunDea 首頁"><img src="brand/official/logo-horizontal-dark.svg" alt="StarFunDea 星樂創意" width="238" height="30"></a>
@@ -783,7 +781,7 @@ var DEMOS = {"menu":"<!doctype html><meta charset=\"utf-8\"><style>\n*{box-sizin
   var lite = document.documentElement.classList.contains('lite'), playing = null, base = bk.querySelector('.base');
   function prep(h) { return reduce ? '<script>window.setInterval=function(){return 0};<' + '/script>' + h : h; }
   function scaleDemos() { dms.forEach(function (w) { var k = w.clientWidth / 936, f = w.querySelector('iframe'); if (!k) return; if (!lite) w.style.height = Math.round(820 * k) + 'px'; if (f) f.style.transform = 'scale(' + k + ')'; }); }
-  /* 輕量版：展示先放靜態截圖，按「播放示範」才載入；同一時間只播一段，滑走就停 */
+  /* 輕量版：展示先放靜態截圖；滑到哪張就自動播哪張（也可按「播放示範」），同一時間只播一段，滑走就停 */
   function stopDemo(w) { if (!w || !w._f) return; w._f.srcdoc = ''; if (w._f.parentNode) w._f.parentNode.removeChild(w._f); w.classList.remove('on'); if (playing === w) playing = null; }
   function playDemo(w) { if (playing && playing !== w) stopDemo(playing); w.appendChild(w._f); w._f.srcdoc = prep(DEMOS[w.dataset.d]); w.classList.add('on'); playing = w; scaleDemos(); }
   if (lite) dms.forEach(function (w) {
@@ -810,12 +808,26 @@ var DEMOS = {"menu":"<!doctype html><meta charset=\"utf-8\"><style>\n*{box-sizin
     render();
   }
   if (lite && 'IntersectionObserver' in window) {
+    /* 自動預覽：書在畫面上時，滑到哪張卡片就自動播那張；上一張立刻停掉並釋放記憶體（「減少動態」或省流量模式不自動播，留按鈕） */
+    var sd = navigator.connection && navigator.connection.saveData, autoOk = !reduce && !sd, inView = false, at = 0, ready = document.readyState === 'complete';
+    if (!ready) window.addEventListener('load', function () { setTimeout(function () { ready = true; autoPlay(); }, 1200); });   /* 首屏先載完再開始預覽 */
+    function autoPlay() {
+      clearTimeout(at); if (!autoOk) return;
+      at = setTimeout(function () {
+        var el = cur >= N ? base : leaves[cur], w = el && el.querySelector('.dm');
+        if (!ready) return;
+        if (!inView || !w) { if (playing) stopDemo(playing); return; }
+        if (playing !== w) playDemo(w);
+      }, 350);
+    }
     var seen = new IntersectionObserver(function (es) { es.forEach(function (e) {
       var el = e.target, i = el === base ? N : +el.dataset.i;
-      if (e.isIntersecting) { if (cur !== i) { cur = i; render(); } }
+      if (e.isIntersecting) { if (cur !== i) { cur = i; render(); } autoPlay(); }
       else if (playing && el.contains(playing)) stopDemo(playing);
     }); }, { root: bk, threshold: 0.6 });
     leaves.concat([base]).forEach(function (el) { seen.observe(el); });
+    new IntersectionObserver(function (es) { inView = es[0].isIntersecting; if (inView) autoPlay(); else { clearTimeout(at); if (playing) stopDemo(playing); } }, { threshold: 0.35 }).observe(bk);
+    document.addEventListener('visibilitychange', function () { if (document.hidden && playing) stopDemo(playing); else if (!document.hidden) autoPlay(); });
   }
   /* 書頁內容超出書高 20% 以內就等比縮小塞進去，不切到畫面；更長的頁面維持可捲動 */
   function fitPages() {
