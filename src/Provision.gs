@@ -84,13 +84,13 @@ function shareToOwner_(shop) {
 function welcomeMail_(shop) {
   var tool = sp0_().getProperty('toolUrl') || '';
   mail_(shop.email, '【' + productName_() + '】「' + shop.name + '」已開通',
-    '「' + shop.name + '」的菜單系統已建好。\n\n登入網址：' + webUrl_() + '\n登入方式：統編＋密碼，再輸入寄到這個信箱的驗證碼。\n' +
+    '「' + shop.name + '」的菜單系統已建好。\n\n登入網址：' + webUrl_() + '\n登入方式：統編＋密碼，再按寄到這個信箱的登入信裡的「確認登入」。\n' +
     (tool ? '\n啟用工具下載：' + tool + '\n' : '') +
     '\n菜單資料試算表（唯讀備份）：https:' + '/' + '/docs.google.com/spreadsheets/d/' + shop.ssId + '\n\n登入後可以在「夥伴」頁產生邀請連結，讓店內夥伴用手機加入。',
     typeof mailHtml_ === 'function' ? { eyebrow: 'READY', title: shop.name + ' 已經建好了', preheader: '菜單、店務與人員工具都準備好了',
       blocks: [mkP_('「' + mkEsc_(shop.name) + '」的 SFD 系統已建好，菜單、店務收支、人員與班表都可以開始用。'),
         mkBtn_('登入 SFD 系統', webUrl_(), MK.amber, MK.navy),
-        mkRows_([['登入方式', '統編＋密碼＋Email 驗證碼'], ['資料備份', '一份唯讀試算表，隨時可以打開']]),
+        mkRows_([['登入方式', '統編＋密碼，再按登入信裡的「確認登入」'], ['資料備份', '一份唯讀試算表，隨時可以打開']]),
         mkList_(['登入後到「帳號」產生邀請連結，讓店內夥伴用手機加入', '先跑一次「設定精靈」：店家資料、Logo、配色'].concat(tool ? ['啟用工具：<a href="' + mkEsc_(tool) + '" style="color:' + MK.navy + '">下載</a>'] : [])),
         mkLink_('菜單資料試算表（唯讀備份）', 'https:' + '/' + '/docs.google.com/spreadsheets/d/' + shop.ssId)],
       why: '你收到這封信，是因為你的店在星樂創意開通了 SFD 系統。' } : null);
@@ -178,20 +178,24 @@ function disableTestMode() { sp0_().deleteProperty('testAccounts'); Logger.log('
    3. 寫入店家資料（店名、地址、電話、營業時間、LINE、配色…，沿用原本單店的設定），略過設定精靈
    4. 匯入弘林的全部菜單品項（分類、規格欄、價格、推薦星號）
    5. 寄「開通信」給登入 Email：店主自己用驗證碼設定密碼（程式裡不放密碼，客服也看不到）
-   重複執行不會建第二家店：已存在就補建試算表、更新店家資料，菜單只補新增與更新價格。 */
-var HONGLING_ACCOUNT = { taxId: '', owner: '', email: '' };   /* ← 執行前填好：統一編號（8 碼）、負責人、登入 Email */
+   重複執行不會建第二家店：已存在就補建試算表、補店家資料，菜單只補缺少的品項（已有品項的價格不動）。
+   統編 00000000 若已經被 adoptLegacyShop() 用掉（原本的單店弘林），就沿用那家店，只補負責人與登入 Email。 */
+var HONGLING_ACCOUNT = { taxId: '00000000', owner: '弘林早午餐', email: '' };   /* 統編用 00000000；登入 Email 留空＝用 MENU_EMAIL（原本收菜單 PDF 的信箱） */
 function createHonglingShop() { return seedHonglingShop(HONGLING_ACCOUNT); }
 function seedHonglingShop(acct) {
   acct = acct || {};
   var p = sp0_();
   if (!p.getProperty('centerId')) throw new Error('請先執行 setupCenter()');
-  var taxId = String(acct.taxId || '').replace(/\D/g, ''), email = String(acct.email || '').trim().toLowerCase(), owner = String(acct.owner || '').trim();
+  var taxId = String(acct.taxId || '').replace(/\D/g, ''), owner = String(acct.owner || '').trim();
+  var email = String(acct.email || (typeof MENU_EMAIL !== 'undefined' ? MENU_EMAIL : '') || '').trim().toLowerCase();
   if (taxId.length !== 8) throw new Error('請先在 HONGLING_ACCOUNT 填入 8 碼統一編號');
   if (!emailOk_(email)) throw new Error('請先在 HONGLING_ACCOUNT 填入正確的登入 Email');
   if (!owner) throw new Error('請先在 HONGLING_ACCOUNT 填入負責人');
   if (!taxIdOk_(taxId) && acct.skipTaxCheck !== true) throw new Error('統編檢查碼不正確，請再確認一次（確定正確的話，在 HONGLING_ACCOUNT 加上 skipTaxCheck: true）');
   _saas = null; resetCtx_();
   var cfg = legacyCfg_(), s = shopByTaxId_(taxId), fresh = !s;
+  /* 已經用 adoptLegacyShop() 轉入過的弘林（同一個統編）：試算表就是原本那份、菜單與店家資料都已經在裡面，只補負責人與 Email，不重匯菜單（免得蓋掉現在的價格） */
+  var legacy = !!(s && p.getProperty('legacyShopId') === s.id);
   if (fresh) {
     var id = nextShopId_();
     cAppend_('shops', { '店家編號': id, '公司名稱': cfg.name, '統編': taxId, '負責人': owner, '登入Email': email, '方案': 'pro', '狀態': ST_LABEL.active,
@@ -203,7 +207,7 @@ function seedHonglingShop(acct) {
     s.email = email; s.owner = owner; saveShop_(s, ['email', 'owner']);
   }
   s = provisionShop_(s);
-  var r = withShop_(s, function () {
+  var r = legacy ? { added: 0, updated: 0 } : withShop_(s, function () {
     var dst = props_(), cur = {};
     try { cur = JSON.parse(dst.getProperty('cfg') || '{}') || {}; } catch (e) {}
     /* 店家已經在「店家工具」改過的欄位保留；沒填的用原本單店的資料補上 */
@@ -214,14 +218,14 @@ function seedHonglingShop(acct) {
     if (!cur.menuEmail) cur.menuEmail = email;
     dst.setProperty('cfg', JSON.stringify(cur));
     dst.setProperty('onboarded', '1');
-    return menuApplyDraft_(honglingDraft_(), { update: true, label: '匯入弘林早午餐菜單' });
+    return menuApplyDraft_(honglingDraft_(), { update: false, label: '匯入弘林早午餐菜單' });   /* 已有的品項不動（店家可能改過價格），只補缺的 */
   });
   var mailed = false;
   if (!s.hash) { try { actMail_(s, false); mailed = true; cLog_(s.id, 'system', '寄開通信', '成功', maskMail_(email)); } catch (e) { cLog_(s.id, 'system', '寄開通信', '失敗', String(e.message || e)); } }
-  Logger.log((fresh ? '弘林早午餐專用帳號已建立：' : '弘林早午餐帳號已更新：') + s.id + '（統編 ' + taxId + '）\n' +
+  Logger.log((fresh ? '弘林早午餐專用帳號已建立：' : legacy ? '沿用原本轉入的弘林（菜單與店家資料不重匯）：' : '弘林早午餐帳號已更新：') + s.id + '（統編 ' + taxId + '）\n' +
     '菜單資料試算表：https://docs.google.com/spreadsheets/d/' + s.ssId + '\n' +
     '菜單品項：新增 ' + r.added + '、更新 ' + r.updated + '\n' +
-    (mailed ? '開通信已寄到 ' + email + '：請店主按信裡的按鈕設定密碼。' : (s.hash ? '這個帳號已經設定過密碼，沒有再寄開通信。' : '開通信寄送失敗，請到管理後台按「重寄開通信」。')) + '\n' +
+    (mailed ? '開通信已寄到 ' + email + '：請店主按信裡的按鈕設定密碼。' : (s.hash ? '這個帳號已經有密碼，沒有寄開通信；要設定自己的密碼，請在登入頁按「首次開通／忘記密碼」，輸入統編 ' + taxId + '。' : '開通信寄送失敗，請到管理後台按「重寄開通信」。')) + '\n' +
     '登入網址：' + webUrl_());
-  return { id: s.id, ssId: s.ssId, added: r.added, updated: r.updated, mailed: mailed };
+  return { id: s.id, ssId: s.ssId, added: r.added, updated: r.updated, mailed: mailed, legacy: legacy };
 }

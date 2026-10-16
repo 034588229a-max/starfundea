@@ -738,6 +738,7 @@ function doGetSaas_(prm) {
     t.boot = js_({ product: productName_(), token: prm.a || '' });
     return page_(t, productName_() + '｜管理後台');
   }
+  if (prm.ml) return loginPage_('magic', '', { ml: String(prm.ml).replace(/[^0-9a-f]/gi, '').slice(0, 64) });   /* 信裡的登入／驗證連結：頁面打開後在背景完成驗證 */
   if (prm.invite) return loginPage_('invite', '', { code: String(prm.invite) });
   if (prm.p === 'activate') return loginPage_('activate');
   const key = prm.t || prm.staff;

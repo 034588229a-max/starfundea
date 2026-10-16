@@ -68,7 +68,15 @@ async def main():
 
         async def ev(js, arg=None):
             return await H.evaluate(js, arg)
+        async def link_of(to=None):
+            body = await ev("(to) => { var m = __store.mails.filter(x => !to || x.to === to); return m.length ? m[m.length - 1].body : ''; }", to)
+            m = re.search(r'\?ml=([0-9a-f]+)', body or ''); return m.group(1) if m else ''
         async def otp_of(to=None):
+            # 登入／註冊／設定密碼的信只有連結（信裡沒有驗證碼）；直接呼叫 authVerify 等 API 的測試，從連結紀錄拿出背後那組驗證碼
+            mid = await link_of(to)
+            if mid:
+                raw = await ev("id => CacheService.getScriptCache().get('ml:' + id)", mid)
+                return json.loads(raw)['c'] if raw else ''
             body = await ev("(to) => { var m = __store.mails.filter(x => !to || x.to === to); return m.length ? m[m.length - 1].body : ''; }", to)
             m = OTP.search(body or ''); return m.group(1) if m else ''
         async def advance(days):
@@ -196,7 +204,8 @@ async def main():
         await ev("pwResetStart('53212539')"); m = await ev("() => __store.mails[__store.mails.length - 1].body")
         check('首次開通：驗證碼信說明是「首次開通」、要自己設定密碼', '首次開通' in m and '客服不會知道' in m, m)
         mm = await ev("() => __store.mails[__store.mails.length - 1]")
-        check('品牌信件：驗證碼信把 6 位數放大顯示在 HTML 裡', mm['html'] and OTP.search(mm['body']).group(1) in mm['html'] and '設定密碼的驗證碼' in mm['html'])
+        mlink = re.search(r'(\?ml=[0-9a-f]+)', mm['body'])
+        check('品牌信件：設定密碼信是一顆「設定密碼」按鈕（連到信件連結），沒有驗證碼', mm['html'] and mlink and mlink.group(1) in mm['html'] and '設定密碼' in mm['html'] and not re.search(r'\b\d{6}\b', mm['body']), mm['body'])
         c = await otp_of('n@example.com')
         r0 = await ev("c => actDone('53212539', c, 'short', 'devN')", c); check('首次開通：密碼太簡單被擋', not r0['ok'], r0)
         c = await otp_of('n@example.com')
@@ -336,10 +345,16 @@ async def main():
         await ev("failClear_('t22099131')")
         await fr.fill('#pw', 'newpass99'); await fr.click('#send')
         await fr.wait_for_selector('#s2:not(.hide)')
-        check('登入頁：密碼正確後出現驗證碼欄位，顯示遮罩信箱', 'sh***' in await fr.inner_text('#mailTo'))
-        await fr.fill('#otp', await otp_of('shop1@example.com')); await fr.click('#verify')
-        await fr.wait_for_selector('#v-back:not(.hide)')
-        check('登入頁：驗證成功顯示店名、狀態與三個入口', '改名店' in await fr.inner_text('#backName') and 't=' in (await fr.get_attribute('#goMenu', 'href')) and 'p=account' in (await fr.get_attribute('#goAcct', 'href')))
+        check('登入頁：密碼正確後顯示「登入信已寄到」與遮罩信箱，沒有驗證碼欄位', 'sh***' in await fr.inner_text('#mailTo') and await fr.locator('#otp').count() == 0)
+        body = await ev("__store.mails[__store.mails.length - 1].body")
+        check('登入信：只有「確認登入」連結，信裡沒有驗證碼', '?ml=' in body and not re.search(r'\b\d{6}\b', body), body)
+        await fr.evaluate("window.__go = []; goTop = u => window.__go.push(u); true")
+        mid = await link_of('shop1@example.com')
+        r = await ev("id => mlUse(id, 'devPhone')", mid)          # 店主在手機上按了信裡的按鈕
+        check('信件連結：按下就登入（不用輸入驗證碼）', r['ok'] and r['kind'] == 'login' and r['token'], r)
+        await fr.wait_for_function("window.__go.length > 0", timeout=15000)
+        go = await fr.evaluate("window.__go[0]")
+        check('登入頁：連結按下後，原本的頁面自動登入並跳到主畫面', 'p=home' in go and 't=' in go, go)
         saved = await fr.evaluate("localStorage.getItem('hl-token')")
         check('登入頁：通行證存在手機（下次自動續登）', bool(saved))
         await H.evaluate("p => openPage(p)", {})
@@ -482,8 +497,13 @@ async def main():
         r = await ev("authStart('90039370', 'Test90039370')"); check('關閉測試模式後：恢復寄驗證碼', r['ok'] and not r.get('bypass') and await ev("__store.mails.length") == nb + 1, r)
 
         # ================= 16b. 弘林早午餐專用帳號 =================
-        r = await ev("(() => { try { createHonglingShop(); return 'ran'; } catch (e) { return e.message; } })()")
-        check('弘林專用帳號：沒填統編時不會建立，提示要先填', '統一編號' in r, r)
+        check('弘林專用帳號：預設統編 00000000、負責人「弘林早午餐」', await ev("HONGLING_ACCOUNT.taxId === '00000000' && HONGLING_ACCOUNT.owner === '弘林早午餐' && !HONGLING_ACCOUNT.email && taxIdOk_('00000000')"))
+        tx = await ev("(() => { for (var n = 27182800; n < 27183100; n++) { var s = String(n); if (taxIdOk_(s) && !shopByTaxId_(s)) return s; } })()")
+        r = await ev("t => seedHonglingShop({ taxId: t, owner: HONGLING_ACCOUNT.owner, email: HONGLING_ACCOUNT.email })", tx)   # 00000000 後面的測試要用，這裡換一個統編跑同一套預設
+        d = await ev("s => { var x = shopById_(s); return { owner: x.owner, email: x.email }; }", r['id'])
+        check('弘林專用帳號：登入 Email 沒填時用 MENU_EMAIL（原本收菜單 PDF 的信箱）', d['owner'] == '弘林早午餐' and d['email'] == await ev("MENU_EMAIL.toLowerCase()") and r['added'] > 100 and not r['legacy'], (r, d))
+        r = await ev("seedHonglingShop({ taxId: '04595257', owner: '林老闆', email: 'legacy@example.com' })")
+        check('弘林專用帳號：統編是已轉入的原單店時，沿用那家店、不重匯菜單', r['id'] == 'S0001' and r['legacy'] and r['added'] == 0 and r['updated'] == 0 and await ev("shopById_('S0001').email") == 'legacy@example.com', r)
         n0 = await ev("__store.mails.length")
         r = await ev("seedHonglingShop({ taxId: '24536806', owner: '林先生', email: 'Hongling@Example.com', skipTaxCheck: true })")
         sid_h = r['id']
@@ -501,7 +521,43 @@ async def main():
         check('弘林專用帳號：寄出開通信（請店主自己設定密碼）', r['mailed'] and any(m.get('to') == 'hongling@example.com' and '設定登入密碼' in m.get('subject', '') for m in await ev("__store.mails.slice(%d)" % n0)), await ev("__store.mails.slice(%d)" % n0))
         check('弘林專用帳號：不是測試帳號（登入仍要驗證碼）', '24536806' not in (await ev("__store.props.testAccounts || ''")))
         r2 = await ev("seedHonglingShop({ taxId: '24536806', owner: '林先生', email: 'hongling@example.com', skipTaxCheck: true })")
-        check('弘林專用帳號：重複執行不會建第二家店、不會重複匯入品項', r2['id'] == sid_h and r2['added'] == 0 and await ev("allShops_().filter(function (x) { return x.taxId === '24536806'; }).length") == 1, r2)
+        check('弘林專用帳號：重複執行不會建第二家店、不會重複匯入品項、不動已有的價格', r2['id'] == sid_h and r2['added'] == 0 and r2['updated'] == 0 and await ev("allShops_().filter(function (x) { return x.taxId === '24536806'; }).length") == 1, r2)
+
+        # ================= 16c. 信件連結：登入／註冊／設定密碼都不用輸入驗證碼 =================
+        await ev("failClear_('t22099131')")
+        r = await ev("authStart('22099131', 'newpass99')"); poll = r['poll']
+        check('連結登入：寄信後回傳輪詢編號', r['ok'] and len(poll) == 32, r)
+        m1 = await link_of('shop1@example.com')
+        r = await ev("authStart('22099131', 'newpass99')"); poll2 = r['poll']; m2 = await link_of('shop1@example.com')
+        r = await ev("id => mlUse(id, 'devA')", m1); check('連結登入：再寄一次後，舊連結失效', not r['ok'] and '重新寄' in r['msg'], r)
+        r = await ev("p => mlPoll(p, 'devB')", poll2); check('連結登入：還沒按連結時，原頁面繼續等', r['ok'] and r.get('wait'), r)
+        r = await ev("id => mlUse(id, 'devA')", m2); check('連結登入：按下最新的連結就登入', r['ok'] and r['token'] and r['kind'] == 'login', r)
+        r = await ev("id => mlUse(id, 'devA')", m2); check('連結登入：同一個連結只能用一次', not r['ok'], r)
+        r = await ev("p => mlPoll(p, 'devB')", poll); check('連結登入：別的頁面（舊的輪詢編號）拿不到通行證', r.get('wait'), r)
+        r = await ev("p => mlPoll(p, 'devB')", poll2); check('連結登入：原頁面拿到自己的通行證', r['ok'] and r['token'] and r['shop']['name'], r)
+        r = await ev("p => mlPoll(p, 'devB')", poll2); check('連結登入：原頁面的通行證只發一次', r.get('wait'), r)
+        r = await ev("mlUse('', 'x')"); check('連結登入：亂填連結被擋', not r['ok'] and r['code'] == 'gone', r)
+        r = await ev("authStart('22099131', 'newpass99')"); m3 = await link_of('shop1@example.com')
+        await advance(0.0075)   # 約 11 分鐘
+        await ev("Object.keys(__store.cache).forEach(k => { if (k.indexOf('ml') === 0 || k.indexOf('otp:') === 0) delete __store.cache[k]; })")   # 模擬快取過期
+        r = await ev("id => mlUse(id, 'devA')", m3); check('連結登入：超過 10 分鐘連結失效，提示重新寄', not r['ok'] and '10 分鐘' in r['msg'], r)
+        # 註冊：按信裡的連結完成 Email 驗證，原頁面也會往下一步
+        rtax = await ev("(() => { for (var n = 31415900; n < 31416200; n++) { var s = String(n); if (taxIdOk_(s) && !shopByTaxId_(s)) return s; } })()")
+        r = await reg(taxId=rtax, email='link@example.com', company='連結測試店')
+        rb = await ev("__store.mails[__store.mails.length - 1]")
+        check('註冊：寄出「完成 Email 驗證」連結，信裡沒有驗證碼', rb['to'] == 'link@example.com' and '?ml=' in rb['body'] and not re.search(r'\\b\\d{6}\\b', rb['body']), rb)
+        r2 = await ev("id => mlUse(id, 'devR')", await link_of('link@example.com'))
+        check('註冊：按連結就完成驗證，試用開始', r2['ok'] and r2['kind'] == 'reg' and r2['status'] == 'trial', r2)
+        r3 = await ev("p => mlPoll(p, 'devR2')", r['poll'])
+        check('註冊：原本的註冊頁也收到「驗證完成」', r3['ok'] and r3['kind'] == 'reg' and r3['status'] == 'trial' and r3['taxId'] == rtax, r3)
+        # 設定密碼：連結打開先要新密碼，設好才作廢
+        r = await ev("pwResetStart('22099131')"); pp = r['poll']; mr = await link_of('shop1@example.com')
+        r = await ev("id => mlUse(id, 'devC')", mr); check('設定密碼連結：先請使用者輸入新密碼', r['ok'] and r['need'] == 'pw' and r['name'], r)
+        r = await ev("id => mlResetDone(id, 'short', 'devC')", mr); check('設定密碼連結：密碼太簡單被擋，連結還能用', not r['ok'] and r['code'] == 'bad', r)
+        r = await ev("id => mlResetDone(id, 'linkPass77', 'devC')", mr); check('設定密碼連結：設好就登入', r['ok'] and r['token'], r)
+        r = await ev("id => mlResetDone(id, 'linkPass88', 'devC')", mr); check('設定密碼連結：用過就失效', not r['ok'], r)
+        r = await ev("p => mlPoll(p, 'devD')", pp); check('設定密碼：原頁面也自動登入', r['ok'] and r['token'], r)
+        check('設定密碼：新密碼生效', (await ev("authStart('22099131', 'linkPass77')"))['ok'] and not (await ev("authStart('22099131', 'newpass99')"))['ok'])
 
         # ================= 17. AI 協助建立菜單初稿 =================
         sid_n = (await fn('admSaveShop', adm, {'name': 'AI 小吃店', 'taxId': '04595257'.replace('04595257', '16078503'), 'owner': 'a', 'email': 'ai@example.com', 'plan': 'pro', 'skipTaxCheck': True}))['v']['shop']['id']
@@ -1221,9 +1277,20 @@ async def main():
         check('開通連結直接打開「首次開通」', await fr.is_visible('#v-reset') and '首次開通' in await fr.inner_text('#v-reset'))
         await fr.fill('#pTax', '55667788'); await fr.click('#pSend')
         await fr.wait_for_selector('#p2:not(.hide)')
-        await fr.fill('#pOtp', await otp_of('act@example.com')); await fr.fill('#pNew', 'myShop2026'); await fr.click('#pDone')
-        await fr.wait_for_function("!document.querySelector('#v-back').classList.contains('hide')")
-        check('開通頁：設定密碼後直接登入，顯示試營運', '試營運' in await fr.inner_text('#backMsg'), await fr.inner_text('#backMsg'))
+        mid = await link_of('act@example.com')
+        await H.evaluate("p => openPage(p)", {'ml': mid})          # 按信裡的「設定密碼」
+        fr = H.child_frames[0]
+        await fr.wait_for_function('window.__hlEnd === true')
+        await fr.evaluate("window.__go = []; goTop = u => window.__go.push(u); true")
+        await fr.wait_for_selector('#m2:not(.hide)')
+        check('設定密碼連結：直接出現設定密碼（不用輸入驗證碼）', '首次開通' in await fr.inner_text('#mTitle') and await fr.locator('#pOtp').count() == 0)
+        await fr.fill('#mNew', 'myShop2026'); await fr.fill('#mNew2', 'myShop2027'); await fr.click('#mDone')
+        await fr.wait_for_function("document.querySelector('#msgM').textContent.includes('不一樣')")
+        check('設定密碼：兩次輸入不一樣被擋', True)
+        await fr.fill('#mNew2', 'myShop2026'); await fr.click('#mDone')
+        await fr.wait_for_function("window.__go.length > 0")
+        tk = await fr.evaluate("localStorage.getItem('hl-token')")
+        check('開通頁：設定密碼後直接登入並跳到主畫面，帳號是試營運', 'p=home' in await fr.evaluate("window.__go[0]") and (await ev("t => authCheck(t)", tk))['lic']['label'] == '試營運')
         await H.evaluate("p => openPage(p)", {})
         fr = H.child_frames[0]
         await fr.wait_for_function('window.__hlEnd === true')

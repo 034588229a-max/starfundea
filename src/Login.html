@@ -29,6 +29,10 @@ input[type=checkbox] { display: inline-block; width: 20px; height: 20px; margin:
 .msg { font-size: 13.5px; margin-top: 12px; min-height: 20px; color: var(--mute) }
 .msg.bad { color: #c0392b } .msg.ok { color: #2e7d4f }
 .hide { display: none }
+.wait { display: flex; gap: 12px; align-items: center; background: var(--field); border-radius: 14px; padding: 14px; margin-top: 4px; font-size: 14px }
+.wait i { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--orange); animation: sp 1s linear infinite }
+@keyframes sp { to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) { .wait i { animation: none } }
 .otp { letter-spacing: 8px; text-align: center; font-size: 24px; font-weight: 900 }
 .tip { font-size: 12.5px; color: var(--mute); margin-top: 10px }
 .sw { display: flex; gap: 8px; margin-bottom: 12px }
@@ -66,12 +70,12 @@ window.addEventListener('load', function () {
     <div id="s1">
       <label>統一編號<input id="taxId" inputmode="numeric" maxlength="8" autocomplete="username" placeholder="8 碼數字"></label>
       <label>密碼<input id="pw" type="password" autocomplete="current-password"></label>
-      <button class="btn" id="send" data-ic="mail">寄送驗證碼</button>
-      <div class="tip">密碼正確且訂閱有效，才會寄驗證碼到註冊時留的信箱。</div>
+      <button class="btn" id="send" data-ic="mail">登入</button>
+      <div class="tip">密碼正確且訂閱有效，會寄一封登入信到註冊時留的信箱，按信裡的「確認登入」就完成。</div>
     </div>
     <div id="s2" class="hide">
-      <label>驗證碼（寄到 <span id="mailTo"></span>）<input id="otp" class="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
-      <button class="btn" id="verify" data-ic="log-in">登入</button>
+      <div class="wait"><i></i><div>登入信已寄到 <b id="mailTo"></b><br>請在 10 分鐘內打開信件，按「確認登入」。按下後這個頁面會自動進入。</div></div>
+      <button class="btn alt" id="resend" data-ic="mail">重新寄一次</button>
       <button class="link" id="back1">重新輸入統編與密碼</button>
     </div>
     <div class="msg" id="msg"></div>
@@ -97,15 +101,14 @@ window.addEventListener('load', function () {
       <label>公司（或商號）名稱<input id="rCompany" maxlength="40"></label>
       <label>統一編號<input id="rTax" inputmode="numeric" maxlength="8"></label>
       <label>負責人姓名<input id="rOwner" maxlength="20"></label>
-      <label>Email（驗證碼與帳務通知會寄到這裡）<input id="rMail" type="email" autocomplete="email"></label>
+      <label>Email（驗證信與帳務通知會寄到這裡）<input id="rMail" type="email" autocomplete="email"></label>
       <label>密碼（8 個字以上，要有英文和數字）<input id="rPw" type="password" autocomplete="new-password"></label>
       <label>方案<select id="rPlan"></select></label>
       <label class="chk"><input type="checkbox" id="rAgree"><span>我已閱讀並同意服務條款與隱私權政策</span></label>
-      <button class="btn" id="rGo" data-ic="user-plus">註冊並寄驗證碼</button>
+      <button class="btn" id="rGo" data-ic="user-plus">註冊</button>
     </div>
     <div id="r2" class="hide">
-      <label>驗證碼（寄到 <span id="rMailTo"></span>）<input id="rOtp" class="otp" inputmode="numeric" maxlength="6"></label>
-      <button class="btn" id="rVerify" data-ic="check">完成驗證</button>
+      <div class="wait"><i></i><div>驗證信已寄到 <b id="rMailTo"></b><br>請在 10 分鐘內打開信件，按「完成 Email 驗證」。按下後這個頁面會自動往下一步。</div></div>
     </div>
     <div id="r3" class="hide"><div class="msg ok" id="rDone"></div><div class="box" id="rPay"></div><button class="btn" id="rLogin" data-ic="log-in">前往登入</button></div>
     <div class="msg" id="msgR"></div>
@@ -115,17 +118,29 @@ window.addEventListener('load', function () {
   <div id="v-reset" class="card hide">
     <div id="p1">
       <b>首次開通／重設密碼</b>
-      <div class="tip">第一次使用，或忘記密碼：輸入統編，驗證碼會寄到開通時登記的信箱，再設定你自己的密碼。客服不會知道這組密碼。</div>
+      <div class="tip">第一次使用，或忘記密碼：輸入統編，會寄一封信到開通時登記的信箱，按信裡的「設定密碼」設定你自己的密碼。客服不會知道這組密碼。</div>
       <label>統一編號<input id="pTax" inputmode="numeric" maxlength="8"></label>
-      <button class="btn" id="pSend" data-ic="mail">寄送驗證碼</button>
+      <button class="btn" id="pSend" data-ic="mail">寄送設定密碼的信</button>
     </div>
     <div id="p2" class="hide">
-      <label>驗證碼<input id="pOtp" class="otp" inputmode="numeric" maxlength="6"></label>
-      <label>新密碼（8 個字以上，要有英文和數字）<input id="pNew" type="password" autocomplete="new-password"></label>
-      <button class="btn" id="pDone" data-ic="lock">設定密碼並登入</button>
+      <div class="wait"><i></i><div>如果這個統編有註冊，設定密碼的信已寄到註冊信箱。<br>請在 10 分鐘內打開信件，按「設定密碼」。設定好後這個頁面會自動登入。</div></div>
     </div>
     <div class="msg" id="msgP"></div>
     <button class="link" id="resetBack">回登入</button>
+  </div>
+
+  <div id="v-magic" class="card hide">
+    <div id="m1"><div class="wait"><i></i><div id="mWait">正在確認信件連結…</div></div></div>
+    <div id="m2" class="hide">
+      <b id="mTitle">設定登入密碼</b>
+      <div class="tip" id="mTip"></div>
+      <label>新密碼（8 個字以上，要有英文和數字）<input id="mNew" type="password" autocomplete="new-password"></label>
+      <label>再輸入一次<input id="mNew2" type="password" autocomplete="new-password"></label>
+      <button class="btn" id="mDone" data-ic="lock">設定密碼並登入</button>
+    </div>
+    <div id="m3" class="hide"><div class="msg ok" id="mOk"></div><div class="box hide" id="mPay"></div><button class="btn" id="mLogin" data-ic="log-in">前往登入</button></div>
+    <div class="msg" id="msgM"></div>
+    <button class="link" id="magicBack">回登入頁</button>
   </div>
 </div>
 
@@ -139,7 +154,7 @@ const errText = e => String((e && e.message) || e || '發生錯誤').replace(/^E
 function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} return null; }
 let DEV = store('hl-dev');
 if (!DEV) { DEV = Math.random().toString(36).slice(2) + Date.now().toString(36); store('hl-dev', DEV); }
-const VIEWS = ['closed', 'back', 'login', 'join', 'reg', 'reset'];
+const VIEWS = ['closed', 'back', 'login', 'join', 'reg', 'reset', 'magic'];
 function show(v) { VIEWS.forEach(x => $('v-' + x).classList.toggle('hide', x !== v)); }
 function setMsg(id, text, cls) { const el = $(id); el.textContent = text || ''; el.className = 'msg' + (cls ? ' ' + cls : ''); }
 function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = on ? '處理中…' : label; }
@@ -160,25 +175,43 @@ function done(r) {
   show('back');
 }
 
-/* ---- 店主登入 ---- */
-$('send').onclick = async () => {
-  const b = $('send'); busy(b, true, '寄送驗證碼'); setMsg('msg', '');
+/* 驗證完成後直接進下一頁（主畫面，或登入前要去的頁面） */
+function goNext(r) {
+  store('hl-token', r.token);
+  if (window.hlShellToken) window.hlShellToken(r.token);
+  const u = r.urls && (r.urls[BOOT.go] || r.urls.home);
+  if (u) goTop(u); else done(r);
+}
+/* 等信裡的連結被按下：每 4 秒問一次，10 分鐘後停 */
+let POLL = null;
+function stopPoll() { if (POLL) { clearTimeout(POLL.t); POLL = null; } }
+function startPoll(poll, onDone, onStop) {
+  stopPoll(); if (!poll) return;
+  const me = POLL = { until: Date.now() + 10 * 60 * 1000, t: 0 };
+  const tick = async () => {
+    if (POLL !== me) return;
+    if (Date.now() > me.until) { POLL = null; onStop && onStop(); return; }
+    try { const r = await call('mlPoll', poll, DEV); if (POLL !== me) return; if (r && !r.wait) { POLL = null; if (r.ok) onDone(r); else onStop && onStop(r.msg); return; } } catch (e) {}
+    me.t = setTimeout(tick, 4000);
+  };
+  me.t = setTimeout(tick, 3000);
+}
+
+/* ---- 店主登入：統編＋密碼 → 寄登入信 → 按信裡的「確認登入」 ---- */
+async function sendLogin() {
+  const b = $('send'); busy(b, true, '登入'); setMsg('msg', '');
   try {
     const r = await call('authStart', $('taxId').value, $('pw').value);
     if (!r.ok) { setMsg('msg', r.msg + (r.code === 'bad' ? '。第一次使用請按下方「首次開通」。' : ''), 'bad'); return; }
-    $('mailTo').textContent = r.mail; $('s1').classList.add('hide'); $('s2').classList.remove('hide'); $('otp').focus();
-    setMsg('msg', '驗證碼已寄出，5 分鐘內有效。', 'ok');
-  } catch (e) { setMsg('msg', errText(e), 'bad'); } finally { busy(b, false, '寄送驗證碼'); }
-};
-$('verify').onclick = async () => {
-  const b = $('verify'); busy(b, true, '登入'); setMsg('msg', '');
-  try {
-    const r = await call('authVerify', $('taxId').value, $('otp').value, DEV);
-    if (!r.ok) { setMsg('msg', r.msg, 'bad'); return; }
-    done(r);
+    if (r.bypass) { const v = await call('authVerify', $('taxId').value, '', DEV); if (v.ok) goNext(v); else setMsg('msg', v.msg, 'bad'); return; }   /* 測試帳號：免信件 */
+    $('mailTo').textContent = r.mail; $('s1').classList.add('hide'); $('s2').classList.remove('hide');
+    setMsg('msg', '');
+    startPoll(r.poll, goNext, m => setMsg('msg', m || '連結已過期，請按「重新寄一次」。', 'bad'));
   } catch (e) { setMsg('msg', errText(e), 'bad'); } finally { busy(b, false, '登入'); }
-};
-$('back1').onclick = () => { $('s2').classList.add('hide'); $('s1').classList.remove('hide'); $('otp').value = ''; setMsg('msg', ''); };
+}
+$('send').onclick = sendLogin;
+$('resend').onclick = async () => { const b = $('resend'); b.disabled = true; await sendLogin(); setMsg('msg', '已重新寄出，請用最新那封信的按鈕（舊的連結已失效）。', 'ok'); setTimeout(() => { b.disabled = false; }, 30000); };
+$('back1').onclick = () => { stopPoll(); $('s2').classList.add('hide'); $('s1').classList.remove('hide'); setMsg('msg', ''); };
 
 /* ---- 夥伴加入 ---- */
 function showJoin() { show('join'); $('joinHas').classList.toggle('hide', !BOOT.code); $('joinNo').classList.toggle('hide', !!BOOT.code); }
@@ -199,47 +232,76 @@ $('swLogin').onclick = $('swLogin2').onclick = () => show('login');
 const PL = BOOT.plans || {};
 $('rPlan').innerHTML = Object.keys(PL).map(k => `<option value="${k}">${esc(PL[k].name)}${PL[k].month ? '（每月 ' + PL[k].month + ' 元）' : '（免費 ' + (PL[k].trialDays || 14) + ' 天）'}</option>`).join('');
 $('toReg').onclick = () => show('reg');
-$('regBack').onclick = () => show('login');
+$('regBack').onclick = () => { stopPoll(); show('login'); };
+function regShow(r) {
+  $('r1').classList.add('hide'); $('r2').classList.add('hide'); $('r3').classList.remove('hide'); setMsg('msgR', '');
+  $('rDone').textContent = r.status === 'trial' ? 'Email 驗證完成，試用已開始（到 ' + r.expires + '）。' : 'Email 驗證完成。完成付款後就會開通。';
+  $('rPay').innerHTML = r.pay ? esc((r.pay.text || '') || ('付款金額 ' + r.pay.amount + ' 元')).replace(/\n/g, '<br>') + (r.pay.url ? '<br><a href="' + esc(r.pay.url) + '" target="_top">前往付款</a>' : '') : '';
+  $('rPay').classList.toggle('hide', !r.pay);
+  if (r.taxId) $('taxId').value = r.taxId;
+}
 $('rGo').onclick = async () => {
-  const b = $('rGo'); busy(b, true, '註冊並寄驗證碼'); setMsg('msgR', '');
+  const b = $('rGo'); busy(b, true, '註冊'); setMsg('msgR', '');
   try {
     const r = await call('regCreate', { company: $('rCompany').value, taxId: $('rTax').value, owner: $('rOwner').value, email: $('rMail').value, password: $('rPw').value, plan: $('rPlan').value, agree: $('rAgree').checked });
     if (!r.ok) { setMsg('msgR', r.msg, 'bad'); return; }
     $('rMailTo').textContent = r.mail; $('r1').classList.add('hide'); $('r2').classList.remove('hide');
-  } catch (e) { setMsg('msgR', errText(e), 'bad'); } finally { busy(b, false, '註冊並寄驗證碼'); }
-};
-$('rVerify').onclick = async () => {
-  const b = $('rVerify'); busy(b, true, '完成驗證'); setMsg('msgR', '');
-  try {
-    const r = await call('regVerify', $('rTax').value, $('rOtp').value);
-    if (!r.ok) { setMsg('msgR', r.msg, 'bad'); return; }
-    $('r2').classList.add('hide'); $('r3').classList.remove('hide');
-    $('rDone').textContent = r.status === 'trial' ? 'Email 驗證完成，試用已開始（到 ' + r.expires + '）。' : 'Email 驗證完成。完成付款後就會開通。';
-    $('rPay').innerHTML = r.pay ? esc((r.pay.text || '') || ('付款金額 ' + r.pay.amount + ' 元')).replace(/\n/g, '<br>') + (r.pay.url ? '<br><a href="' + esc(r.pay.url) + '" target="_top">前往付款</a>' : '') : '';
-    $('rPay').classList.toggle('hide', !r.pay);
-    $('taxId').value = $('rTax').value;
-  } catch (e) { setMsg('msgR', errText(e), 'bad'); } finally { busy(b, false, '完成驗證'); }
+    startPoll(r.poll, x => { x.taxId = x.taxId || $('rTax').value; regShow(x); }, m => setMsg('msgR', m || '連結已過期，請聯絡客服重寄驗證信。', 'bad'));
+  } catch (e) { setMsg('msgR', errText(e), 'bad'); } finally { busy(b, false, '註冊'); }
 };
 $('rLogin').onclick = () => show('login');
 
 /* ---- 忘記密碼 ---- */
 $('toReset').onclick = () => { show('reset'); if (/^\d{8}$/.test($('taxId').value)) $('pTax').value = $('taxId').value; };
-$('resetBack').onclick = () => show('login');
+$('resetBack').onclick = () => { stopPoll(); $('p2').classList.add('hide'); $('p1').classList.remove('hide'); show('login'); };
 $('pSend').onclick = async () => {
   setMsg('msgP', '');
-  try { const r = await call('pwResetStart', $('pTax').value); if (!r.ok) { setMsg('msgP', r.msg, 'bad'); return; } $('p1').classList.add('hide'); $('p2').classList.remove('hide'); setMsg('msgP', '如果這個統編有註冊，驗證碼已寄到註冊信箱。', 'ok'); }
-  catch (e) { setMsg('msgP', errText(e), 'bad'); }
-};
-$('pDone').onclick = async () => {
-  setMsg('msgP', '');
   try {
-    const r = await call('actDone', $('pTax').value, $('pOtp').value, $('pNew').value, DEV);
-    if (!r.ok) { setMsg('msgP', r.msg, 'bad'); return; }
-    if (r.token) { done(r); return; }
-    setMsg('msgP', r.msg || '密碼已設定，請用新密碼登入。', 'ok'); $('taxId').value = $('pTax').value; setTimeout(() => show('login'), 2500);
-  }
-  catch (e) { setMsg('msgP', errText(e), 'bad'); }
+    const r = await call('pwResetStart', $('pTax').value); if (!r.ok) { setMsg('msgP', r.msg, 'bad'); return; }
+    $('p1').classList.add('hide'); $('p2').classList.remove('hide');
+    startPoll(r.poll, x => {
+      if (x.token) { goNext(x); return; }
+      $('p2').classList.add('hide'); $('p1').classList.remove('hide'); setMsg('msgP', x.msg || '密碼已設定，請用新密碼登入。', 'ok'); $('taxId').value = $('pTax').value; setTimeout(() => show('login'), 2500);
+    });
+  } catch (e) { setMsg('msgP', errText(e), 'bad'); }
 };
+
+/* ---- 信裡的連結：打開就在背景驗證，不用輸入驗證碼 ---- */
+function magicShow(part) { ['m1', 'm2', 'm3'].forEach(x => $(x).classList.toggle('hide', x !== part)); }
+async function magic() {
+  show('magic'); magicShow('m1'); setMsg('msgM', '');
+  try {
+    const r = await call('mlUse', BOOT.ml, DEV);
+    if (!r.ok) { magicShow(''); setMsg('msgM', r.msg, 'bad'); return; }
+    if (r.kind === 'login') { $('mWait').textContent = '登入成功，正在進入…'; goNext(r); return; }
+    if (r.kind === 'reg') {
+      magicShow('m3');
+      $('mOk').textContent = r.status === 'trial' ? 'Email 驗證完成，試用已開始（到 ' + r.expires + '）。' : 'Email 驗證完成。完成付款後就會開通。';
+      $('mPay').innerHTML = r.pay ? esc((r.pay.text || '') || ('付款金額 ' + r.pay.amount + ' 元')).replace(/\n/g, '<br>') + (r.pay.url ? '<br><a href="' + esc(r.pay.url) + '" target="_top">前往付款</a>' : '') : '';
+      $('mPay').classList.toggle('hide', !r.pay);
+      if (r.taxId) $('taxId').value = r.taxId;
+      return;
+    }
+    if (r.need === 'pw') {
+      magicShow('m2');
+      $('mTitle').textContent = r.first ? '首次開通：設定登入密碼' : '設定新的登入密碼';
+      $('mTip').textContent = (r.name ? '「' + r.name + '」　' : '') + '設定好就會直接登入。客服看不到這組密碼。';
+      $('mNew').focus();
+    }
+  } catch (e) { magicShow(''); setMsg('msgM', errText(e), 'bad'); }
+}
+$('mDone').onclick = async () => {
+  const b = $('mDone'); setMsg('msgM', '');
+  if ($('mNew').value !== $('mNew2').value) { setMsg('msgM', '兩次輸入的密碼不一樣', 'bad'); return; }
+  busy(b, true, '設定密碼並登入');
+  try {
+    const r = await call('mlResetDone', BOOT.ml, $('mNew').value, DEV);
+    if (!r.ok) { setMsg('msgM', r.msg, 'bad'); return; }
+    if (r.token) { goNext(r); return; }
+    magicShow('m3'); $('mOk').textContent = r.msg || '密碼已設定，請用新密碼登入。'; $('mPay').classList.add('hide');
+  } catch (e) { setMsg('msgM', errText(e), 'bad'); } finally { busy(b, false, '設定密碼並登入'); }
+};
+$('mLogin').onclick = $('magicBack').onclick = () => show('login');
 
 $('logout').onclick = () => { store('hl-token', null); if (window.hlShellToken) window.hlShellToken(''); show('login'); };
 
@@ -248,6 +310,7 @@ $('logout').onclick = () => { store('hl-token', null); if (window.hlShellToken) 
   if (BOOT.mode === 'closed') { $('closedMsg').textContent = BOOT.msg || '這家店暫時停止服務。'; show('closed'); return; }
   if (BOOT.mode === 'invite') { showJoin(); return; }
   if (BOOT.mode === 'activate') { show('reset'); return; }
+  if (BOOT.mode === 'magic') { magic(); return; }
   show('login');
   if (BOOT.msg) setMsg('msg', BOOT.msg, 'bad');
   const tk = store('hl-token');

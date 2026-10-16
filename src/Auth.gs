@@ -47,11 +47,31 @@ function mail_(to, subject, body, o, x) {
   if (typeof mailSend_ === 'function') return mailSend_(to, subject, body, o, x);
   MailApp.sendEmail({ to: to, subject: subject, body: body, name: productName_() });
 }
-function otpSend_(kind, email, purpose) {
+/* ---------- 登入連結（店主登入、註冊驗證、設定密碼）----------
+   信裡不放驗證碼，只放一顆按鈕：?ml=連結編號。按下後連結頁在背景用這組驗證碼完成驗證（使用者看不到驗證碼），
+   原本按「寄出」的那個頁面也會自動往下一步（用 poll 編號輪詢，只有那個頁面知道 poll 編號）。
+   連結 10 分鐘內有效、只能用一次；再寄一次，舊連結就失效。管理後台仍用驗證碼。 */
+var LINK_TTL = 600;
+var LINK_KINDS = { login: { btn: '確認登入', head: '確認登入', pre: '按下按鈕就會登入' }, reg: { btn: '完成 Email 驗證', head: '完成 Email 驗證', pre: '按下按鈕完成註冊' },
+  reset: { btn: '設定密碼', head: '設定你的登入密碼', pre: '按下按鈕設定密碼' } };
+function otpSend_(kind, email, purpose, poll) {
   var left = typeof MailApp.getRemainingDailyQuota === 'function' ? MailApp.getRemainingDailyQuota() : 100;
   if (left < 3) throw new Error('今天的寄信額度用完了，請明天再試，或聯絡客服。');
-  var code = randDigits_(6);
-  CacheService.getScriptCache().put('otp:' + kind, JSON.stringify({ h: sha256_(code + '|' + kind + '|' + secret_()) }), OTP_TTL);
+  var code = randDigits_(6), cache = CacheService.getScriptCache(), lk = LINK_KINDS[String(kind).split(':')[0]];
+  if (lk) {
+    var old = cache.get('mlk:' + kind); if (old) cache.remove('ml:' + old);                 /* 再寄一次：舊連結作廢 */
+    var mid = rand_(32), url = webUrl_() + '?ml=' + mid;
+    cache.put('otp:' + kind, JSON.stringify({ h: sha256_(code + '|' + kind + '|' + secret_()) }), LINK_TTL);
+    cache.put('ml:' + mid, JSON.stringify({ k: kind, c: code, p: poll || '' }), LINK_TTL);
+    cache.put('mlk:' + kind, mid, LINK_TTL);
+    mail_(email, '【' + productName_() + '】' + lk.head,
+      purpose + '\n\n請在 10 分鐘內打開下面的連結（只能用一次）：\n' + url + '\n\n如果不是你本人操作，請忽略這封信（也建議盡快更改密碼）。',
+      typeof mailHtml_ === 'function' ? { eyebrow: 'VERIFICATION', title: lk.head, preheader: lk.pre + '，10 分鐘內有效',
+        blocks: [mkP_(mkEsc_(purpose)), mkBtn_(lk.btn, url, MK.amber, MK.navy), mkNote_('連結 10 分鐘內有效，只能用一次。如果不是你本人操作，請忽略這封信，並盡快更改密碼。')],
+        why: '你收到這封信，是因為有人用這個信箱在 SFD 系統登入、註冊或設定密碼。' } : null);
+    return true;
+  }
+  cache.put('otp:' + kind, JSON.stringify({ h: sha256_(code + '|' + kind + '|' + secret_()) }), OTP_TTL);
   var head = { login: '你的登入驗證碼', reg: '完成 Email 驗證', reset: '設定密碼的驗證碼', admin: '管理後台驗證碼' }[String(kind).split(':')[0]] || '你的驗證碼';
   mail_(email, '【' + productName_() + '】驗證碼 ' + code,
     purpose + '\n\n驗證碼：' + code + '\n\n5 分鐘內有效。如果不是你本人操作，請忽略這封信（也建議盡快更改密碼）。',
@@ -85,10 +105,11 @@ function authStart(taxId, password) {
   if (shop.status === 'pending') return fail_('unpaid', shop.verified ? '尚未完成訂閱付款，付款後才會寄出驗證碼。' : '這個統編還沒完成 Email 驗證，請先完成註冊。', { verified: shop.verified });
   if (lic.mode === 'blocked') return fail_('blocked', lic.msg);
   if (testAcct_(id)) { CacheService.getScriptCache().put('pwok:' + id, '1', OTP_TTL); cLog_(shop.id, id, '登入', '測試帳號免驗證碼', ''); return { ok: true, mail: '（測試帳號：免驗證碼，任意填）', name: shop.name, bypass: true }; }
-  try { otpSend_('login:' + id, shop.email, '你正在登入「' + shop.name + '」的菜單系統（確認訂閱狀態：' + lic.label + (shop.expires ? '，到期日 ' + shop.expires : '') + '）。'); }
+  var poll = rand_(32);
+  try { otpSend_('login:' + id, shop.email, '你正在登入「' + shop.name + '」的菜單系統（確認訂閱狀態：' + lic.label + (shop.expires ? '，到期日 ' + shop.expires : '') + '）。', poll); }
   catch (e) { return fail_('mail', e.message); }
-  cLog_(shop.id, id, '登入', '已寄驗證碼', '');
-  return { ok: true, mail: maskMail_(shop.email), name: shop.name };
+  cLog_(shop.id, id, '登入', '已寄登入連結', '');
+  return { ok: true, mail: maskMail_(shop.email), name: shop.name, poll: poll };
 }
 
 function authVerify(taxId, code, device) {
@@ -99,12 +120,64 @@ function authVerify(taxId, code, device) {
   if (!shop) return fail_('badcode', '驗證碼不正確或已過期');
   var bypass = testAcct_(id) && !!CacheService.getScriptCache().get('pwok:' + id);      /* 測試帳號：要先通過 authStart 的密碼檢查 */
   if (!bypass && !otpCheck_('login:' + id, 't' + id, code)) return fail_('badcode', '驗證碼不正確或已過期');
+  return ownerLogin_(shop, device, '');
+}
+/* 驗證都通過後：發店主通行證給這台裝置 */
+function ownerLogin_(shop, device, note) {
   var lic = licOf_(shop);
   if (lic.mode === 'blocked') return fail_('blocked', lic.msg);
   shop = ensureProvisioned_(shop);
   var tok = tokenMake_({ s: shop.id, r: 'owner', u: 'owner', v: shop.tv, d: sha256_(String(device || '')).slice(0, 8) }, OWNER_DAYS);
-  cLog_(shop.id, id, '登入', '成功', '');
+  cLog_(shop.id, shop.taxId, '登入', '成功', note || '');
   return sessionInfo_(shop, tok, 'owner');
+}
+
+/* ---------- 按下信裡的連結 ----------
+   mlUse：連結頁一打開就呼叫（使用者不用輸入任何東西）。登入／註冊驗證直接完成；設定密碼要先讓使用者填新密碼（mlResetDone）。
+   完成後在 mlp:<poll> 留一筆紀錄，原本寄信的那個頁面用 mlPoll 拿到後也會自動進下一步。 */
+function mlRec_(id) {
+  id = String(id || '').replace(/[^0-9a-f]/gi, '');
+  var raw = id ? CacheService.getScriptCache().get('ml:' + id) : null;
+  if (!raw) return null;
+  var o = JSON.parse(raw), p = String(o.k).split(':');
+  return { id: id, kind: p[0], taxId: p[1], code: o.c, poll: o.p, k: o.k };
+}
+var ML_GONE = '這個連結已經用過或已過期（10 分鐘內有效）。請回到登入頁重新寄一次。';
+function mlDone_(m, r) {
+  var c = CacheService.getScriptCache();
+  c.remove('ml:' + m.id); if (c.get('mlk:' + m.k) === m.id) c.remove('mlk:' + m.k);
+  if (r.ok && m.poll) c.put('mlp:' + m.poll, JSON.stringify({ k: m.kind, t: m.taxId, r: m.kind === 'reg' ? { status: r.status, label: r.label, expires: r.expires, pay: r.pay || null } : null }), LINK_TTL);
+}
+function mlUse(id, device) {
+  resetCtx_();
+  if (!saas_()) return fail_('off', '線上服務尚未啟用');
+  var m = mlRec_(id); if (!m) return fail_('gone', ML_GONE);
+  var shop = shopByTaxId_(m.taxId);
+  if (m.kind === 'reset') return { ok: true, kind: 'reset', need: 'pw', name: shop ? shop.name : '', first: !!(shop && !shop.hash) };
+  var r = m.kind === 'login' ? authVerify(m.taxId, m.code, device) : m.kind === 'reg' ? regVerify(m.taxId, m.code) : fail_('gone', ML_GONE);
+  mlDone_(m, r);
+  r.kind = m.kind; if (m.kind === 'reg') r.taxId = m.taxId;
+  return r;
+}
+function mlResetDone(id, newPw, device) {
+  var m = mlRec_(id); if (!m || m.kind !== 'reset') return fail_('gone', ML_GONE);
+  var r = actDone(m.taxId, m.code, newPw, device);
+  if (r.ok) mlDone_(m, r);
+  else if (r.code === 'badcode') { CacheService.getScriptCache().remove('ml:' + m.id); r.msg = ML_GONE; }   /* 驗證碼已失效（例如又寄了一次）：這個連結也作廢 */
+  r.kind = 'reset'; return r;
+}
+/* 原本的頁面每幾秒問一次：信裡的連結按了沒？按了就換這台裝置登入（只有拿到 poll 編號的頁面能問，poll 編號只回給輸入密碼的那個頁面） */
+function mlPoll(poll, device) {
+  resetCtx_();
+  poll = String(poll || '').replace(/[^0-9a-f]/gi, '');
+  var c = CacheService.getScriptCache(), raw = poll ? c.get('mlp:' + poll) : null;
+  if (!raw) return { ok: true, wait: true };
+  c.remove('mlp:' + poll);
+  var o = JSON.parse(raw), shop = shopByTaxId_(o.t);
+  if (!shop) return fail_('gone', ML_GONE);
+  if (o.k === 'reg') { var x = o.r || {}; x.ok = true; x.kind = 'reg'; x.taxId = o.t; return x; }
+  if (o.k === 'reset' && shop.status === 'pending') return { ok: true, kind: 'reset', set: true, msg: '密碼已設定。完成付款開通後，就能用統編＋密碼登入。' };
+  var r = ownerLogin_(shop, device, '從信件連結登入（原頁面）'); r.kind = o.k; return r;
 }
 
 function sessionInfo_(shop, tok, role) {
@@ -224,10 +297,11 @@ function regCreate(f) {
     '試算表ID': '', '資料夾ID': '', '密碼鹽': salt, '密碼雜湊': pwHash_(f.password, salt), '通行證版本': 1, '建立時間': nowD_(), '最後使用': '',
     '名稱鎖定至': addDaysStr_(todayStr_(), 180), '備註': '', 'Email已驗證': false });
   c.put(rk, String(rn + 1), 86400);
-  try { otpSend_('reg:' + taxId, email, '歡迎註冊「' + productName_() + '」。請輸入驗證碼完成 Email 驗證（公司：' + company + '）。'); }
+  var poll = rand_(32);
+  try { otpSend_('reg:' + taxId, email, '歡迎註冊「' + productName_() + '」（公司：' + company + '）。請按下面的按鈕完成 Email 驗證。', poll); }
   catch (e) { return fail_('mail', e.message); }
-  cLog_(id, taxId, '註冊', '已寄驗證碼', plan);
-  return { ok: true, id: id, mail: maskMail_(email) };
+  cLog_(id, taxId, '註冊', '已寄驗證連結', plan);
+  return { ok: true, id: id, mail: maskMail_(email), poll: poll };
 }
 
 /* 註冊的 Email 驗證。試用方案驗證完就開始試用；其他方案進入付款（Billing.gs） */
@@ -251,13 +325,13 @@ function pwResetStart(taxId) {
   resetCtx_();
   var id = String(taxId || '').replace(/\D/g, '');
   if (lockedOut_('p' + id)) return fail_('locked', LOCK_MSG);
-  var shop = id ? shopByTaxId_(id) : null;
+  var shop = id ? shopByTaxId_(id) : null, poll = rand_(32);
   if (shop && shop.verified) {
-    var why = shop.hash ? '你申請重設「' + shop.name + '」的登入密碼。' : '歡迎使用「' + shop.name + '」的 ' + productName_() + '。這是首次開通：輸入驗證碼後，請設定你自己的登入密碼（客服不會知道這組密碼）。';
-    try { otpSend_('reset:' + id, shop.email, why); } catch (e) { return fail_('mail', e.message); }
+    var why = shop.hash ? '你申請重設「' + shop.name + '」的登入密碼。請按下面的按鈕設定新密碼。' : '歡迎使用「' + shop.name + '」的 ' + productName_() + '。這是首次開通：請按下面的按鈕設定你自己的登入密碼（客服不會知道這組密碼）。';
+    try { otpSend_('reset:' + id, shop.email, why, poll); } catch (e) { return fail_('mail', e.message); }
   }
   failBump_('p' + id);                                  /* 不論有沒有這個統編，回應一樣，避免被拿來探測 */
-  return { ok: true, mail: shop ? maskMail_(shop.email) : '' };
+  return { ok: true, mail: shop ? maskMail_(shop.email) : '', poll: poll };
 }
 function pwResetDone(taxId, code, newPw) {
   resetCtx_();
@@ -288,14 +362,14 @@ function actMail_(s, again) {
   if (typeof mailHtml_ === 'function') o = { eyebrow: again ? 'PASSWORD' : 'WELCOME', title: again ? '請重新設定登入密碼' : s.name + '的帳號開好了', preheader: again ? '原本的密碼已失效，請用驗證碼設定新密碼' : '設定你自己的密碼，設好就直接登入',
     blocks: [mkP_(again ? '客服已依你的要求重設「' + mkEsc_(s.name) + '」的登入密碼，<b>原本的密碼已失效</b>，所有裝置也已登出。' : '歡迎使用 SFD 系統。「' + mkEsc_(s.name) + '」的帳號已建立' + (s.status === 'pilot' ? '，<b>試營運到 ' + mkEsc_(s.expires) + '</b>，全功能開放，輸出不加浮水印' : '') + '。'),
       mkP_('只要三步，設好就會直接登入：'),
-      mkSteps_(['按下面的按鈕，打開「首次開通」', '輸入統一編號 <b style="font-family:' + MK.num + ';font-size:18px">' + mkEsc_(s.taxId) + '</b>，收這個信箱的驗證碼', '設定你自己的密碼（8 個字以上，要有英文和數字）'], MK.navy),
+      mkSteps_(['按下面的按鈕，打開「首次開通」', '輸入統一編號 <b style="font-family:' + MK.num + ';font-size:18px">' + mkEsc_(s.taxId) + '</b>，會再寄一封「設定密碼」的信到這個信箱', '按信裡的「設定密碼」，設定你自己的密碼（8 個字以上，要有英文和數字）'], MK.navy),
       mkBtn_(again ? '設定新密碼' : '設定密碼並登入', u, MK.amber, MK.navy),
-      mkNote_('客服看不到、也不會跟你要這組密碼。之後登入：統編＋密碼＋Email 驗證碼。' + (lic.mode === 'blocked' && s.status === 'pending' ? '<br><b>帳號在完成付款後才能登入使用。</b>' : ''))],
+      mkNote_('客服看不到、也不會跟你要這組密碼。之後登入：統編＋密碼，再按登入信裡的「確認登入」。' + (lic.mode === 'blocked' && s.status === 'pending' ? '<br><b>帳號在完成付款後才能登入使用。</b>' : ''))],
     why: again ? '你收到這封信，是因為你請客服重設密碼。' : '你收到這封信，是因為星樂創意替你的店開通了 SFD 系統。' };
   mail_(s.email, '【' + productName_() + '】' + (again ? '請重新設定登入密碼' : '「' + s.name + '」帳號已開通，請設定登入密碼'),
     (again ? '客服已依你的要求重設「' + s.name + '」的登入密碼，原本的密碼已失效，所有裝置也已登出。' : '「' + s.name + '」的 ' + productName_() + ' 帳號已建立' + (s.status === 'pilot' ? '，試營運到 ' + s.expires + '（全功能，輸出不加浮水印）' : '') + '。') +
     '\n\n請用手機或電腦打開下面的連結，按「首次開通」：\n' + u +
-    '\n\n1. 輸入統一編號 ' + s.taxId + '\n2. 收這個信箱的驗證碼（5 分鐘內有效）\n3. 設定你自己的密碼（8 個字以上，要有英文和數字）\n\n設定好就會直接登入。之後登入：統編＋密碼＋Email 驗證碼。' +
+    '\n\n1. 輸入統一編號 ' + s.taxId + '\n2. 會再寄一封「設定密碼」的信到這個信箱（10 分鐘內有效）\n3. 按信裡的按鈕，設定你自己的密碼（8 個字以上，要有英文和數字）\n\n設定好就會直接登入。之後登入：統編＋密碼，再按登入信裡的「確認登入」。' +
     (lic.mode === 'blocked' && s.status === 'pending' ? '\n\n提醒：帳號在完成付款後才能登入使用。' : ''), o);
 }
 
