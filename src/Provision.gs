@@ -180,7 +180,7 @@ function disableTestMode() { sp0_().deleteProperty('testAccounts'); Logger.log('
    5. 寄「開通信」給登入 Email：店主自己用驗證碼設定密碼（程式裡不放密碼，客服也看不到）
    重複執行不會建第二家店：已存在就補建試算表、補店家資料，菜單只補缺少的品項（已有品項的價格不動）。
    統編 00000000 若已經被 adoptLegacyShop() 用掉（原本的單店弘林），就沿用那家店，只補負責人與登入 Email。 */
-var HONGLING_ACCOUNT = { taxId: '00000000', owner: '弘林早午餐', email: '' };   /* 統編用 00000000；登入 Email 留空＝用 MENU_EMAIL（原本收菜單 PDF 的信箱） */
+var HONGLING_ACCOUNT = { taxId: '00000000', owner: '弘林早午餐', email: 'yd.ryan.lin@gmail.com' };   /* 統編 00000000；開通信、登入信寄到這個信箱（留空＝用 MENU_EMAIL） */
 function createHonglingShop() { return seedHonglingShop(HONGLING_ACCOUNT); }
 function seedHonglingShop(acct) {
   acct = acct || {};

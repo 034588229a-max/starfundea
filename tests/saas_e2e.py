@@ -497,9 +497,9 @@ async def main():
         r = await ev("authStart('90039370', 'Test90039370')"); check('關閉測試模式後：恢復寄驗證碼', r['ok'] and not r.get('bypass') and await ev("__store.mails.length") == nb + 1, r)
 
         # ================= 16b. 弘林早午餐專用帳號 =================
-        check('弘林專用帳號：預設統編 00000000、負責人「弘林早午餐」', await ev("HONGLING_ACCOUNT.taxId === '00000000' && HONGLING_ACCOUNT.owner === '弘林早午餐' && !HONGLING_ACCOUNT.email && taxIdOk_('00000000')"))
+        check('弘林專用帳號：預設統編 00000000、負責人「弘林早午餐」、寄到 yd.ryan.lin@gmail.com', await ev("HONGLING_ACCOUNT.taxId === '00000000' && HONGLING_ACCOUNT.owner === '弘林早午餐' && HONGLING_ACCOUNT.email === 'yd.ryan.lin@gmail.com' && taxIdOk_('00000000')"))
         tx = await ev("(() => { for (var n = 27182800; n < 27183100; n++) { var s = String(n); if (taxIdOk_(s) && !shopByTaxId_(s)) return s; } })()")
-        r = await ev("t => seedHonglingShop({ taxId: t, owner: HONGLING_ACCOUNT.owner, email: HONGLING_ACCOUNT.email })", tx)   # 00000000 後面的測試要用，這裡換一個統編跑同一套預設
+        r = await ev("t => seedHonglingShop({ taxId: t, owner: HONGLING_ACCOUNT.owner, email: '' })", tx)   # 00000000 後面的測試要用，這裡換一個統編跑同一套預設
         d = await ev("s => { var x = shopById_(s); return { owner: x.owner, email: x.email }; }", r['id'])
         check('弘林專用帳號：登入 Email 沒填時用 MENU_EMAIL（原本收菜單 PDF 的信箱）', d['owner'] == '弘林早午餐' and d['email'] == await ev("MENU_EMAIL.toLowerCase()") and r['added'] > 100 and not r['legacy'], (r, d))
         r = await ev("seedHonglingShop({ taxId: '04595257', owner: '林老闆', email: 'legacy@example.com' })")
