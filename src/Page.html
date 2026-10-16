@@ -225,6 +225,7 @@ main { max-width: 880px; margin: 0 auto; padding: 12px 12px 110px }
 .tg { display: inline-block; font-size: 10.5px; line-height: 15px; padding: 0 5px; border-radius: 5px; margin-left: 4px; font-weight: 700; background: #EEF0F4; color: #555 }
 .tg.d { background: #DDF1E4; color: #1f6b3a } .tg.f { background: #FBE0DC; color: #B3261E }
 .sheet .tg { font-size: 8.5px; line-height: 11px; padding: 0 3px; border-radius: 3px; margin-left: 2px; flex: none }
+.pgctl { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0 2px }
 .tgrow { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px } .tgh { font-size: 12px; font-weight: 700; color: var(--mute); margin-top: 10px }
 .tgpick { border: 1.5px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer }
 .tgpick.on { background: var(--navy); border-color: var(--navy); color: var(--card) }
@@ -325,8 +326,9 @@ window.addEventListener('load', function () {
 
 <div class="modal" id="pvModal"><div class="sheetbox">
   <h3 style="display:flex;justify-content:space-between;align-items:center">A3 預覽 <button class="btn" id="pvClose" style="height:36px">關閉</button></h3>
-  <p class="pv-note top"><b>點任何價格就能直接改</b>　<span class="lg pcl">橘底＝跟上次不一樣</span>　<span class="lg pel">？＝還沒填</span>　<span id="pvStat"></span>　<label style="white-space:nowrap"><input type="checkbox" class="singleChk"> 只印單面</label>
+  <p class="pv-note top"><b>點任何價格就能直接改</b>　<span class="lg pcl">橘底＝跟上次不一樣</span>　<span class="lg pel">？＝還沒填</span>　<span id="pvStat"></span>
     <button class="btn sm" id="pvZoomBtn">放大</button></p>
+  <div class="pgctl-host"></div>
   <div class="pv-wrap" id="pvWrap"><div class="pv-size" id="pvSize"><div class="pv-inner" id="pvInner"></div></div></div>
   <p class="pv-note">橘底和？只在預覽出現，輸出的 PDF 不會有。</p>
 </div></div>
@@ -1175,12 +1177,22 @@ function measureSheet(mode) {
     kids.forEach(k => { const h = hOf(k); sum += h; if (k.tagName === 'H2') h2 = h; else if (k.classList.contains('note')) note = h; else if (k.classList.contains('h')) head = h; });
     const rows = kids.filter(k => k.classList.contains('r') && !k.classList.contains('h'));
     M.base = M.base || rows[0].getBoundingClientRect().height;
+    /* 最長的品項名稱在這一欄寬下，字最大可以到多少（名稱不換行，太大會被切掉） */
+    const rg = document.createRange();
+    const textW = el => { rg.selectNodeContents(el); return rg.getBoundingClientRect().width; };
+    rows.forEach(r => {
+      const n = r.querySelector('.rn'), w = n ? textW(n) : 0;
+      if (w > 0 && n.clientWidth > 0) M.fsFit = Math.min(M.fsFit || 99, FS0 * n.clientWidth / w);
+      /* 價格欄寬固定，價格字級＝品項字級＋1px：用最長的價格算上限 */
+      r.querySelectorAll(':scope > b').forEach(b => { const bw = textW(b); if (bw > 0 && b.clientWidth > 0) M.fsFit = Math.min(M.fsFit || 99, (FS0 + 1) * b.clientWidth / bw - 1); });
+    });
     units.forEach((u, i) => { const nx = rows[i].nextElementSibling; u.ex = nx && nx.classList.contains('ex') ? hOf(nx) : 0; });
     const exSum = units.reduce((a, u) => a + u.ex, 0);
     M.secs.push({ s, units, chrome: box.getBoundingClientRect().height - (sum), headFirst: h2 + note + head, headCont: h2 + head, exSum });
   }
   /* chrome = 卡片外框的內距（上下 padding），用「整張卡高度 − 所有子元素高度」算出來 */
   M.secs.forEach(e => { e.chrome = Math.max(0, e.chrome); });
+  M.fsFit = Math.max(FS0 + 1, M.fsFit || FS_MAX);   /* 只限制「放大」；原本的字級（最多 +1px）維持不變 */
   host.innerHTML = '';
   return M;
 }
@@ -1239,6 +1251,49 @@ let splitMin = SPLIT_TOP + SPLIT_BOT + 1;   /* 列數少於這個數字的分類
 let SINGLE_PAGE = false;                    /* 只印單面：不排到背面，寧可把列高縮到更小（最多 20%）；還放不下就要店家自己隱藏品項 */
 try { SINGLE_PAGE = localStorage.getItem('hl-single') === '1'; } catch (e) {}
 let avoidSplit = false;                     /* true：整個分類放得進一欄就不拆（balance 先試這個） */
+/* 指定兩頁：店家自己選第一頁放哪些大類，其餘放第二頁；兩頁用同一個列高與字級（品項少的那頁不會字比較大） */
+let TWO_PAGE = false;
+let P1_IDS = null;                          /* 第一頁的分類 id；null＝自動分配（讓兩頁的字能放到最大） */
+try {
+  TWO_PAGE = localStorage.getItem('hl-pages') === '2'; if (TWO_PAGE) SINGLE_PAGE = false;
+  const x = JSON.parse(localStorage.getItem('hl-p1') || 'null'); if (Array.isArray(x)) P1_IDS = x;
+} catch (e) {}
+const FS0 = 12.5, FS_MAX = 15.5;            /* 品項字級：預設 12.5px；兩頁時最多放大到 15.5px（價格欄寬 34px 放得下 3～4 位數） */
+const fsOf = (M, rb, d) => Math.min(FS_MAX, M.fsFit || FS_MAX, FS0 - (M.base - rb) * 0.55 + Math.min(d, 5) * 0.2);
+/* 兩頁時列高的上限：字級跟著列高放大，不能超過 FS_MAX，也不能讓最長的品項名稱被切掉 */
+const rbUpper = M => Math.max(M.base, M.base + (Math.min(FS_MAX, M.fsFit || FS_MAX) - FS0) / 0.55);
+
+/* A 放第一頁（含 Logo＋QR）、B 放第二頁：找兩頁「都」放得下的最大共同列高，兩頁再各自四欄平均分攤 */
+function planTwo(M, A, B, rbMin) {
+  const H = M.gridH, full = () => H;
+  const pa = rb => packFlow(M, A, full, 4, 0, rb), pb = rb => packFlow(M, B, full, 4, 1, rb);
+  const fits = rb => pa(rb).ok && pb(rb).ok;
+  if (!fits(rbMin)) { const a = pa(rbMin), b = pb(rbMin); return { ok: false, rb: rbMin, packs: [a, b], leftA: a.left, leftB: b.left }; }
+  let lo = rbMin, hi = rbUpper(M);
+  if (fits(hi)) lo = hi; else while (hi - lo > 0.05) { const mid = (lo + hi) / 2; if (fits(mid)) lo = mid; else hi = mid; }
+  return { ok: true, rb: lo, packs: [balance(M, A, 0, lo, H), balance(M, B, 1, lo, H)], leftA: 0, leftB: 0 };
+}
+/* 自動分配兩頁：依分類順序切一刀，挑「兩頁共同列高最大」的位置（字最大）；
+   字一樣大（例如都已放到最大）就挑兩頁內容最平均的切法，兩頁看起來份量差不多 */
+function autoSplit(M, rbMin) {
+  const hs = M.secs.map(e => secHeight(e, M.base)), tot = hs.reduce((a, b) => a + b, 0);
+  const hero = M.heroH + (M.qrH ? GAP0 + M.qrH : 0) - M.contH;   /* 第一頁多了 Logo＋QR */
+  let best = null, accA = 0;
+  for (let k = 1; k < M.secs.length; k++) {
+    accA += hs[k - 1];
+    const t = planTwo(M, M.secs.slice(0, k), M.secs.slice(k), rbMin);
+    const score = t.ok ? t.rb : -(t.leftA + t.leftB), diff = Math.abs(accA + hero - (tot - accA));
+    if (!best || score > best.score + 0.05 || (Math.abs(score - best.score) <= 0.05 && diff < best.diff)) best = { k, score, diff };
+  }
+  return best ? best.k : M.secs.length;
+}
+/* 店家選的第一頁分類；沒選過、選的分類都不在了、或某一頁變成空的 → 用自動分配 */
+function splitSecs(M, rbMin) {
+  const set = new Set((P1_IDS || []).filter(id => M.secs.some(e => e.s.id === id)));
+  let A = M.secs.filter(e => set.has(e.s.id)), B = M.secs.filter(e => !set.has(e.s.id)), auto = false;
+  if (!P1_IDS || !A.length || !B.length) { const k = autoSplit(M, rbMin); A = M.secs.slice(0, k); B = M.secs.slice(k); auto = true; }
+  return { A, B, auto };
+}
 
 /* 在 4 欄裡把 secs 平均分攤：先試「完全不拆分類」，欄與欄高度差太多或放不下才改成可拆（二分搜尋最小欄高） */
 function balance(M, secs, page, rb, H) {
@@ -1262,8 +1317,16 @@ function planWith(M, mode) {
   const cap1 = 4 * H - M.heroH - (M.qrH ? GAP0 + M.qrH : 0), cap2 = cap1 + 4 * H - M.contH;
   const content = secsContent(M, M.secs, base);
   const full = Ht => () => Ht;
-  let how = 'one', rb = base, packs = [];
-  if (packFlow(M, M.secs, full(H), 4, 0, base).ok) {
+  let how = 'one', rb = base, packs = [], two = null;
+  if (TWO_PAGE && M.secs.length >= 2) {
+    /* 指定兩頁：第一頁放店家選的大類，其餘放第二頁；兩頁共用同一個列高（字級相同），放不下時最多縮到 80% */
+    how = 'two';
+    const sp = splitSecs(M, base * 0.8);
+    two = planTwo(M, sp.A, sp.B, base * 0.8);
+    two.p1 = sp.A.map(e => e.s.id); two.auto = sp.auto;
+    two.rowsA = sp.A.reduce((a, e) => a + e.units.length, 0); two.rowsB = rowsTotal - two.rowsA;
+    packs = two.packs; rb = two.rb;
+  } else if (packFlow(M, M.secs, full(H), 4, 0, base).ok) {
     packs = [balance(M, M.secs, 0, base, H)];
   } else if (packFlow(M, M.secs, full(H), 4, 0, rbMin).ok) {
     let lo = rbMin, hi = base;
@@ -1279,7 +1342,7 @@ function planWith(M, mode) {
       const A = M.secs.slice(0, k), B = M.secs.slice(k);
       if (!packFlow(M, A, full(H), 4, 0, base).ok) continue;
       /* 這是正面放得下的最多分類；再少只會讓背面更擠。正面太空或背面放不下就改成逐列接續 */
-      if (secsContent(M, A, base) / cap1 >= 0.85 && packFlow(M, B, full(H), 4, 1, base).ok) packs = [balance(M, A, 0, base, H), balance(M, B, 1, base, H)];
+      if (secsContent(M, A, base) / cap1 >= 0.85 && packFlow(M, B, full(H), 4, 1, base).ok) { const t = planTwo(M, A, B, base); packs = t.packs; rb = t.rb; }
       break;
     }
     if (!packs.length) {
@@ -1291,11 +1354,14 @@ function planWith(M, mode) {
   const ok = packs.every(p => p.ok), left = packs.reduce((a, p) => a + p.left, 0);
   let cols = [];
   packs.forEach(p => { while (p.cols.length % 4 && p.cols.length < 4 * PAGE_MAX) p.cols.push({ blocks: [], h: 0, nb: 0, rows: 0, res: '' }); cols = cols.concat(p.cols); });
-  /* 每欄把列距、區塊間距拉開去吃留白 */
+  /* 每欄把列距、區塊間距拉開去吃留白。兩頁時所有欄用同一個列距（取最擠那欄能放大的量），
+     兩頁的列高、字級完全一樣，只用區塊間距吃掉各欄剩下的留白 */
+  const multi = cols.length > 4;
+  const dAll = multi ? Math.min(ROW_GROW, ...cols.filter(c => c.rows).map(c => Math.max(0, H - SAFE - c.h) / c.rows)) : 0;
   cols = cols.map(c => {
     const rowsN = c.rows, blocks = c.nb;
     const extra = Math.max(0, H - SAFE - c.h);
-    const d = rowsN ? Math.min(ROW_GROW, extra / rowsN) : 0;
+    const d = rowsN ? (multi ? dAll : Math.min(ROW_GROW, extra / rowsN)) : 0;
     const g = blocks > 1 ? Math.min(GAP_MAX - GAP0, Math.max(0, (extra - d * rowsN) / (blocks - 1))) : 0;
     const used = c.h + d * rowsN + g * Math.max(0, blocks - 1);
     return { ...c, d, g, used, fill: used / H };
@@ -1303,7 +1369,7 @@ function planWith(M, mode) {
   const pageCount = Math.max(1, Math.ceil(cols.length / 4));
   const used = cols.reduce((a, c) => a + c.used, 0);
   const splits = cols.reduce((a, c) => a + c.blocks.filter(b => b.cont).length, 0);
-  return { M, cols, rb, how, pageCount: Math.min(PAGE_MAX, pageCount), overflow: !ok, left, rowsTotal, splits,
+  return { M, cols, rb, how, two, pageCount: Math.min(PAGE_MAX, pageCount), overflow: !ok, left, rowsTotal, splits,
     usage: content / cap1, usage2: content / cap2, fill: used / (pageCount * 4 * H), gridH: H };
 }
 
@@ -1330,7 +1396,7 @@ function pageHTML(plan, pi, mode, ver) {
   const colsHTML = cols.map(c => {
     let h = '';
     if (c.res === 'hero') h += heroHTML(mode) + qrHTML(mode); else if (c.res === 'cont') h += contHTML(mode);
-    h += c.blocks.map(b => secPartHTML(b.e.s, mode, b.e.units.slice(b.from, b.to), b.cont, { h: plan.rb + c.d, fs: 12.5 - (M.base - plan.rb) * 0.55 + Math.min(c.d, 5) * 0.2 })).join('');
+    h += c.blocks.map(b => secPartHTML(b.e.s, mode, b.e.units.slice(b.from, b.to), b.cont, { h: plan.rb + c.d, fs: fsOf(M, plan.rb, c.d) })).join('');
     return `<div class="col" style="gap:${(GAP0 + c.g).toFixed(1)}px">${h}</div>`;
   }).join('');
   const foot = blank
@@ -1355,7 +1421,7 @@ function sheetHTML(mode, ver) {
 let pvZoom = false;
 function renderPreview() {
   const st = $('pvWrap').scrollTop, sl = $('pvWrap').scrollLeft;
-  $('pvInner').innerHTML = sheetHTML('preview'); fitPreview(); $('pvStat').innerHTML = fitText();
+  $('pvInner').innerHTML = sheetHTML('preview'); fitPreview(); $('pvStat').innerHTML = fitText(); renderPageCtl();
   $('pvWrap').scrollTop = st; $('pvWrap').scrollLeft = sl;
 }
 function fitPreview() {
@@ -1371,13 +1437,39 @@ function fitPreview() {
 $('pvBtn').addEventListener('click', () => {
   $('pvModal').classList.add('open'); renderPreview();
 });
-document.addEventListener('change', e => {
-  if (!e.target.classList || !e.target.classList.contains('singleChk')) return;
-  SINGLE_PAGE = e.target.checked; try { localStorage.setItem('hl-single', SINGLE_PAGE ? '1' : '0'); } catch (x) {}
-  document.querySelectorAll('.singleChk').forEach(c => { c.checked = SINGLE_PAGE; });
+/* ---- 頁數：自動／1 頁／2 頁；2 頁時選第一頁要放的大類 ---- */
+let PG_MSG = '';
+const pageMode = () => TWO_PAGE ? '2' : SINGLE_PAGE ? '1' : 'auto';
+function renderPageCtl() {
+  const hosts = document.querySelectorAll('.pgctl-host'); if (!hosts.length) return;
+  const pm = pageMode(), btn = (v, t) => `<button type="button" class="tgpick${pm === v ? ' on' : ''}" data-pm="${v}">${t}</button>`;
+  let h = `<div class="pgctl"><span class="tgh" style="margin:0">頁數</span>${btn('auto', '自動')}${btn('1', '1 頁')}${btn('2', '2 頁')}</div>`;
+  const t = lastPlan && lastPlan.two;
+  if (pm === '2' && t) {
+    const on = new Set(t.p1), ids = lastPlan.M.secs.map(e => e.s.id);
+    h += `<div class="tgh">第一頁要放的大類（點一下移到另一頁；沒選的放第二頁）${t.auto ? '' : '　<button type="button" class="linkbtn" data-p1reset style="display:inline;margin:0">改回自動分配</button>'}</div>`
+      + `<div class="tgrow">${ids.map(id => `<button type="button" class="tgpick${on.has(id) ? ' on' : ''}" data-p1="${esc(id)}">${on.has(id) ? '① ' : '② '}${esc(BYID[id].t)}</button>`).join('')}</div>`;
+  } else if (pm === '2') h += `<div class="tgh">只有一個分類，無法分成兩頁，會照自動排法輸出。</div>`;
+  if (PG_MSG) { h += `<div class="warn" style="margin:8px 0 0">${esc(PG_MSG)}</div>`; PG_MSG = ''; }
+  hosts.forEach(x => { x.innerHTML = h; });
+}
+function pageCtlChanged() {
   lastFile = null;
+  try { localStorage.setItem('hl-single', SINGLE_PAGE ? '1' : '0'); localStorage.setItem('hl-pages', TWO_PAGE ? '2' : ''); localStorage.setItem('hl-p1', P1_IDS ? JSON.stringify(P1_IDS) : 'null'); } catch (x) {}
   if ($('pvModal').classList.contains('open')) renderPreview();
   if ($('expModal').classList.contains('open')) renderWarn();
+}
+document.addEventListener('click', e => {
+  const m = e.target.closest && e.target.closest('[data-pm]');
+  if (m) { const v = m.dataset.pm; SINGLE_PAGE = v === '1'; TWO_PAGE = v === '2'; pageCtlChanged(); return; }
+  if (e.target.closest && e.target.closest('[data-p1reset]')) { P1_IDS = null; pageCtlChanged(); return; }
+  const c = e.target.closest && e.target.closest('[data-p1]');
+  if (c && lastPlan && lastPlan.two) {
+    const set = new Set(lastPlan.two.p1), id = c.dataset.p1, all = lastPlan.M.secs.map(x => x.s.id);
+    if (set.has(id)) set.delete(id); else set.add(id);
+    if (!set.size || set.size === all.length) { PG_MSG = set.size ? '第二頁至少要留一個分類' : '第一頁至少要放一個分類'; renderPageCtl(); return; }
+    P1_IDS = all.filter(x => set.has(x)); pageCtlChanged();
+  }
 });
 $('pvZoomBtn').addEventListener('click', () => { pvZoom = !pvZoom; fitPreview(); });
 $('pvInner').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) openEditor(b.dataset.k); });
@@ -1389,11 +1481,17 @@ window.addEventListener('resize', () => { if ($('pvModal').classList.contains('o
 function fitText() {
   const p = lastPlan; if (!p) return '';
   const pct = Math.round(p.usage * 100);
-  if (p.overflow && SINGLE_PAGE) return `<span style="color:#c0392b"><b>只印單面放不下</b>（列高已縮到最小），還差約 ${p.left} 列。請隱藏一些品項，或取消「只印單面」改成雙面。</span>`;
+  if (p.two) {
+    const t = p.two;
+    if (p.overflow) return `<span style="color:#c0392b"><b>兩頁放不下</b>（列高已縮到最小）：${t.leftA ? `第一頁還差約 ${t.leftA} 列` : ''}${t.leftA && t.leftB ? '、' : ''}${t.leftB ? `第二頁還差約 ${t.leftB} 列` : ''}。請把分類移到另一頁，或隱藏一些品項。</span>`;
+    const fs = fsOf(p.M, p.rb, p.cols.find(c => c.rows) ? p.cols.find(c => c.rows).d : 0);
+    return `菜單 ${p.rowsTotal} 列，分成兩頁：第一頁 ${t.rowsA} 列、第二頁 ${t.rowsB} 列${t.auto ? '（自動分配）' : ''}。<b>兩頁字級相同：${Math.round(fs / FS0 * 100)}%</b>${fs >= FS_MAX - 0.05 ? '（已是最大）' : ''}`;
+  }
+  if (p.overflow && SINGLE_PAGE) return `<span style="color:#c0392b"><b>只印單面放不下</b>（列高已縮到最小），還差約 ${p.left} 列。請隱藏一些品項，或把頁數改成「2 頁」。</span>`;
   if (p.overflow) return `<span style="color:#c0392b"><b>品項太多：正面＋背面都放不下</b>，還差約 ${p.left} 列。請隱藏或刪除一些品項。</span>`;
   if (p.pageCount > 1) {
     const back = p.cols.slice(4).reduce((a, c) => a + c.rows, 0);
-    return `菜單 ${p.rowsTotal} 列，正面放不下（用量 ${pct}%），<b>其餘分類排到背面</b>（共 ${p.pageCount} 頁）${back <= 25 ? `<br>背面只有 ${back} 列，會很空。想只印單面可勾選「只印單面」（列高縮小，放不下會告訴你還差幾列）。` : ''}`;
+    return `菜單 ${p.rowsTotal} 列，正面放不下（用量 ${pct}%），<b>其餘分類排到背面</b>（共 ${p.pageCount} 頁）${back <= 25 ? `<br>背面只有 ${back} 列，會很空。想只印單面可在「頁數」選「1 頁」（列高縮小，放不下會告訴你還差幾列）；或選「2 頁」自己決定第一頁放哪些分類。` : ''}`;
   }
   if (p.how === 'tight') return `菜單 ${p.rowsTotal} 列，A3 正面用量 ${pct}%：<b>列高自動縮小 ${Math.round((1 - p.rb / p.M.base) * 100)}%</b> 擠進正面（再多就會排到背面）`;
   return `菜單 ${p.rowsTotal} 列，A3 正面用量 ${pct}%（超過 100% 會先縮小列高，再多才排到背面）`;
@@ -1412,7 +1510,7 @@ function renderWarn() {
     $('goEmpty').onclick = () => { $('expModal').classList.remove('open'); openEditor(empty[0]); };
   } else $('expWarn').innerHTML = '';
   planMenu('menu');
-  $('expWarn').innerHTML += `<label class="toggle" style="margin-top:8px"><input type="checkbox" class="singleChk"${SINGLE_PAGE ? ' checked' : ''}>只印單面（不排到背面）</label>` + `<div class="tip" style="padding:6px 0 0">${fitText()}</div>`;
+  $('expWarn').innerHTML += `<div class="pgctl-host"></div><div class="tip" style="padding:6px 0 0">${fitText()}</div>`; renderPageCtl();
 }
 $('expBtn').addEventListener('click', () => {
   $('expMsg').textContent = '';

@@ -170,6 +170,64 @@ async def main():
         r = await fr.evaluate(MEASURE, ['toast', n_tight + 12, 'menu'])
         check('雙面：背面很空時提示可改只印單面', '只印單面' in r['text'], r['text'])
 
+        # ---------- 3c. 指定 2 頁：選第一頁放哪些大類，兩頁字級、列高一樣 ----------
+        FONTS = """() => [...document.querySelectorAll('#render .sheet')].map(pg => [...pg.querySelectorAll('.r:not(.h)')].map(x => [getComputedStyle(x).fontSize, x.getBoundingClientRect().height.toFixed(1)]))"""
+        await fr.evaluate(MEASURE, ['toast', 0, 'menu'])
+        fs_one = float((await fr.evaluate(FONTS))[0][0][0][:-2])
+        await fr.evaluate("TWO_PAGE = true; P1_IDS = null")
+        r = await fr.evaluate(MEASURE, ['toast', 0, 'menu'])
+        fts = await fr.evaluate(FONTS)
+        styles = {tuple(x) for pg in fts for x in pg}
+        if os.environ.get('SNAP'):
+            await fr.evaluate("document.getElementById('render').style.left = '0'")
+            for i, el in enumerate(await fr.locator('#render .sheet').all()):
+                await el.screenshot(path=os.path.join(os.environ['SNAP'], 'pick2_%d.png' % (i + 1)))
+            await fr.evaluate("document.getElementById('render').style.left = '-30000px'")
+        print('  [指定兩頁・自動分配] 分類', r['titles'], '字級／列高', styles, '一頁時字級', fs_one, r['text'])
+        check('指定兩頁：共 2 頁、沒有溢出、每個品項都在', r['pageCount'] == 2 and not r['overflow'] and r['rowsDom'] == r['rowsTotal'], r['text'])
+        check('指定兩頁：每一欄都沒被裁掉', all(c['clip'] <= 0 and c['bottom'] <= c['h'] + 0.5 for pg in r['info'] for c in pg), r['info'])
+        check('指定兩頁：兩頁的字級、列高完全相同', len(styles) == 1 and len(fts[0]) and len(fts[1]), styles)
+        check('指定兩頁：字比只排一頁時大', float(next(iter(styles))[0][:-2]) > fs_one + 1, (styles, fs_one))
+        t0 = {x.replace('（續）', '') for x in r['titles'][0]}; t1 = {x.replace('（續）', '') for x in r['titles'][1]}
+        check('指定兩頁：同一個大類不會被切在兩頁', not (t0 & t1), (t0 & t1))
+        check('指定兩頁：提示兩頁字級相同', '兩頁字級相同' in r['text'] and '自動分配' in r['text'], r['text'])
+        # 店家自己選第一頁的大類（順序照菜單原本的順序）
+        await fr.evaluate("P1_IDS = ['danbing', 'chao', 'toast']")
+        r = await fr.evaluate(MEASURE, ['toast', 0, 'menu'])
+        fts = await fr.evaluate(FONTS); styles = {tuple(x) for pg in fts for x in pg}
+        t0 = [x.replace('（續）', '') for x in r['titles'][0]]
+        print('  [指定兩頁・自選] 第一頁', t0, '字級／列高', styles)
+        check('指定兩頁：第一頁只放選的大類（照菜單順序）', list(dict.fromkeys(t0)) == ['超值特餐', '蛋餅／抓餅蛋／河粉', '吐司／漢堡／乳酪餅'], t0)
+        check('指定兩頁：自選後兩頁字級仍相同、沒有溢出', len(styles) == 1 and not r['overflow'] and r['rowsDom'] == r['rowsTotal'], (styles, r['text']))
+        check('指定兩頁：自選時不再標示自動分配', '自動分配' not in r['text'], r['text'])
+        # 選了不存在的分類、或全部都放第一頁 → 改用自動分配，不會出現空白頁
+        await fr.evaluate("P1_IDS = ['nope']")
+        r = await fr.evaluate(MEASURE, ['toast', 0, 'menu'])
+        check('指定兩頁：選的分類都不存在時改用自動分配', r['pageCount'] == 2 and '自動分配' in r['text'] and all(len(t) for t in r['titles']), r['text'])
+        # 一頁塞太多：告訴是哪一頁、還差幾列
+        await fr.evaluate("P1_IDS = ['chao', 'jing', 'danbing', 'chiyan', 'cheese', 'spread', 'bake', 'toast', 'club', 'single', 'tpm', 'teppan']")
+        r = await fr.evaluate(MEASURE, ['toast', 60, 'menu'])
+        check('指定兩頁：第一頁放不下時標示溢出並說是哪一頁', r['overflow'] and '第一頁還差約' in r['text'], r['text'])
+        # 預覽畫面上的頁數按鈕與第一頁大類選擇
+        await fr.evaluate("TWO_PAGE = false; P1_IDS = null; layoutSig = ''; rebuildFromRows(window.__baseRows.map(r => ({ ...r })))")
+        await fr.click('#pvBtn'); await fr.wait_for_timeout(300)
+        check('預覽：有「自動／1 頁／2 頁」頁數按鈕', await fr.locator('#pvModal [data-pm]').count() == 3)
+        await fr.click('#pvModal [data-pm="2"]'); await fr.wait_for_timeout(300)
+        chips = await fr.locator('#pvModal [data-p1]').count()
+        check('預覽：選 2 頁後列出各大類，預覽變成兩頁', chips >= 10 and await fr.locator('#pvInner .sheet').count() == 2, chips)
+        before = await fr.evaluate("lastPlan.two.p1.slice()")
+        last_off = await fr.evaluate("lastPlan.M.secs.map(e => e.s.id).filter(id => !lastPlan.two.p1.includes(id))[0]")
+        await fr.click('#pvModal [data-p1="%s"]' % last_off); await fr.wait_for_timeout(300)
+        after = await fr.evaluate("[P1_IDS, lastPlan.two.p1, lastPlan.two.auto, localStorage.getItem('hl-pages'), JSON.parse(localStorage.getItem('hl-p1'))]")
+        check('預覽：點大類就移到第一頁、記住選擇並重排', last_off in after[0] and last_off in after[1] and after[2] is False and after[3] == '2' and after[4] == after[0], (before, after))
+        await fr.click('#pvModal [data-p1reset]'); await fr.wait_for_timeout(300)
+        check('預覽：「改回自動分配」', await fr.evaluate("P1_IDS === null && lastPlan.two.auto"))
+        await fr.click('#pvModal [data-pm="1"]'); await fr.wait_for_timeout(300)
+        check('預覽：選 1 頁＝只印單面', await fr.evaluate("SINGLE_PAGE && !TWO_PAGE && lastPlan.pageCount === 1 && localStorage.getItem('hl-single') === '1'"))
+        await fr.click('#pvModal [data-pm="auto"]'); await fr.wait_for_timeout(300)
+        await fr.click('#pvClose')
+        await fr.evaluate("TWO_PAGE = false; SINGLE_PAGE = false; P1_IDS = null")
+
         # ---------- 4. 超過兩頁 ----------
         r = await fr.evaluate(MEASURE, ['toast', 330, 'menu'])
         print('  [爆量] 列數', r['rowsTotal'], 'overflow', r['overflow'], '差', r['left'])
