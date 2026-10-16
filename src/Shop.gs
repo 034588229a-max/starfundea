@@ -238,7 +238,9 @@ function draftClean_(d) {
         var n = Math.round(Number(v));
         return isNaN(n) || n < 0 ? null : Math.min(n, 9999);
       });
-      items.push({ name: name, prices: prices, star: it.star === true, tags: tagsClean_(it.tags), side: cfgClean_(it.side, 30), hidden: it.hidden === true });
+      /* keep[i]：這一欄雖然沒填價格，仍要建立（例如弘林菜單裡「還沒定價」的格子）；沒給就照原規則：多規格沒價格＝不供應 */
+      var keep = cols.map(function (_, i) { return !!(it.keep && it.keep[i]); });
+      items.push({ name: name, prices: prices, keep: keep, star: it.star === true, tags: tagsClean_(it.tags), side: cfgClean_(it.side, 30), hidden: it.hidden === true });
     });
     secs.push({ title: title, columns: cols, note: cfgClean_(s.note, 80), items: items });
   });
@@ -287,7 +289,7 @@ function menuApplyDraft_(draft, opt) {
         map.forEach(function (ci, i) {
           if (ci < 0) return;
           var p = it.prices[i];
-          if (p === null && sec.cols.length > 1) return;                       /* 多規格：沒價格＝不供應，不建立那一欄 */
+          if (p === null && sec.cols.length > 1 && !(it.keep && it.keep[i])) return;   /* 多規格：沒價格＝不供應，不建立那一欄（keep 標記的格子除外） */
           rows.push([sec.id + '|' + it.name + '|' + ci, sec.t, it.name, one ? '' : sec.cols[ci], p === null ? '' : p, '', it.hidden, it.star, it.side, tg]);
           made++;
         });
@@ -365,14 +367,15 @@ function honglingDraft_() {
     if (!s) { s = by[sid] = { title: it[1], cols: [], items: [], idx: {} }; secs.push(s); }
     if (it[3] || s.cols[ci] === undefined) s.cols[ci] = it[3] || s.cols[ci] || '';
     var x = s.idx[name];
-    if (!x) { x = s.idx[name] = { name: name, prices: [], star: false }; s.items.push(x); }
+    if (!x) { x = s.idx[name] = { name: name, prices: [], keep: [], star: false }; s.items.push(x); }
     x.prices[ci] = it[4] === '' ? null : Number(it[4]);
+    x.keep[ci] = true;                                     /* 弘林菜單裡有這一格（就算還沒定價），匯入時也要建立 */
     if (it[5]) x.star = true;
   });
   return { sections: secs.map(function (s) {
     var n = Math.max(s.cols.length, 1), cols = [];
     for (var i = 0; i < n; i++) cols.push(s.cols[i] || (n === 1 ? '價格' : '規格' + (i + 1)));
-    return { title: s.title, columns: cols, items: s.items.map(function (x) { var pr = []; for (var j = 0; j < n; j++) pr.push(x.prices[j] === undefined ? null : x.prices[j]); return { name: x.name, prices: pr, star: x.star }; }) };
+    return { title: s.title, columns: cols, items: s.items.map(function (x) { var pr = []; for (var j = 0; j < n; j++) pr.push(x.prices[j] === undefined ? null : x.prices[j]); var kp = []; for (var q = 0; q < n; q++) kp.push(!!x.keep[q]); return { name: x.name, prices: pr, keep: kp, star: x.star }; }) };
   }), warnings: [] };
 }
 function ownDemoMenuLoad(key) {

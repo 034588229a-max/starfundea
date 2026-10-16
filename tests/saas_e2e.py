@@ -481,6 +481,28 @@ async def main():
         nb = await ev("__store.mails.length")
         r = await ev("authStart('90039370', 'Test90039370')"); check('關閉測試模式後：恢復寄驗證碼', r['ok'] and not r.get('bypass') and await ev("__store.mails.length") == nb + 1, r)
 
+        # ================= 16b. 弘林早午餐專用帳號 =================
+        r = await ev("(() => { try { createHonglingShop(); return 'ran'; } catch (e) { return e.message; } })()")
+        check('弘林專用帳號：沒填統編時不會建立，提示要先填', '統一編號' in r, r)
+        n0 = await ev("__store.mails.length")
+        r = await ev("seedHonglingShop({ taxId: '24536806', owner: '林先生', email: 'Hongling@Example.com', skipTaxCheck: true })")
+        sid_h = r['id']
+        info = await ev("""s => { var x = shopById_(s); return withShop_(x, function () {
+            var cfg = JSON.parse(props_().getProperty('cfg') || '{}'), d = getData_();
+            return { taxId: x.taxId, name: x.name, status: x.status, plan: x.plan, email: x.email, owner: x.owner, ss: !!x.ssId, folder: !!x.folderId, hash: x.hash,
+              cfgName: cfg.name, addr: cfg.address, line: cfg.lineId, onb: props_().getProperty('onboarded'), rows: d.rows.length,
+              star: d.rows.filter(function (q) { return q.star; }).length, priced: d.rows.filter(function (q) { return q.p !== '' && q.p != null; }).length }; }); }""", sid_h)
+        print('  [弘林專用帳號]', info, r)
+        check('弘林專用帳號：建立正式店家（使用中、專業版、Email 轉小寫）', info['taxId'] == '24536806' and info['name'] == '弘林早午餐' and info['status'] == 'active' and info['plan'] == 'pro' and info['email'] == 'hongling@example.com' and info['owner'] == '林先生', info)
+        check('弘林專用帳號：建好資料夾與試算表，程式裡不放密碼', info['ss'] and info['folder'] and not info['hash'], info)
+        check('弘林專用帳號：店家資料用原本的弘林設定，略過設定精靈', info['cfgName'] == '弘林早午餐' and '廣州路' in info['addr'] and info['line'] == '@322kwvxu' and info['onb'] == '1', info)
+        nitems = await ev("ITEMS.length"); ndish = await ev("new Set(ITEMS.map(function (x) { return x[0].split('|').slice(0, 2).join('|'); })).size")
+        check('弘林專用帳號：匯入全部菜單品項（每一格價格、還沒定價的格子、推薦都在）', info['rows'] == nitems and r['added'] == ndish and info['star'] > 0 and info['priced'] > nitems * 0.8, (info['rows'], nitems, r))
+        check('弘林專用帳號：寄出開通信（請店主自己設定密碼）', r['mailed'] and any(m.get('to') == 'hongling@example.com' and '設定登入密碼' in m.get('subject', '') for m in await ev("__store.mails.slice(%d)" % n0)), await ev("__store.mails.slice(%d)" % n0))
+        check('弘林專用帳號：不是測試帳號（登入仍要驗證碼）', '24536806' not in (await ev("__store.props.testAccounts || ''")))
+        r2 = await ev("seedHonglingShop({ taxId: '24536806', owner: '林先生', email: 'hongling@example.com', skipTaxCheck: true })")
+        check('弘林專用帳號：重複執行不會建第二家店、不會重複匯入品項', r2['id'] == sid_h and r2['added'] == 0 and await ev("allShops_().filter(function (x) { return x.taxId === '24536806'; }).length") == 1, r2)
+
         # ================= 17. AI 協助建立菜單初稿 =================
         sid_n = (await fn('admSaveShop', adm, {'name': 'AI 小吃店', 'taxId': '04595257'.replace('04595257', '16078503'), 'owner': 'a', 'email': 'ai@example.com', 'plan': 'pro', 'skipTaxCheck': True}))['v']['shop']['id']
         await fn('admMarkPaid', adm, sid_n, {'plan': 'pro', 'cycle': 'month'}); await fn('admProvision', adm, sid_n)
