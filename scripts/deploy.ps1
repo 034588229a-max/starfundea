@@ -54,7 +54,7 @@ if (-not $DryRun) { $m = if (Test-Path 'src\appsscript.json') { Get-Content 'src
 
 # 4. 驗證（Apps Script 陷阱檢查＋測試）
 Say '檢查程式'
-Run 'python' @('scripts\check_gas.py') | Write-Host
+if (Get-Command python -ErrorAction SilentlyContinue) { Run 'python' @('scripts\check_gas.py') | Write-Host } else { Write-Host '  （這台電腦沒有 Python，略過程式檢查；程式已在雲端跑過檢查與測試）' -ForegroundColor DarkGray }
 if (-not $SkipTests) {
   foreach ($t in @('tests\integration_e2e.py', 'tests\layout_e2e.py', 'tests\saas_e2e.py', 'tests\installer_test.py')) {
     Say "測試 $t"
