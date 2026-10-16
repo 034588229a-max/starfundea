@@ -1154,7 +1154,8 @@ function heroHTML(mode) {
     ${blank ? '<div class="sign"><span>核對人：<u></u></span><span>日期：<u></u></span></div>' : ''}
   </div></div>`;
 }
-const qrHTML = mode => mode === 'blank' || !LINE_QR ? '' : `<div class="qrb"><div class="qri">${LINE_QR}</div><div class="qrt"><b>點餐掃碼超方便！</b><span>用手機掃一下，加入 LINE 官方帳號就能點餐，不用排隊劃單</span></div></div>`;
+let SHOW_QR = BRAND.menuQr !== false;     /* 店長在預覽／輸出畫面選「LINE 掃碼 QR：顯示／不顯示」，存在店家設定 */
+const qrHTML = mode => mode === 'blank' || !LINE_QR || !SHOW_QR ? '' : `<div class="qrb"><div class="qri">${LINE_QR}</div><div class="qrt"><b>點餐掃碼超方便！</b><span>用手機掃一下，加入 LINE 官方帳號就能點餐，不用排隊劃單</span></div></div>`;
 const contHTML = mode => `<div class="hero cont"><div><h1>${BRAND_HTML}</h1><div class="tag">${mode === 'blank' ? '菜單價格核對表' : '菜單'}・背面</div></div></div>`;
 
 /* 在畫面外量高度。量一次約幾十毫秒；字型載入前後差異由 SAFE 吸收，輸出 PDF 前會在字型載入後重排一次 */
@@ -1444,6 +1445,8 @@ function renderPageCtl() {
   const hosts = document.querySelectorAll('.pgctl-host'); if (!hosts.length) return;
   const pm = pageMode(), btn = (v, t) => `<button type="button" class="tgpick${pm === v ? ' on' : ''}" data-pm="${v}">${t}</button>`;
   let h = `<div class="pgctl"><span class="tgh" style="margin:0">頁數</span>${btn('auto', '自動')}${btn('1', '1 頁')}${btn('2', '2 頁')}</div>`;
+  if (LINE_QR) h += `<div class="pgctl"><span class="tgh" style="margin:0">LINE 官方帳號掃碼 QR</span><button type="button" class="tgpick${SHOW_QR ? ' on' : ''}" data-qr="1">顯示</button><button type="button" class="tgpick${SHOW_QR ? '' : ' on'}" data-qr="0">不顯示</button></div>`;
+  else h += `<div class="tgh">菜單上沒有 LINE 掃碼 QR：店家資料還沒填 LINE（在「店家工具 → 店家資料」填好就會出現）。</div>`;
   const t = lastPlan && lastPlan.two;
   if (pm === '2' && t) {
     const on = new Set(t.p1), ids = lastPlan.M.secs.map(e => e.s.id);
@@ -1460,6 +1463,13 @@ function pageCtlChanged() {
   if ($('expModal').classList.contains('open')) renderWarn();
 }
 document.addEventListener('click', e => {
+  const q = e.target.closest && e.target.closest('[data-qr]');
+  if (q) {
+    const on = q.dataset.qr === '1'; if (on === SHOW_QR) return;
+    SHOW_QR = on; pageCtlChanged();
+    call('setMenuQr', on, STAFF_KEY).catch(err => { PG_MSG = '沒有存到店家設定（' + errText(err) + '），這次輸出仍會照你的選擇。'; renderPageCtl(); });
+    return;
+  }
   const m = e.target.closest && e.target.closest('[data-pm]');
   if (m) { const v = m.dataset.pm; SINGLE_PAGE = v === '1'; TWO_PAGE = v === '2'; pageCtlChanged(); return; }
   if (e.target.closest && e.target.closest('[data-p1reset]')) { P1_IDS = null; pageCtlChanged(); return; }

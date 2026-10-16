@@ -643,7 +643,7 @@ function js_(v) { return JSON.stringify(v).replace(/</g, '\\u003c').replace(/\//
 function brand_() {
   const c = shopCfg_();
   return { name: c.name, nameA: c.nameA, nameB: c.nameB, tagline: c.tagline, address: c.address, phone: c.phone, hours: c.hours, closedText: c.closedText,
-    lineId: c.lineId, lineUrl: c.lineUrl, primary: c.primary, accent: c.accent, heroTag: c.heroTag, heroSub: c.heroSub, legacy: !!c.brandLegacy };
+    lineId: c.lineId, lineUrl: c.lineUrl, primary: c.primary, accent: c.accent, heroTag: c.heroTag, heroSub: c.heroSub, legacy: !!c.brandLegacy, menuQr: menuQrOn_() };
 }
 function page_(t, title) {
   return t.evaluate().setTitle(title)
@@ -861,6 +861,22 @@ function itemRowIdx_(sh, item) {   // 回傳這個品項在試算表的列號（
   const keys = sh.getRange(HEAD + 1, 1, n, 1).getValues();
   const out = []; keys.forEach((r, i) => { if (itemOf_(String(r[0]).trim()) === item) out.push(HEAD + 1 + i); });
   return out.reverse();
+}
+
+/* A3 菜單上要不要印「LINE 官方帳號」掃碼 QR（預設要）。存在店家設定，所有夥伴的手機都一樣 */
+function menuQrOn_() {
+  if (!saas_()) return sp0_().getProperty('menuQr') !== '0';
+  var c = {}; try { c = JSON.parse(props_().getProperty('cfg') || '{}') || {}; } catch (e) {}
+  return c.menuQr !== false;
+}
+function setMenuQr(on, key) {
+  guard_(key);
+  if (saas_() && CTX.role !== 'owner') throw new Error('只有店長可以修改');
+  on = on !== false;
+  if (!saas_()) sp0_().setProperty('menuQr', on ? '1' : '0');
+  else { var c = {}; try { c = JSON.parse(props_().getProperty('cfg') || '{}') || {}; } catch (e) {} c.menuQr = on; props_().setProperty('cfg', JSON.stringify(c)); }
+  if (saas_()) cLog_(CTX.shopId, CTX.uid || CTX.role, '菜單 LINE QR', on ? '顯示' : '不顯示', '');
+  return { ok: true, menuQr: on };
 }
 
 function setHidden(item, hidden, key) {

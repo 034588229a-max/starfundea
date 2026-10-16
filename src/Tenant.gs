@@ -353,7 +353,7 @@ function subFolder_(legacyName, childName) {
    單店模式用 Code.gs 上方的常數；線上服務模式存在「系統設定」的 cfg，沒填的欄位用預設值 */
 var CFG_DEFAULT = {
   name: '我的餐廳', tagline: '', address: '', addrCity: '', addrDist: '', addrRoad: '', phone: '', phoneLandArea: '', phoneLandNum: '', phoneMobile: '', hours: '', closedText: '', lineId: '', lineUrl: '', orderUrl: '', mapUrl: '', fbUrl: '',
-  primary: '#1B4F8A', accent: '#E8762A',
+  primary: '#1B4F8A', accent: '#E8762A', menuQr: true,
   openDays: [1, 2, 3, 4, 5, 6, 0], channels: ['現場／電話／LINE 點餐'], minDays: 1, notifyEmail: '', menuEmail: '', heroTag: '', notifyOff: []
 };
 function legacyCfg_() {

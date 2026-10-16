@@ -208,6 +208,18 @@ async def main():
         await fr.evaluate("P1_IDS = ['chao', 'jing', 'danbing', 'chiyan', 'cheese', 'spread', 'bake', 'toast', 'club', 'single', 'tpm', 'teppan']")
         r = await fr.evaluate(MEASURE, ['toast', 60, 'menu'])
         check('指定兩頁：第一頁放不下時標示溢出並說是哪一頁', r['overflow'] and '第一頁還差約' in r['text'], r['text'])
+        # LINE 掃碼 QR：可選擇不顯示，空出來的位置給品項用
+        await fr.evaluate("TWO_PAGE = false; SINGLE_PAGE = false; P1_IDS = null; SHOW_QR = true")
+        r1 = await fr.evaluate(MEASURE, ['toast', 0, 'menu'])
+        q1 = await fr.evaluate("document.querySelectorAll('#render .qrb').length")
+        await fr.evaluate("SHOW_QR = false")
+        r0 = await fr.evaluate(MEASURE, ['toast', 0, 'menu'])
+        q0 = await fr.evaluate("document.querySelectorAll('#render .qrb').length")
+        check('LINE QR：預設顯示在 A3 菜單上', q1 == 1, q1)
+        check('LINE QR：選「不顯示」後菜單上沒有 QR、品項都在、沒被裁掉', q0 == 0 and r0['rowsDom'] == r0['rowsTotal'] and not r0['overflow'] and all(c['clip'] <= 0 for pg in r0['info'] for c in pg), (q0, r0['text']))
+        check('LINE QR：不顯示時空出來的位置讓品項用（用量變低）', r0['usage'] < r1['usage'], (r0['usage'], r1['usage']))
+        await fr.evaluate("SHOW_QR = true")
+
         # 預覽畫面上的頁數按鈕與第一頁大類選擇
         await fr.evaluate("TWO_PAGE = false; P1_IDS = null; layoutSig = ''; rebuildFromRows(window.__baseRows.map(r => ({ ...r })))")
         await fr.click('#pvBtn'); await fr.wait_for_timeout(300)
@@ -225,6 +237,11 @@ async def main():
         await fr.click('#pvModal [data-pm="1"]'); await fr.wait_for_timeout(300)
         check('預覽：選 1 頁＝只印單面', await fr.evaluate("SINGLE_PAGE && !TWO_PAGE && lastPlan.pageCount === 1 && localStorage.getItem('hl-single') === '1'"))
         await fr.click('#pvModal [data-pm="auto"]'); await fr.wait_for_timeout(300)
+        check('預覽：有「LINE 官方帳號掃碼 QR：顯示／不顯示」', await fr.locator('#pvModal [data-qr]').count() == 2)
+        await fr.click('#pvModal [data-qr="0"]'); await fr.wait_for_timeout(600)
+        check('預覽：按「不顯示」後預覽沒有 QR，並存到店家設定', await fr.locator('#pvInner .qrb').count() == 0 and await H.evaluate("menuQrOn_()") is False)
+        await fr.click('#pvModal [data-qr="1"]'); await fr.wait_for_timeout(600)
+        check('預覽：按「顯示」後 QR 回來', await fr.locator('#pvInner .qrb').count() == 1 and await H.evaluate("menuQrOn_()") is True)
         await fr.click('#pvClose')
         await fr.evaluate("TWO_PAGE = false; SINGLE_PAGE = false; P1_IDS = null")
 
