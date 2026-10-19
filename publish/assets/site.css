@@ -391,5 +391,10 @@ footer .in{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}fo
 .soon{display:grid;place-items:center;height:300px;border:2px dashed var(--line);border-radius:24px;color:var(--mute);text-align:center;padding:20px}
 .note{font-size:13.5px;color:var(--mute);margin-top:12px}
 .crumb{font-size:14px;color:#b8c4d6;margin-bottom:8px}.crumb a{color:#b8c4d6}
+.painlist{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px;max-width:760px}.painlist li{background:rgba(255,255,255,.06);border-left:4px solid var(--orange);border-radius:10px;padding:10px 14px;font-size:16.5px}
+.fit{margin:18px 0 0;font-weight:700;color:var(--orange)}
+.pns{margin:16px 0 0;display:grid;gap:10px}.pns>div{border-radius:14px;padding:12px 16px}.pns dt{font-weight:900;font-size:14px;letter-spacing:.08em;margin-bottom:2px}.pns dd{margin:0}
+.pns .was{background:#FDF2F2}.pns .was dt{color:#B4362B}.pns .now{background:#EEF4FB}.pns .now dt{color:#1B4F8A}.pns .gain{background:#EEF8F1}.pns .gain dt{color:var(--ok)}
+.outimg{margin:16px 0 0}.outimg img{width:100%;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(14,22,35,.12)}.outimg figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 .next{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:40px 0}
 @media (max-width:860px){.hero .in,.feat,.feat:nth-of-type(even),.feat.multi,.feat.multi:nth-of-type(even){grid-template-columns:1fr}.feat:nth-of-type(even) .txt{order:0}.subnav{top:56px}.feat .pair{flex-direction:row}.feat .pair .phone{max-width:48%}.feat .pair .phone .scr{height:400px}}
