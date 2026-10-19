@@ -40,6 +40,11 @@ NEW_CSS = """
 .soon{display:grid;place-items:center;height:300px;border:2px dashed var(--line);border-radius:24px;color:var(--mute);text-align:center;padding:20px}
 .note{font-size:13.5px;color:var(--mute);margin-top:12px}
 .crumb{font-size:14px;color:#b8c4d6;margin-bottom:8px}.crumb a{color:#b8c4d6}
+.painlist{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px;max-width:760px}.painlist li{background:rgba(255,255,255,.06);border-left:4px solid var(--orange);border-radius:10px;padding:10px 14px;font-size:16.5px}
+.fit{margin:18px 0 0;font-weight:700;color:var(--orange)}
+.pns{margin:16px 0 0;display:grid;gap:10px}.pns>div{border-radius:14px;padding:12px 16px}.pns dt{font-weight:900;font-size:14px;letter-spacing:.08em;margin-bottom:2px}.pns dd{margin:0}
+.pns .was{background:#FDF2F2}.pns .was dt{color:#B4362B}.pns .now{background:#EEF4FB}.pns .now dt{color:#1B4F8A}.pns .gain{background:#EEF8F1}.pns .gain dt{color:var(--ok)}
+.outimg{margin:16px 0 0}.outimg img{width:100%;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(14,22,35,.12)}.outimg figcaption{font-size:13px;color:var(--mute);margin-top:6px}
 .next{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:40px 0}
 @media (max-width:860px){.hero .in,.feat,.feat:nth-of-type(even),.feat.multi,.feat.multi:nth-of-type(even){grid-template-columns:1fr}.feat:nth-of-type(even) .txt{order:0}.subnav{top:56px}.feat .pair{flex-direction:row}.feat .pair .phone{max-width:48%}.feat .pair .phone .scr{height:400px}}
 """
@@ -48,47 +53,55 @@ def esc(s): return html.escape(s, quote=True)
 
 # ---------- 五大類與功能（只列系統裡真的有的功能；截圖檔名對應 shots/） ----------
 CATS = [
- {'id': 'staff', 'ic': '👥', 'name': '人事管理', 'one': '排班邀請、建檔、交接、請假、打卡，員工用手機就能完成',
+ {'id': 'staff', 'ic': '👥', 'name': '人事管理', 'one': '排班、請假、交接不再靠 LINE 和記憶',
+  'pains': ['排班表改了三次，還是有人說沒看到？', '員工用 LINE 請假，訊息一多就漏掉，排班時才發現少一個人？', '交接靠嘴巴講，下一班根本不知道雞肉快沒了？', '新人來上班，資料、證件還要老闆一個一個打進電腦？'],
+  'fit': '店裡有 2 位以上員工、每週要排班的店。',
   'feats': [
-   {'id': 'emp', 't': '員工建檔與邀請加入', 'd': '傳一條專屬連結給新同事，對方用手機自己填好基本資料、設定打卡 PIN，你按確認就完成建檔。',
-    'b': ['專屬連結一次性、7 天內有效', '新同事自己填資料，老闆不用代打', '員工清單一眼看到在職、待確認'], 'shots': ['15-staff-emp', '23-join']},
-   {'id': 'avail', 'shot_note': '', 't': '排班邀請與排班表', 'd': '每月固定日期自動請員工回報可上班的日子，回報進度一目了然，再排成每週班表。',
-    'b': ['員工在月曆上點選可上班日期', '誰回報了、誰還沒，清楚列出並可提醒', '排好的班表員工手機上就看得到'], 'shots': ['29-avail', '30-staff-avail']},
-   {'id': 'plan', 't': '每週班表', 'd': '早班、晚班一週排好，今日出勤和遲到狀況在同一頁。', 'b': ['依週排班，可複製上週', '今日出勤：誰到了、誰遲到', '員工手機同步看到自己的班'], 'shots': ['16-staff-plan']},
-   {'id': 'leave', 't': '請假審核', 'd': '員工在手機上送出假單，老闆按「核准」或「駁回」，結果自動通知員工。', 'b': ['事假、病假等假別', '待審核的假單有紅點提醒', '保留最近 90 天紀錄'], 'shots': ['18-staff-leave']},
-   {'id': 'clock', 't': '員工打卡', 'd': '員工用自己的 PIN 在店裡手機打卡，系統記下上下班時間與遲到原因。', 'b': ['顯示今天的班別與時間', '遲到可填原因', '打卡紀錄可查詢、匯出 CSV'], 'shots': ['22-clock-home', '17-staff-punch']},
-   {'id': 'hand', 't': '交接紀錄', 'd': '每一班把要交代的事寫下來，下一班打開就看到今日摘要和待辦。', 'b': ['依班別記錄，可標「急」', '可指定交給誰', '今日摘要自動整理'], 'shots': ['04-tools-hand']},
-   {'id': 'hire', 't': '徵才與面試登記', 'd': '產生徵才海報與 QR Code，應徵者掃碼登記，資料直接進到你的應徵名單。', 'b': ['職缺名稱自己設定', '海報可印出貼在店門口', '應徵者資料集中管理'], 'shots': ['19-staff-hire', '24-apply']},
-   {'id': 'docs', 't': '文件下載', 'd': '員工手冊、開店流程等文件集中上傳，設定誰看得到。', 'b': ['依分類整理', '可設定員工看或公開', '員工手機直接下載'], 'shots': ['20-staff-docs']},
+   {'id': 'emp', 't': '員工建檔與邀請加入', 'pain': '新人到職，老闆要抄姓名、電話、緊急聯絡人，再一筆一筆輸入。', 'now': '傳一條專屬連結給新同事，他用自己的手機填好資料、設定打卡 PIN，你按確認就建檔完成。', 'gain': '老闆不用代打資料；連結一次性、7 天內有效，不怕外流。', 'shots': ['15-staff-emp', '23-join']},
+   {'id': 'avail', 't': '排班邀請', 'pain': '每個月要在群組裡問「下個月哪幾天可以上班」，再自己整理回覆。', 'now': '系統在你設定的日期自動請員工回報，員工在月曆上點選可上班的日子，誰回了、誰還沒回清楚列出。', 'gain': '不用追訊息，排班前就知道每個人能上哪幾天。', 'shots': ['29-avail', '30-staff-avail']},
+   {'id': 'plan', 'shot_note': '', 't': '每週班表', 'pain': '班表貼在牆上或傳照片，改了一格就要重傳，員工常看到舊的。', 'now': '在手機上排一週的早班、晚班，員工手機上看到的永遠是最新的班表。', 'gain': '改班不用再重傳照片，也不會有人照舊班表來上班。', 'shots': ['16-staff-plan']},
+   {'id': 'leave', 't': '請假審核', 'pain': '請假散在 LINE 和口頭，排班時才發現當天有人請假。', 'now': '員工在手機送出假單，你按「核准」或「駁回」，員工自動收到結果，待審的假單有紅點提醒。', 'gain': '不用翻訊息找假單，誰請過假都有紀錄。', 'shots': ['18-staff-leave']},
+   {'id': 'clock', 't': '員工打卡', 'pain': '用紙本簽到或打卡鐘，月底還要一張一張算工時。', 'now': '員工用自己的 PIN 在店裡手機打卡，遲到可以填原因；打卡紀錄可以查詢、匯出 CSV。', 'gain': '不用買打卡鐘，月底直接匯出紀錄算薪水。', 'shots': ['22-clock-home', '17-staff-punch']},
+   {'id': 'hand', 't': '交接紀錄', 'pain': '交接靠嘴巴講或寫在便條紙，下一班沒看到，食材沒叫、設備壞了沒人知道。', 'now': '每一班把要交代的事寫下來，可以標「急」、指定交給誰，下一班打開就看到今日摘要。', 'gain': '重要的事不會在換班時掉了。', 'shots': ['04-tools-hand']},
+   {'id': 'hire', 't': '徵才與面試登記', 'pain': '門口貼「誠徵」，應徵電話打來時正在忙，聯絡方式也記不住。', 'now': '產生徵才海報與 QR Code，應徵者掃碼自己登記，資料直接進到你的應徵名單。', 'gain': '忙的時候不用接應徵電話，有空再一次看名單。', 'shots': ['19-staff-hire', '24-apply']},
+   {'id': 'docs', 't': '文件下載', 'pain': '員工手冊、開店流程每個新人都要再傳一次，版本也不一致。', 'now': '把文件上傳一次、設定誰看得到，員工自己用手機下載。', 'gain': '新人訓練用同一份最新的文件。', 'shots': ['20-staff-docs']},
   ]},
- {'id': 'marketing', 'ic': '📣', 'name': '行銷管理', 'one': '名片、菜單、公告、圖文選單，改一次就同步',
+ {'id': 'marketing', 'ic': '📣', 'name': '行銷管理', 'one': '改一次價格，菜單、海報、QR 一起更新',
+  'pains': ['改兩個價格，就要找人重排一張 A3 菜單？', '牆上的菜單、桌上的 QR、外送平台價格不一樣，客人來問才發現？', '公休、活動要做海報，每次都要開電腦、找範本？', '想做名片、LINE 圖文選單，卻不知道尺寸怎麼抓？'],
+  'fit': '常常調價、會印紙本菜單或在 LINE 經營熟客的店。',
   'feats': [
-   {'id': 'menu', 't': '菜單改價與 A3 排版', 'd': '在手機上改價格，A3 菜單自動重新排版成 PDF，可選一頁或兩頁並指定每頁的分類。', 'b': ['調價助手：整批漲價或降價', '過敏原、素食標示自動印在菜單上', '一頁／兩頁自動排版，字體大小兩頁一致'], 'shots': ['03-menu']},
-   {'id': 'emenu', 't': '顧客電子菜單', 'd': '客人掃桌上的 QR 就看到最新菜單和價格，還能依過敏原與素食篩選。', 'b': ['改價後立即更新', '避開蛋、奶、花生等過敏原', '多規格價格合成一筆顯示'], 'shots': ['26-customer-menu']},
-   {'id': 'notice', 't': '公告海報', 'd': '選公告類別、填幾個字，就產生公休、活動、價格調整的海報，可印出也可放到顧客頁。', 'b': ['休假、活動、節慶等類別', 'A4 直式等版型', '同時顯示在顧客首頁'], 'shots': ['06-tools-notice']},
-   {'id': 'rich', 't': 'LINE 圖文選單', 'd': '選格數、填按鈕功能，產生符合 LINE 官方帳號規格的圖文選單圖片。', 'b': ['2／4／6 格版型', '大尺寸 2500×1686 等規格', '按鈕可連到看菜單、預訂、留言等'], 'shots': ['31-tools-rich']},
-   {'id': 'table', 't': '桌號 QR 海報', 'd': '每一桌一張 QR，客人掃了就看到這家店的電子菜單，也可做候位、外帶海報。', 'b': ['一次產生多桌', '可印出 PDF', '連結自動指向你的顧客頁'], 'shots': ['07-tools-table']},
-   {'id': 'wifi', 't': 'Wi-Fi 卡', 'd': '填網路名稱與密碼，產生客人掃碼就能連網的卡片。', 'b': ['支援 WPA／WPA2', 'A5、A6 等版面', '可加店名與 Logo'], 'shots': ['08-tools-wifi']},
-   {'id': 'card', 't': '名片', 'd': '依店家資料自動產生 90×54mm 名片，含 LINE 官方帳號 QR，可直接送印。', 'b': ['橫式、直式版型', '自動帶入店名、電話、地址', '配色跟著店家品牌'], 'shots': ['09-tools-card']},
-   {'id': 'social', 't': '社群貼文生成器', 'soon': True, 'd': '用菜單和公告資料一鍵產生 Facebook、Instagram 貼文圖片與文案。', 'b': ['開發中，完成後會在這裡放上實際畫面'], 'shots': []},
+   {'id': 'menu', 't': '菜單改價與 A3 排版', 'pain': '每次調價都要找人改檔、重排版、重印，小改也要等好幾天。', 'now': '在手機上改價格，A3 菜單自動重新排版成 PDF；品項多時可分成兩頁，自己勾選每頁放哪些分類。', 'gain': '改價當天就能印出新菜單；調價助手可以整批漲價或降價。', 'shots': ['03-menu']},
+   {'id': 'emenu', 't': '顧客電子菜單', 'pain': '客人問「這個有沒有蛋」「有沒有素的」，忙的時候很難一個一個回答。', 'now': '客人掃桌上的 QR 看到最新菜單，還能自己篩選過敏原和素食；你一改價，這裡馬上更新。', 'gain': '價格永遠是最新的，客人自己就能找到能吃的品項。', 'shots': ['26-customer-menu']},
+   {'id': 'notice', 't': '公告海報', 'pain': '要公休、辦活動，就得開電腦找範本做海報，再另外發到 LINE。', 'now': '選公告類別、填幾個字，就產生可以印的海報；勾一下也會同時顯示在顧客首頁。', 'gain': '手機上幾分鐘做好公告，門口和線上同步。', 'shots': ['06-tools-notice'], 'out': 'o-notice', 'out_cap': '做出來的成品：公告海報（實際輸出）'},
+   {'id': 'rich', 't': 'LINE 圖文選單', 'pain': 'LINE 官方帳號的圖文選單尺寸很多種，自己做常常被裁切或模糊。', 'now': '選格數、填每個按鈕要連到哪裡，系統產生符合 LINE 規格的圖片。', 'gain': '不用學修圖，客人在 LINE 一點就能看菜單、預訂、留言。', 'shots': ['31-tools-rich'], 'out': 'o-rich', 'out_cap': '做出來的成品：LINE 圖文選單（實際輸出）'},
+   {'id': 'table', 't': '桌號 QR 海報', 'pain': '桌上的 QR 連到舊菜單或舊網址，換了也不知道要重印哪幾張。', 'now': '每一桌產生一張 QR 海報，連結固定指向你的顧客頁，菜單更新不用重印。', 'gain': '印一次就好，菜單改了 QR 不用換。', 'shots': ['07-tools-table']},
+   {'id': 'wifi', 't': 'Wi-Fi 卡', 'pain': '客人一直問 Wi-Fi 密碼，還要一個字一個字念給他聽。', 'now': '填網路名稱和密碼，產生客人掃碼就能連上的卡片。', 'gain': '不用再念密碼。', 'shots': ['08-tools-wifi']},
+   {'id': 'card', 't': '名片', 'pain': '印名片要自己排版、確認尺寸，改了電話又要重做。', 'now': '依店家資料自動產生 90×54mm 名片，含 LINE 官方帳號 QR，可以直接送印。', 'gain': '店家資料改了，名片跟著更新。', 'shots': ['09-tools-card']},
+   {'id': 'social', 't': '社群貼文生成器', 'soon': True, 'pain': '每次發 Facebook、Instagram 都要想文案、做圖。', 'now': '開發中：用菜單和公告資料一鍵產生貼文圖片與文案。', 'gain': '完成後會在這裡放上實際畫面。', 'shots': []},
   ]},
- {'id': 'finance', 'ic': '💰', 'name': '收支管理', 'one': '固定叫貨、叫貨提醒、採購記帳、月結報表',
+ {'id': 'finance', 'ic': '💰', 'name': '收支管理', 'one': '叫貨不再忘記，月底不用翻發票',
+  'pains': ['忙到忘記叫貨，隔天開店才發現食材不夠？', '發票、收據塞在抽屜，月底報帳要整理一整晚？', '每個月到底花最多錢在哪裡，心裡沒有數字？'],
+  'fit': '有固定進貨廠商、想知道每月收支的店。',
   'feats': [
-   {'id': 'book', 't': '進貨記帳與發票', 'd': '點固定廠商、按常用金額，幾秒記好一筆進貨；統一發票號碼、品項、採購人員一起記下。', 'b': ['統一發票、收據、無憑證分開記', '記下採購人員與品項', '現金、轉帳、月結等付款方式'], 'shots': ['11-ledger', '12-ledger-sheet']},
-   {'id': 'vendor', 't': '固定廠商與叫貨提醒', 'd': '設定每家廠商的叫貨日、時間與負責人，當天沒叫貨會寄提醒，叫好按「已叫貨」。', 'b': ['叫貨日與時間、負責人', '當天提醒，沒叫完隔天再提醒', '常用金額一鍵帶入'], 'shots': ['14-ledger-vendors']},
-   {'id': 'report', 'shot_note': '', 't': '報表與月結', 'd': '收入、支出、淨額與月結待付一頁看完，支出分類和廠商排行幫你找出花最多的地方。', 'b': ['依月份切換', '支出分類比例', '廠商支出排行'], 'shots': ['13-ledger-report']},
+   {'id': 'book', 't': '進貨記帳與發票', 'pain': '進貨單和發票到處放，記帳要等月底一次補，常常漏記。', 'now': '點廠商、按常用金額，幾秒記好一筆；發票號碼、品項、採購人員一起記下，收據可以拍照存。', 'gain': '收貨當下就記好，月底不用再翻抽屜。', 'shots': ['11-ledger', '12-ledger-sheet']},
+   {'id': 'vendor', 't': '固定廠商與叫貨提醒', 'pain': '叫貨全靠老闆記，忙起來就忘，隔天才發現少了食材。', 'now': '設定每家廠商的叫貨日、時間和負責人，當天沒按「已叫貨」系統會寄提醒，沒叫完隔天再提醒。', 'gain': '叫貨交給員工也不怕忘，誰負責一清二楚。', 'shots': ['14-ledger-vendors']},
+   {'id': 'report', 't': '報表與月結', 'pain': '只知道錢花出去了，不知道花在哪裡，月結廠商還欠多少也不清楚。', 'now': '收入、支出、淨額和月結待付一頁看完，還有支出分類和廠商支出排行。', 'gain': '每個月花最多的地方一眼就看到。', 'shots': ['13-ledger-report']},
   ]},
- {'id': 'customer', 'ic': '🙋', 'name': '顧客服務', 'one': '顧客首頁、大單預訂、敲敲老闆、店休日曆',
+ {'id': 'customer', 'ic': '🙋', 'name': '顧客服務', 'one': '客人想知道的，一個連結全部看得到',
+  'pains': ['客人一直打電話問「今天有開嗎」「幾點關門」？', '大單、團訂靠電話記，常常記錯時間或數量？', '客人有意見卻找不到地方說，只好去 Google 留負評？'],
+  'fit': '有熟客、常接電話詢問或團訂的店。',
   'feats': [
-   {'id': 'home', 't': '顧客首頁', 'd': '一個連結放公告、營業時間、看菜單、線上點餐、大單預訂與留言，貼在 LINE 和 Google 商家都好用。', 'b': ['公告與暫停營業自動顯示', '大單預訂：客人填好時間與內容', '敲敲老闆：客人直接留言給店家'], 'shots': ['25-customer']},
-   {'id': 'cal', 't': '店休日曆', 'd': '在月曆上設定公休與特別營業日，顧客頁和公告會一起更新。', 'b': ['公休、特別營業日', '顧客頁自動顯示', '員工排班也看得到'], 'shots': ['05-tools-cal']},
+   {'id': 'home', 't': '顧客首頁', 'pain': '營業時間、公休、菜單、預訂資訊散在 LINE、Facebook、Google，客人找不到就打電話。', 'now': '一個連結放公告、營業時間、看菜單、線上點餐、大單預訂和「敲敲老闆」留言，貼在 LINE 和 Google 商家都好用。', 'gain': '少接很多重複的電話，大單預訂和客人意見都有紀錄。', 'shots': ['25-customer']},
+   {'id': 'cal', 't': '店休日曆', 'pain': '公休要分別通知客人、員工，還是有人白跑一趟。', 'now': '在月曆上設定公休和特別營業日，顧客頁和公告會一起更新。', 'gain': '設定一次，客人和員工都看得到。', 'shots': ['05-tools-cal']},
   ]},
- {'id': 'setup', 'ic': '🏪', 'name': '開店與帳號', 'one': '設定精靈、Logo 配色、通知、多店與帳號',
+ {'id': 'setup', 'ic': '🏪', 'name': '開店與帳號', 'one': '第一次用 3 分鐘設定，之後所有文宣自動套用',
+  'pains': ['店名、地址、電話、LINE 要在每張文宣上重打一次？', '換了 Logo 或配色，菜單、名片、海報要全部重做？', '不同員工能看到哪些功能，很難控制？'],
+  'fit': '剛開店，或想讓店裡所有文宣看起來是同一個品牌的店。',
   'feats': [
-   {'id': 'home', 't': '主畫面', 'd': '登入後先看到大按鈕主畫面，待處理的事會有小徽章提醒。', 'b': ['依菜單、行銷、店務、財務、人員分類', '今日支出、待審假單等徽章', '店主與夥伴看到各自能用的功能'], 'shots': ['02-home']},
-   {'id': 'wizard', 't': '設定精靈', 'd': '第一次使用照步驟填好店名、地址、電話、LINE 與配色，所有文宣自動套用。', 'b': ['地址、電話分欄填寫', '配色範本或自訂', '填完立即套用到菜單與海報'], 'shots': ['28-setup']},
-   {'id': 'logo', 't': 'Logo 與店家資料', 'd': '上傳 Logo、選配色，菜單、名片、海報全部用同一套品牌。', 'b': ['支援 PNG、JPG、WebP', '20 組配色範本', '品牌色自動套用'], 'shots': ['10-tools-logo']},
-   {'id': 'account', 't': '帳號、夥伴與通知', 'd': '管理夥伴帳號、顧客網址與訂閱，並選擇要收到哪些 Email 通知。', 'b': ['顧客網址一鍵複製', '夥伴與授權管理', '通知可逐項開關'], 'shots': ['27-account', '33-notify']},
+   {'id': 'home', 't': '主畫面', 'pain': '功能一多就找不到在哪裡。', 'now': '登入後先看到大按鈕主畫面，依菜單、行銷、店務、財務、人員分類，待處理的事有小徽章提醒。', 'gain': '打開就知道今天要處理什麼。', 'shots': ['02-home']},
+   {'id': 'wizard', 't': '設定精靈', 'pain': '每做一份文宣都要重新輸入店家資料。', 'now': '第一次使用照步驟填好店名、地址、電話、LINE 和配色，之後所有菜單、海報、名片自動帶入。', 'gain': '資料只填一次。', 'shots': ['28-setup']},
+   {'id': 'logo', 't': 'Logo 與店家資料', 'pain': '每份文宣用的 Logo 和顏色都不一樣，看起來不像同一家店。', 'now': '上傳 Logo、選配色範本，菜單、名片、海報全部用同一套品牌。', 'gain': '換 Logo 或配色，所有文宣一起換。', 'shots': ['10-tools-logo']},
+   {'id': 'account', 't': '帳號、夥伴與通知', 'pain': '員工共用老闆帳號，誰改了什麼不知道，通知也全部擠在一起。', 'now': '夥伴各自有帳號，店主決定誰能用哪些功能；要收哪些 Email 通知可以逐項開關。', 'gain': '權限分清楚，只收你需要的通知。', 'shots': ['27-account', '33-notify']},
   ]},
 ]
 
@@ -155,18 +168,20 @@ def feat_html(f, prefix):
     else: vis = '<div class="pair">' + ''.join(phone(s, prefix=prefix) for s in shots) + '</div>'
     cls = 'feat multi' if len(shots) > 1 else 'feat'
     soon = '<span class="tag-soon">開發中</span>' if f.get('soon') else ''
-    return ('<section class="%s" id="%s"><div class="txt"><h2>%s%s</h2><p class="lead">%s</p><ul>%s</ul></div>%s</section>'
-            % (cls, f['id'], esc(f['t']), soon, esc(f['d']), ''.join('<li>%s</li>' % esc(x) for x in f['b']), vis))
+    outimg = ('<figure class="outimg"><img loading="lazy" decoding="async" src="%sshots/%s.webp" alt="%s"><figcaption>%s</figcaption></figure>' % (prefix, f['out'], esc(f['out_cap']), esc(f['out_cap']))) if f.get('out') else ''
+    return ('<section class="%s" id="%s"><div class="txt"><h2>%s%s</h2><dl class="pns">'
+            '<div class="was"><dt>以前</dt><dd>%s</dd></div><div class="now"><dt>現在</dt><dd>%s</dd></div><div class="gain"><dt>你省下的</dt><dd>%s</dd></div></dl>%s</div>%s</section>'
+            % (cls, f['id'], esc(f['t']), soon, esc(f['pain']), esc(f['now']), esc(f['gain']), outimg, vis))
 
 os.makedirs(os.path.join(ROOT, 'features'), exist_ok=True); os.makedirs(os.path.join(ROOT, 'assets'), exist_ok=True)
 open(os.path.join(ROOT, 'assets', 'site.css'), 'w', encoding='utf-8').write(base_css + NEW_CSS)
 
 for i, c in enumerate(CATS):
     prev, nxt = CATS[i - 1], CATS[(i + 1) % len(CATS)]
-    body = ('<section class="sec dark"><div class="wrap"><p class="crumb"><a href="../index.html">首頁</a> ／ %s</p><p class="eyebrow">%s</p><h1 style="font-size:clamp(30px,5vw,44px);font-weight:900">%s</h1><p class="lead">%s。下面每一張都是系統的實際畫面，手指可以在畫面裡上下滑動。</p></div></section>'
+    body = ('<section class="sec dark"><div class="wrap"><p class="crumb"><a href="../index.html">首頁</a> ／ %s</p><p class="eyebrow">%s</p><h1 style="font-size:clamp(30px,5vw,44px);font-weight:900">%s</h1><p class="lead">%s</p><ul class="painlist">%s</ul><p class="fit">適合你，如果你是：%s</p><p class="note" style="color:#b8c4d6">下面每個功能都先說以前的麻煩，再看系統怎麼解決；手機裡是系統的實際畫面，可以上下滑動。</p></div></section>'
             '<div class="subnav"><div class="wrap">%s</div></div><div class="wrap">%s'
             '<div class="next"><a class="btn ghost" style="color:var(--ink);border-color:var(--line)" href="%s.html">← %s</a><a class="btn pri" href="%s">免費試用 14 天</a><a class="btn ghost" style="color:var(--ink);border-color:var(--line)" href="%s.html">%s →</a></div></div>') % (
-        esc(c['name']), c['id'].upper(), esc(c['name']), esc(c['one']),
+        esc(c['name']), c['id'].upper(), esc(c['name']), esc(c['one']), ''.join('<li>%s</li>' % esc(x) for x in c['pains']), esc(c['fit']),
         ''.join('<a href="#%s">%s</a>' % (f['id'], esc(f['t'])) for f in c['feats']),
         ''.join(feat_html(f, '../') for f in c['feats']), prev['id'], esc(prev['name']), APP, nxt['id'], esc(nxt['name']))
     open(os.path.join(ROOT, 'features', c['id'] + '.html'), 'w', encoding='utf-8').write(
